@@ -16,21 +16,22 @@ if (process.env.NODE_ENV === "local") {
   );
   // database settings for production environment
 } else {
-  sequelize = new Sequelize(
-    process.env.DATABASE,
-    process.env.USERNAME,
-    process.env.PASSWORD,
-    {
-      dialect: "postgres",
-      dialectOptions: {
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      },
-      host: process.env.HOST,
-      logging: (msg) => console.log("\n-----Database --> Log: \n", msg, "\n"),
-    }
-  );
+  // sequelize = new Sequelize(
+  //   process.env.DATABASE,
+  //   process.env.USERNAME,
+  //   process.env.PASSWORD,
+  //   {
+  //     dialect: "postgres",
+  //     dialectOptions: {
+  //       ssl: {
+  //         rejectUnauthorized: false,
+  //       },
+  //     },
+  //     host: process.env.HOST,
+  //     logging: (msg) => console.log("\n-----Database --> Log: \n", msg, "\n"),
+  //   }
+  // );
+  sequelize = new Sequelize(process.env.DATABASE_URL);
 }
 
 module.exports = sequelize;
