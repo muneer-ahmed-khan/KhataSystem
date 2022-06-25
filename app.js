@@ -105,8 +105,8 @@ sequelize
   .sync()
   .then(() => {
     console.log("Database Connected now");
-    console.log("listening on port ", process.env.NODE_PORT);
-    app.listen(process.env.NODE_PORT);
+    console.log("listening on port ", process.env.PORT);
+    app.listen(process.env.PORT);
   })
   .catch((err) => {
     console.log(err);
