@@ -31,7 +31,13 @@ if (process.env.NODE_ENV === "local") {
   //     logging: (msg) => console.log("\n-----Database --> Log: \n", msg, "\n"),
   //   }
   // );
-  sequelize = new Sequelize(process.env.DATABASE_URL);
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialectOptions: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
+  });
 }
 
 module.exports = sequelize;
