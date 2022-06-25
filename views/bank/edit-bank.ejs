@@ -1,0 +1,28 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/forms.css">
+<link rel="stylesheet" href="/css/product.css">
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+      <span for="name" class="fs-3" style="display: flex;
+        margin-bottom: 20px;">Enter Bank Name:</span>
+      <form class="form-floating " action="/<% if (editing) { %>edit-bank<% } else { %>add-bank<% } %>" method="POST">
+        <input type="text" class="form-control form-control-lg" placeholder="for example  Meezan Bank" name="name" id="floatingInput" value="<% if (editing) { %><%= bank.name %><% } %>">
+        <label for="floatingInput">for example: Meezan Bank</label>
+
+        <% if (editing) { %>
+        <input type="hidden" value="<%= bank.id %>" name="bankId">
+        <% } %>
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Bank<% } else { %>Add Bank<% } %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>
