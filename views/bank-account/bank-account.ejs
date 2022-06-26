@@ -4,23 +4,23 @@
   <%- include('../includes/navigation.ejs') %>
 
   <main class="container-fluid">
-    <% if (sizes.length > 0) { %>
+    <% if (bankAccounts.length > 0) { %>
     <div class="table-wrapper">
       <div class="table-title">
         <div class="row" style="    display: flex;
         align-items: flex-end;">
           <div class="col-sm-6">
-            <h2>Manage <b>Sizes</b></h2>
+            <h2>Manage <b>Bank Accounts</b></h2>
           </div>
           <div class="col-sm-6 table-action" style="display: flex;
           flex-direction: row-reverse;">
             <!-- table action button work -->
-            <a href="/add-size" class="btn btn-outline-success" style="margin: 0.5rem">
+            <a href="/add-bank-account" class="btn btn-outline-success" style="margin: 0.5rem">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
               </svg>
-              <span> Add Size</span></a>
+              <span> Add Bank Account</span></a>
             <!-- table action button ended here -->
           </div>
         </div>
@@ -29,19 +29,29 @@
         <thead>
           <tr>
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
-            <th scope="col">Type</th>
+            <th scope="col">Account Name</th>
+            <th scope="col">Account Number</th>
+            <th scope="col">Bank Name</th>
+            <th scope="col">Address</th>
+            <th scope="col">Phone Number</th>
+            <th scope="col">Balance</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <% for (let [i, size] of sizes.entries()) { %>
+          <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
           <tr>
             <th scope="row" class="text-center">
               <%= i+1 %>
             </th>
-            <td><%= size.type %></td>
+            <td><%= bankAccount.accountName %></td>
+            <td><%= bankAccount.accountNumber %></td>
+            <td><%= bankAccount.bank.name %></td>
+            <td><%= bankAccount.address %></td>
+            <td><%= bankAccount.phoneNumber %></td>
+            <td><%= bankAccount.balance %></td>
             <td>
-              <form action="/edit-size/<%= size.id %>/?edit=true" method="get">
+              <form action="/edit-bank-account/<%= bankAccount.id %>/?edit=true" method="get">
                 <!-- edit button -->
                 <button type="submit" class="btn btn-outline-primary">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -51,14 +61,14 @@
                 <input type="hidden" name="edit" value="true" />
               </form>
 
-              <form action="/delete-size" method="post">
+              <form action="/delete-bank-account" method="post">
                 <!-- delete button -->
                 <button class="btn btn-outline-danger">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                     <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
                   </svg></button>
-                <input type="hidden" value="<%= size.id %>" name="sizeId">
+                <input type="hidden" value="<%= bankAccount.id %>" name="bankAccountId">
               </form>
             </td>
           </tr>
@@ -69,8 +79,8 @@
     </div>
     <% } else { %>
     <!-- table action button work -->
-    <a href="/add-size" class="btn btn-outline-success" style="margin: 0.5rem">Add First Size</a>
-    <h1 class="centered">No Size Data Found!</h1>
+    <a href="/add-bank-account" class="btn btn-outline-success" style="margin: 0.5rem">Add First Bank Account</a>
+    <h1 class="centered">No Bank Account Data Found!</h1>
     <% } %>
   </main>
   <%- include('../includes/end.ejs') %>
