@@ -38,6 +38,7 @@ const bankRoutes = require("./routes/bank");
 const sizeRoutes = require("./routes/size");
 const patternRoutes = require("./routes/pattern");
 const entryTypesRoutes = require("./routes/entry-types");
+const bankAccountRoutes = require("./routes/bank-account");
 
 // const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
@@ -59,6 +60,7 @@ app.use(bankRoutes);
 app.use(sizeRoutes);
 app.use(patternRoutes);
 app.use(entryTypesRoutes);
+app.use(bankAccountRoutes);
 
 // app.use('/admin', adminRoutes);
 // app.use(shopRoutes);

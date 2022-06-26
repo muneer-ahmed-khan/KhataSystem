@@ -14,7 +14,7 @@ const BankAccount = sequelize.define("bankAccount", {
     allowNull: false,
   },
   accountNumber: {
-    type: Sequelize.BIGINT,
+    type: Sequelize.STRING,
     allowNull: false,
   },
   address: {
@@ -22,7 +22,7 @@ const BankAccount = sequelize.define("bankAccount", {
     allowNull: false,
   },
   phoneNumber: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.BIGINT,
     allowNull: false,
   },
   balance: {

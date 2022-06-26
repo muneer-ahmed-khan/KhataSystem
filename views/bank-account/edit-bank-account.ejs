@@ -1,0 +1,49 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+      <span for="name" class="fs-3" style="display: flex;
+        margin-bottom: 20px;"><% if (editing) { %>Update Bank Account Details: :<% } else { %>Enter Bank Account Details:<% } %></span>
+      <form class="form-control " action="/<% if (editing) { %>edit-bank-account<% } else { %>add-bank-account<% } %>" method="POST">
+
+        <label for="bankName"><% if (editing) { %>Update Bank Name :<% } else { %>Select Bank:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="bankName" name="bankName">
+          <option selected disabled>Select Bank name</option>
+          <% for (let [i, bank] of banks.entries()) { %>
+          <option <% if (editing && bank.id === bankAccount.bankId ) { %>selected='selected' :<% } else { %><% } %> value="<%= bank.id %>"><%= bank.name %> </option>
+          <% } %>
+        </select>
+
+        <label for="accountName"><% if (editing) { %>Update existing Bank Account Name:<% } else { %>Enter new Bank Account Name:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g sky Meezan" name="accountName" id="accountName" value="<% if (editing) { %><%= bankAccount.accountName %><% } %>">
+
+        <label for="accountNumber"><% if (editing) { %>Update existing Bank Account Number:<% } else { %>Enter new Bank Account Number:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1234567443abcedf" name="accountNumber" id="accountNumber" value="<% if (editing) { %><%= bankAccount.accountNumber %><% } %>">
+
+        <label for="address"><% if (editing) { %>Update existing Bank Account Address:<% } else { %>Enter new Bank Account Address:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Chaman branch" name="address" id="address" value="<% if (editing) { %><%= bankAccount.address %><% } %>">
+
+        <label for="phoneNumber"><% if (editing) { %>Update existing Bank Account Phone Number:<% } else { %>Enter new Bank Account Phone Number:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 0313 1234567" name="phoneNumber" id="phoneNumber" value="<% if (editing) { %><%= bankAccount.phoneNumber %><% } %>">
+
+        <label for="balance"><% if (editing) { %>Update existing Bank Account Balance:<% } else { %>Enter new Bank Account Phone Balance:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 100000/=" name="balance" id="balance" value="<% if (editing) { %><%= bankAccount.balance %><% } %>">
+
+        <% if (editing) { %>
+        <input type="hidden" value="<%= bankAccount.id %>" name="bankAccountId">
+        <% } %>
+
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Bank Account<% } else { %>Add New Bank Account<% } %>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>
