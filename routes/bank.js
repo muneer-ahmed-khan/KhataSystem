@@ -1,5 +1,3 @@
-// const path = require('path');
-
 const express = require("express");
 
 const bankController = require("../controllers/bank");

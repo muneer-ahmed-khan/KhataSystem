@@ -4,6 +4,7 @@ let sequelize;
 
 // database settings for local environment
 if (process.env.NODE_ENV === "local") {
+  console.log("loaded local environment");
   sequelize = new Sequelize(
     process.env.DATABASE,
     process.env.USERNAME,
@@ -16,21 +17,7 @@ if (process.env.NODE_ENV === "local") {
   );
   // database settings for production environment
 } else {
-  // sequelize = new Sequelize(
-  //   process.env.DATABASE,
-  //   process.env.USERNAME,
-  //   process.env.PASSWORD,
-  //   {
-  //     dialect: "postgres",
-  //     dialectOptions: {
-  //       ssl: {
-  //         rejectUnauthorized: false,
-  //       },
-  //     },
-  //     host: process.env.HOST,
-  //     logging: (msg) => console.log("\n-----Database --> Log: \n", msg, "\n"),
-  //   }
-  // );
+  console.log("connected to the  production environment");
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialectOptions: {
       ssl: {
