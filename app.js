@@ -37,6 +37,7 @@ app.set("views", "views");
 const bankRoutes = require("./routes/bank");
 const sizeRoutes = require("./routes/size");
 const patternRoutes = require("./routes/pattern");
+const entryTypesRoutes = require("./routes/entry-types");
 
 // const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
@@ -57,6 +58,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bankRoutes);
 app.use(sizeRoutes);
 app.use(patternRoutes);
+app.use(entryTypesRoutes);
 
 // app.use('/admin', adminRoutes);
 // app.use(shopRoutes);
