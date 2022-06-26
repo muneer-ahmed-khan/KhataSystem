@@ -1,0 +1,26 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+      <span for="name" class="fs-3" style="display: flex;
+        margin-bottom: 20px;">Enter Pattern Type:</span>
+      <form class="form-floating " action="/<% if (editing) { %>edit-pattern<% } else { %>add-pattern<% } %>" method="POST">
+        <input type="text" class="form-control form-control-lg" name="name" id="floatingInput" value="<% if (editing) { %><%= pattern.name %><% } %>">
+        <label for="floatingInput">for example:  HO301</label>
+
+        <% if (editing) { %>
+        <input type="hidden" value="<%= pattern.id %>" name="patternId">
+        <% } %>
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Pattern<% } else { %>Add Pattern<% } %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>
