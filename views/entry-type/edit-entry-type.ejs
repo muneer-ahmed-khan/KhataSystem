@@ -1,0 +1,25 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+      <span for="name" class="fs-3" style="display: flex;
+        margin-bottom: 20px;">Enter Entry Type:</span>
+      <form class="form-control " action="/<% if (editing) { %>edit-entry-type<% } else { %>add-entry-type<% } %>" method="POST">
+        <label for="floatingInput"><% if (editing) { %>Update existing  Entry Type<% } else { %>Enter new Entry Type<% } %></label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example: Credit or Debit" name="name" id="floatingInput" value="<% if (editing) { %><%= entry_type.type %><% } %>">
+        <% if (editing) { %>
+        <input type="hidden" value="<%= entry_type.id %>" name="entryTypeId">
+        <% } %>
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Entry Type<% } else { %>Add New Entry Type<% } %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>
