@@ -39,6 +39,7 @@ const sizeRoutes = require("./routes/size");
 const patternRoutes = require("./routes/pattern");
 const entryTypesRoutes = require("./routes/entry-types");
 const bankAccountRoutes = require("./routes/bank-account");
+const customerRoutes = require("./routes/customer");
 
 // const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
@@ -61,6 +62,7 @@ app.use(sizeRoutes);
 app.use(patternRoutes);
 app.use(entryTypesRoutes);
 app.use(bankAccountRoutes);
+app.use(customerRoutes);
 
 // app.use('/admin', adminRoutes);
 // app.use(shopRoutes);
@@ -107,10 +109,10 @@ sequelize
 
 // connect to database now
 sequelize
-  // .sync({
-  // force: true,
-  // }) // use for first time while creating schema in database
-  .sync()
+  .sync({
+    alter: true,
+  }) // use for first time while creating schema in database
+  // .sync()
   .then(() => {
     console.log("Database Connected now");
     console.log("listening on port ", process.env.PORT);
