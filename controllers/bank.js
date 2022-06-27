@@ -24,7 +24,6 @@ exports.addBank = (req, res, next) => {
 
 exports.postAddBank = (req, res, next) => {
   const name = req.body.name;
-  console.log("check request body ", req.body);
   Bank.create({
     name: name,
   })

@@ -1,0 +1,54 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+      <span for="name" class="fs-3" style="display: flex;
+        margin-bottom: 20px;">Enter Roznamcha Entry Details:</span>
+      <form class="form-control " action="/<% if (editing) { %>edit-roznamcha<% } else { %>add-roznamcha<% } %>" method="POST">
+
+        <label for="customer"><% if (editing) { %>Update Customer Name :<% } else { %>Select Customer:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
+          <option selected disabled>Select Customer name</option>
+          <% for (let [i, customer] of customers.entries()) { %>
+          <option <% if (editing && customer.id === roznamcha.customerId ) { %>selected='selected' :<% } else { %><% } %> value="<%= customer.id %>"><%= customer.name %> </option>
+          <% } %>
+        </select>
+
+        <label for="bankAccount"><% if (editing) { %>Update Bank Account :<% } else { %>Select Bank Account:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount">
+          <option selected disabled>Select Bank Account Name</option>
+          <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
+          <option <% if (editing && bankAccount.id === roznamcha.bankAccountId ) { %>selected='selected' :<% } else { %><% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %> </option>
+          <% } %>
+        </select>
+
+        <label for="entryType"><% if (editing) { %>Update Entry Type :<% } else { %>Entry Type:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="entryType" name="entryType">
+          <option selected disabled>Select Entry Type</option>
+          <% for (let [i, entryType] of entryTypes.entries()) { %>
+          <option <% if (editing && entryType.id === roznamcha.entryTypeId ) { %>selected='selected' :<% } else { %><% } %> value="<%= entryType.id %>"><%= entryType.type %> </option>
+          <% } %>
+        </select>
+        
+        <label for="amount"><% if (editing) { %>Update existing Amount:<% } else { %>Enter Amount:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= roznamcha.amount %><% } %>">
+
+        <% if (editing) { %>
+        <input type="hidden" value="<%= roznamcha.id %>" name="roznamchaId">
+        <% } %>
+
+
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Roznamcha Entry<% } else { %>Add New Roznamcha Entry<% } %>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>

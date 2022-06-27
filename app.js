@@ -14,7 +14,7 @@ const BankAccount = require("./models/bank-account");
 const Size = require("./models/size");
 const Pattern = require("./models/pattern");
 const Customer = require("./models/customer");
-const Entry = require("./models/entry");
+const Roznamcha = require("./models/roznamcha");
 const EntryType = require("./models/entry-type");
 
 // old models
@@ -40,6 +40,7 @@ const patternRoutes = require("./routes/pattern");
 const entryTypesRoutes = require("./routes/entry-types");
 const bankAccountRoutes = require("./routes/bank-account");
 const customerRoutes = require("./routes/customer");
+const roznamchaRoutes = require("./routes/roznamcha");
 
 // const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
@@ -63,6 +64,7 @@ app.use(patternRoutes);
 app.use(entryTypesRoutes);
 app.use(bankAccountRoutes);
 app.use(customerRoutes);
+app.use(roznamchaRoutes);
 
 // app.use('/admin', adminRoutes);
 // app.use(shopRoutes);
@@ -85,13 +87,13 @@ app.use(errorController.get404);
 BankAccount.belongsTo(Bank);
 Bank.hasMany(BankAccount);
 
-// Entry --> EntryTypes --> Customer --> BankAccount
-Entry.belongsTo(EntryType);
-EntryType.hasMany(Entry);
-Entry.belongsToMany(Customer, { through: "customerEntry" });
-Customer.belongsToMany(Entry, { through: "customerEntry" });
-Entry.belongsToMany(BankAccount, { through: "bankAccountEntry" });
-BankAccount.belongsToMany(Entry, { through: "bankAccountEntry" });
+// Roznamcha --> EntryTypes --> Customer --> BankAccount
+Roznamcha.belongsTo(EntryType);
+EntryType.hasMany(Roznamcha);
+Roznamcha.belongsTo(Customer);
+Customer.hasMany(Roznamcha);
+Roznamcha.belongsTo(BankAccount);
+BankAccount.hasMany(Roznamcha);
 
 // Size --> Pattern
 Size.belongsToMany(Pattern, { through: "sizePattern" });
@@ -110,7 +112,7 @@ sequelize
 // connect to database now
 sequelize
   .sync({
-    alter: true,
+    // force: true,
   }) // use for first time while creating schema in database
   // .sync()
   .then(() => {

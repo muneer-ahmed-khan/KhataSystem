@@ -24,7 +24,6 @@ exports.addSize = (req, res, next) => {
 
 exports.postAddSize = (req, res, next) => {
   const type = req.body.name;
-  console.log("check request body ", req.body);
   Size.create({
     type: type,
   })
