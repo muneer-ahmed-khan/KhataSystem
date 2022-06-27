@@ -24,7 +24,6 @@ exports.addPattern = (req, res, next) => {
 
 exports.postAddPattern = (req, res, next) => {
   const name = req.body.name;
-  console.log("check request body ", req.body);
   Pattern.create({
     name: name,
   })
