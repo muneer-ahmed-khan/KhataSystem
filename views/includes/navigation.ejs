@@ -32,6 +32,11 @@
           >Bank Accounts</a
         >
       </li>
+      <li class="main-header__item">
+        <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer"
+          >Customers</a
+        >
+      </li>
     </ul>
   </nav>
 </header>
@@ -61,6 +66,11 @@
         class="<%= path === '/bank-account' ? 'active' : '' %>"
         href="/bank-account"
         >Bank Accounts</a
+      >
+    </li>
+    <li class="mobile-nav__item">
+      <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer"
+        >Customers</a
       >
     </li>
   </ul>

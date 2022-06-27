@@ -18,7 +18,7 @@ const Customer = sequelize.define("customer", {
     allowNull: false,
   },
   phoneNumber: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.BIGINT,
     allowNull: false,
   },
   balance: {
