@@ -34,8 +34,9 @@
             <th scope="col">Bank Name</th>
             <th scope="col">Address</th>
             <th scope="col">Phone Number</th>
-            <th scope="col">Balance</th>
+            <th scope="col">Opening Balance</th>
             <th scope="col">Actions</th>
+            <th scope="col">Details</th>
           </tr>
         </thead>
         <tbody>
@@ -71,6 +72,7 @@
                 <input type="hidden" value="<%= bankAccount.id %>" name="bankAccountId">
               </form>
             </td>
+            <td><a href="/bank-account/khata/<%= bankAccount.id %>">Show Khata</a></td>
           </tr>
           <% } %>
     </div>

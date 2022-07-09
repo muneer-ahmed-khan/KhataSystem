@@ -34,6 +34,7 @@
             <th scope="col">Phone Number</th>
             <th scope="col">Balance</th>
             <th scope="col">Actions</th>
+            <th scope="col">Details</th>
           </tr>
         </thead>
         <tbody>
@@ -67,6 +68,8 @@
                 <input type="hidden" value="<%= customer.id %>" name="customerId">
               </form>
             </td>
+            <td><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
+
           </tr>
           <% } %>
     </div>
