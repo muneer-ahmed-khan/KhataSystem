@@ -18,4 +18,7 @@ router.post("/edit-customer", customerController.postEditCustomer);
 // delete customer
 router.post("/delete-customer", customerController.postDeleteCustomer);
 
+// get all customer Khata
+router.get("/customer/khata/:customerId", customerController.getCustomersKhata);
+
 module.exports = router;

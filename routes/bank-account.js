@@ -24,4 +24,10 @@ router.post(
   bankAccountController.postDeleteBankAccount
 );
 
+// get all banks account Khata
+router.get(
+  "/bank-account/khata/:bankAccountId",
+  bankAccountController.getBankAccountKhata
+);
+
 module.exports = router;

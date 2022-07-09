@@ -1,0 +1,60 @@
+<%- include('../includes/head.ejs') %>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="container-fluid">
+    <% if (customerDetails.length > 0) { %>
+    <div class="table-wrapper">
+      <div class="table-title">
+        <div class="row" style="display: flex; align-items: flex-end">
+          <div class="col-sm-6">
+            <h2><b><%= customer.name %> </b> Khata</h2>
+          </div>
+          <div
+            class="col-sm-6 table-action"
+            style="display: flex; flex-direction: row-reverse"
+          >
+            <span
+              ><h5>
+                <b>Opening</b> Balance :
+                <strong><%= customer.balance %>/=</strong>
+              </h5></span
+            >
+          </div>
+        </div>
+      </div>
+      <table
+        class="table table-responsive table-bordered table-hover align-middle"
+      >
+        <thead>
+          <tr>
+            <th scope="col" style="width: 70px" class="text-center"># ID</th>
+            <th scope="col">Date</th>
+            <th scope="col">Bank Details</th>
+            <th scope="col">Credit +</th>
+            <th scope="col">Debit -</th>
+            <th scope="col">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let [i, customerKhata] of customerDetails.entries()) { %>
+          <tr>
+            <th scope="row" class="text-center"><%= i+1 %></th>
+            <td><%= new Date(customerKhata.Date).toDateString() %></td>
+            <td><%= customerKhata.bankDetails %></td>
+            <td><%= customerKhata.credit %></td>
+            <td><%= customerKhata.debit %></td>
+            <td><%= customerKhata.balance %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <!-- table action button work -->
+    <h1 class="centered">No Khata Details for <%= customerDetails %>!</h1>
+    <% } %>
+  </main>
+  <%- include('../includes/end.ejs') %>
+</body>

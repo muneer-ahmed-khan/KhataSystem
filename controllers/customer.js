@@ -1,4 +1,7 @@
 const Customer = require("../models/customer");
+const BankAccount = require("../models/bank-account");
+const Bank = require("../models/bank");
+const EntryType = require("../models/entry-type");
 
 exports.getCustomers = (req, res, next) => {
   Customer.findAll({ order: [["id", "DESC"]] })
@@ -96,6 +99,45 @@ exports.postDeleteCustomer = (req, res, next) => {
     .then((result) => {
       console.log("DESTROYED PRODUCT");
       res.redirect("/customer");
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.getCustomersKhata = (req, res, next) => {
+  const customerId = req.params.customerId;
+  Customer.findByPk(customerId)
+    .then(async (customer) => {
+      if (!customer) {
+        return res.redirect("/customer");
+      }
+      const customerDetails = [];
+      let customerBalance = customer.balance;
+      const RoznamchaDetails = await customer.getRoznamchas({
+        include: [BankAccount, EntryType],
+      });
+
+      for (let i of RoznamchaDetails) {
+        (customerBalance =
+          i.entryType.type === "Credit"
+            ? Number(customerBalance) + Number(i.amount)
+            : i.entryType.type === "Debit"
+            ? Number(customerBalance) - Number(i.amount)
+            : 0),
+          customerDetails.push({
+            Date: i.updatedAt,
+            bankDetails: i.bankAccount.accountName,
+            credit: i.entryType.type === "Credit" ? i.amount : 0,
+            debit: i.entryType.type === "Debit" ? i.amount : 0,
+            balance: customerBalance,
+          });
+      }
+      console.log(customerDetails);
+      res.render("customer/customer-khata.ejs", {
+        customerDetails: customerDetails,
+        customer: customer,
+        pageTitle: customer.name + " Khata",
+        path: "/customer",
+      });
     })
     .catch((err) => console.log(err));
 };
