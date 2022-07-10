@@ -13,6 +13,7 @@ const client = new Client({
   //   authStrategy: new LegacySessionAuth({
   //     session: sessionData,
   //   }),
+
   authStrategy: new NoAuth(),
   puppeteer: {
     headless: true,
