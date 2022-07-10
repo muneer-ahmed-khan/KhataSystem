@@ -16,7 +16,6 @@ const client = new Client({
 
   authStrategy: new NoAuth(),
   puppeteer: {
-    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   },
 });
