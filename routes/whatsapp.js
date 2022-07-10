@@ -14,7 +14,10 @@ const client = new Client({
   //     session: sessionData,
   //   }),
   authStrategy: new NoAuth(),
-  //   puppeteer: { headless: true },
+  puppeteer: {
+    headless: true,
+    args: ["--no-sandbox"],
+  },
 });
 
 client.initialize();
