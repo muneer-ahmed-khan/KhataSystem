@@ -13,11 +13,10 @@ const client = new Client({
   //   authStrategy: new LegacySessionAuth({
   //     session: sessionData,
   //   }),
-
-  authStrategy: new NoAuth(),
-  puppeteer: {
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  },
+  //   authStrategy: new NoAuth(),
+  //   puppeteer: {
+  //     args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  //   },
 });
 
 client.initialize();
