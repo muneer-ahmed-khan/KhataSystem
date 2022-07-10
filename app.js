@@ -65,6 +65,7 @@ app.use(entryTypesRoutes);
 app.use(bankAccountRoutes);
 app.use(customerRoutes);
 app.use(roznamchaRoutes);
+// app.use(whatsapp);
 
 // app.use('/admin', adminRoutes);
 // app.use(shopRoutes);
@@ -98,6 +99,8 @@ BankAccount.hasMany(Roznamcha);
 // Size --> Pattern
 Size.belongsToMany(Pattern, { through: "sizePattern" });
 Pattern.belongsToMany(Size, { through: "sizePattern" });
+
+require("./routes/whatsapp");
 
 // authenticate the connection
 sequelize
