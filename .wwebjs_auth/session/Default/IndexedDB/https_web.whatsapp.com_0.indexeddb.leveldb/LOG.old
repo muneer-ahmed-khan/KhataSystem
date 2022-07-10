@@ -1,0 +1,12 @@
+2022/07/10-15:43:33.640 11e0b Reusing MANIFEST /Users/muneerkhan/Documents/KhataSystem/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/07/10-15:43:33.641 11e0b Recovering log #10
+2022/07/10-15:43:33.685 11e0b Reusing old log /Users/muneerkhan/Documents/KhataSystem/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000010.log 
+2022/07/10-15:45:11.851 1660f Level-0 table #15: started
+2022/07/10-15:45:11.890 1660f Level-0 table #15: 1145953 bytes OK
+2022/07/10-15:45:11.927 1660f Delete type=0 #10
+2022/07/10-15:45:29.260 8c03 Compacting 1@1 + 1@2 files
+2022/07/10-15:45:29.338 8c03 Generated table #16@1: 35257 keys, 1900789 bytes
+2022/07/10-15:45:29.338 8c03 Compacted 1@1 + 1@2 files => 1900789 bytes
+2022/07/10-15:45:29.370 8c03 compacted to: files[ 0 0 1 0 0 0 0 ]
+2022/07/10-15:45:29.370 8c03 Delete type=2 #15
+2022/07/10-15:45:29.371 8c03 Delete type=2 #12
