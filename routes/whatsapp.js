@@ -8,15 +8,21 @@ const {
   LegacySessionAuth,
 } = require("whatsapp-web.js");
 var qrcode = require("qrcode-terminal");
+const Roznamcha = require("../models/roznamcha");
+
+const pdfGenerator = require("./pdfGenerator");
 
 const client = new Client({
   //   authStrategy: new LegacySessionAuth({
   //     session: sessionData,
   //   }),
-  authStrategy: new NoAuth(),
+  authStrategy: new LocalAuth({
+    clientId: "test_client",
+  }),
   puppeteer: {
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   },
+  clientId: "example",
 });
 
 client.initialize();
@@ -47,7 +53,7 @@ client.on("ready", () => {
 });
 
 client.on("message", async (msg) => {
-  console.log("MESSAGE RECEIVED", msg);
+  console.log("MESSAGE RECEIVED", msg.body);
 
   if (msg.body === "!ping reply") {
     // Send a new message as a reply to the current one
@@ -55,6 +61,19 @@ client.on("message", async (msg) => {
   } else if (msg.body === "!ping") {
     // Send a new message to the same chat
     client.sendMessage(msg.from, "pong");
+  } else if (msg.body === "!roznamcha") {
+    // Send a new message to the same chat
+    Roznamcha.findAll({
+      include: [EntryType, BankAccount, Customer],
+      order: [["id", "DESC"]],
+    })
+      .then(async (roznamchas) => {
+        pdfGenerator(roznamchas);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    // client.sendMessage(msg.from, "pong");
   } else if (msg.body.startsWith("!sendto ")) {
     // Direct send a new message to specific id
     // sendto number message
