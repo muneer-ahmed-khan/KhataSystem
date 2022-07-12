@@ -2,7 +2,6 @@ const Customer = require("../models/customer");
 const EntryType = require("../models/entry-type");
 const BankAccount = require("../models/bank-account");
 const Roznamcha = require("../models/roznamcha");
-const pdfGenerator = require("../routes/pdfGenerator");
 
 exports.getRoznamcha = (req, res, next) => {
   Roznamcha.findAll({
@@ -10,8 +9,6 @@ exports.getRoznamcha = (req, res, next) => {
     order: [["id", "DESC"]],
   })
     .then(async (roznamchas) => {
-      const pdf = new pdfGenerator(roznamchas);
-      pdf.generate();
       res.render("roznamcha/roznamcha.ejs", {
         roznamchas: roznamchas,
         pageTitle: "All Entries",

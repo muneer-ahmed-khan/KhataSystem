@@ -6,11 +6,11 @@ const {
   LocalAuth,
   NoAuth,
   LegacySessionAuth,
+  MessageMedia,
 } = require("whatsapp-web.js");
 var qrcode = require("qrcode-terminal");
 const Roznamcha = require("../models/roznamcha");
-
-const pdfGenerator = require("./pdfGenerator");
+const pdf = require("./pdfFile");
 
 const client = new Client({
   //   authStrategy: new LegacySessionAuth({
@@ -62,18 +62,17 @@ client.on("message", async (msg) => {
     // Send a new message to the same chat
     client.sendMessage(msg.from, "pong");
   } else if (msg.body === "!roznamcha") {
-    // Send a new message to the same chat
-    Roznamcha.findAll({
-      include: [EntryType, BankAccount, Customer],
-      order: [["id", "DESC"]],
-    })
-      .then(async (roznamchas) => {
-        pdfGenerator(roznamchas);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    // client.sendMessage(msg.from, "pong");
+    // send today roznamcha to user please
+    const getRoznamcha = await pdf.createRoznamchaPDF();
+    if (getRoznamcha) {
+      const media = MessageMedia.fromFilePath(
+        "./pdf/roznamcha_12-Jul-2022.pdf"
+      );
+      client.sendMessage(msg.from, getRoznamcha);
+      client.sendMessage(msg.from, media);
+    } else {
+      client.sendMessage(msg.from, "can't generate today roznamcha");
+    }
   } else if (msg.body.startsWith("!sendto ")) {
     // Direct send a new message to specific id
     // sendto number message
