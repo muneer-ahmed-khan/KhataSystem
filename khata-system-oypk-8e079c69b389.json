@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "khata-system-oypk",
+  "private_key_id": "8e079c69b38918d1582d531fb3099accaeca2404",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC3kOKfgrZlOzgv\noYTunIlfuzzcfa8uB3GFsIfwaDZa8jfEXCtk9v34Ln8AAH5Rh6b/Do4HLU5Kpb+Y\nhbaIquTsdwcG6f3d9NXgRymuiGEyNvqNVnZaxclzu2N4dFn0ks463SELY3leM2og\nAY09JkIwASNsBtJIoGE1WknQqa2tD8Lf2BG5Y32LhMJXaF4Z1mxrmk1oR1P3Odsk\nvFDPuIj6i8EEMd3BX3dtuLA4uxesdyH+1i17kMS+dJQMDFZCEVzNsCpmgIBaJizk\nuvwDrm0R3UMXbekBEvHO3J7f8yxHG1bpZEuyqvI18tcWcS5bDricVXUtHe1q6j0i\n5848ycfFAgMBAAECggEAU/UF2cvojWNo/swCpzncUPcrznMDqOtJnkpP2oJnffAz\n1nELfenD3fuyJXeUTsja9eQbzKeJm/W0LFfX1SlIe+iyw5RJAvfkzGfv5f5Fajig\nHv3RMxIsYezugVzB+e0dOuoBn5pXG+ErJElhZnr1ocwbfeCe1A3aeBL8GN5Ka5C2\nJ73bYli/Nu0idxpDyqN7ySDu3iEsFmOrwkaTrErVTXeFWDoGSECINr586vtl6BpX\nLS1WRMxu/Png3lb7as/XZA8As9kOY390fSWuhil+BRFYUkl1z1hsRi9GCfqG/jzT\nks57AomuUqD7TGFnZnvsyMluLPtn3JGAbzwwhr9ZfwKBgQD5Nig6bZD+H+rUBJNh\nIodOswXs3FwjQJLsyUC8BcvBx04AW8J2PmA0+4hIGOeNbfk9TuBvztoUxJqtdKsW\nncOCHeyOQi+oI3nDb9E2bYdnTd00+WpPlEDyUWVOzuQWnr2ZFyYEl+mgGPvr+Pun\ntc3KAYCillAWUovBNdLulPP/8wKBgQC8kPUd8B3UWuN98/TzxMa6TaQWbBZrwQs0\ndYDIadsjABw2BDJIlF/hK60ddnSDmXoT2kUYpvSd+AqtahprVT3cOYiHNLP29ZDL\nybYVK0raX+fW2H3BLLZupjZ7xV4K6U5dos7wnAhQzK0TuyWHMW14DRBvr3xVm3Ju\nPN73rBs/ZwKBgQCd5z/EDapiKm0LW77aPBuJtQsbEmDbAU5W9AmtWOrK5HK67Wkg\nrNMenwWx0P3ecgELZI/2qBUsNYpgP10sXlgDeNxrIuq5WYkMWSwxlWLHBOIVb7d5\nptEj+Ij9Tz/cSUaO2sj+/hZMl6f/02n40MwMo7kSy7UA/9qHWIhHHWAhGwKBgQCB\nBkLiYElY43Pj3AiQv+Um1zderEjPJEDxfTFIcL4j/dBP2aE6bmQIo6UJkuL4pQyW\nBvTegGbCrFVKAV7gcGwqgyd7NEGryq1v865mX8ARGix9opaxllGh9pMzL4JAvxED\nGwK0Ol+qQdJvvM9Z6SU5Tt8fPJk7zmiHK5l5KMdgIwKBgQCjYtRQA6Wgr4V/aTc3\nVah7qCi9ILaxdp6Dl3xFf5q7F3h94Fp3wKhusLZIDwa8zTNCZ3RevIomSw8isTJQ\ndP3RXb0Vxf33L15SXa3fTbf6DYhOI5moxgi44qE9ovVhOB5ZH/BmqQvJf3FjJI5N\n82gqktZZanlHIC/5UQTZj7blRA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "khata-system@khata-system-oypk.iam.gserviceaccount.com",
+  "client_id": "114656655234399476994",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/khata-system%40khata-system-oypk.iam.gserviceaccount.com"
+}
