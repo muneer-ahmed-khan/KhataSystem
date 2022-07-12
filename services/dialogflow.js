@@ -43,7 +43,10 @@ exports.sendQuery = (query) => {
       if (result.intent) {
         console.log(`  Intent: ${result.intent.displayName}`);
 
-        resolve(result.fulfillmentText);
+        resolve({
+          response: result.fulfillmentText,
+          intent: result.intent.displayName,
+        });
       } else {
         console.log("  No intent matched.");
         resolve(null);

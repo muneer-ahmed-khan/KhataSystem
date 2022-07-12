@@ -262,8 +262,14 @@ client.on("message", async (msg) => {
     await chat.mute();
     await chat.sendSeen();
     const result = await dialogflow.sendQuery(msg.body);
-    if (result) {
-      client.sendMessage(msg.from, result);
+    if (result.intent === "Default Welcome Intent") {
+      const contact = await msg.getContact();
+      const chat = await msg.getChat();
+      chat.sendMessage(`Hi @${contact.number}! \n ${result.response}`, {
+        mentions: [contact],
+      });
+    } else {
+      client.sendMessage(msg.from, result.response);
     }
   }
 });
