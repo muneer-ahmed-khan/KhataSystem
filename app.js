@@ -100,7 +100,7 @@ BankAccount.hasMany(Roznamcha);
 Size.belongsToMany(Pattern, { through: "sizePattern" });
 Pattern.belongsToMany(Size, { through: "sizePattern" });
 
-require("./routes/whatsapp");
+require("./services/whatsapp");
 
 // authenticate the connection
 sequelize
