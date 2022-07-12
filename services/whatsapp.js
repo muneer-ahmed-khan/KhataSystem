@@ -259,6 +259,7 @@ client.on("message", async (msg) => {
     msg.from === "923328053237@c.us"
   ) {
     let chat = await msg.getChat();
+    await chat.mute();
     await chat.sendSeen();
     const result = await dialogflow.sendQuery(msg.body);
     if (result) {
