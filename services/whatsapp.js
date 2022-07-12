@@ -8,9 +8,10 @@ const {
   LegacySessionAuth,
   MessageMedia,
 } = require("whatsapp-web.js");
+
 var qrcode = require("qrcode-terminal");
-const Roznamcha = require("../models/roznamcha");
 const pdf = require("./pdfFile");
+const dialogflow = require("./dialogflow");
 
 const client = new Client({
   //   authStrategy: new LegacySessionAuth({
@@ -253,6 +254,16 @@ client.on("message", async (msg) => {
     client.sendMessage(msg.from, list);
   } else if (msg.body === "!reaction") {
     msg.react("👍");
+  } else if (
+    msg.type.toLowerCase() == "chat" &&
+    msg.from === "923328053237@c.us"
+  ) {
+    let chat = await msg.getChat();
+    await chat.sendSeen();
+    const result = await dialogflow.sendQuery(msg.body);
+    if (result) {
+      client.sendMessage(msg.from, result);
+    }
   }
 });
 
