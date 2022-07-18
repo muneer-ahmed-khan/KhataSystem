@@ -40,6 +40,11 @@ form {
   align-items: center;
 }
 
+.main-header .main-header__nav {
+  width: 70%;
+  justify-content: flex-end;
+}
+
 .main-header__nav {
   height: 100%;
   display: none;
@@ -194,6 +199,12 @@ form {
 
   #side-menu-toggle {
     display: none;
+  }
+}
+
+@media only screen and (min-width: 200px) and (max-width: 600px) {
+  #heading {
+    font-size: 14 !important;
   }
 }
 

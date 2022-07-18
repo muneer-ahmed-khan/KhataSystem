@@ -1,7 +1,8 @@
 const Customer = require("../models/customer");
 const BankAccount = require("../models/bank-account");
-const Bank = require("../models/bank");
-const EntryType = require("../models/entry-type");
+const { CONSTANTS } = require("../config/constants");
+const Pattern = require("../models/pattern");
+const Size = require("../models/size");
 
 exports.getCustomers = (req, res, next) => {
   Customer.findAll({ order: [["id", "DESC"]] })
@@ -32,10 +33,10 @@ exports.postAddCustomer = (req, res, next) => {
   const balance = req.body.balance;
 
   Customer.create({
-    name: req.body.name,
-    address: req.body.address,
-    phoneNumber: req.body.phoneNumber,
-    balance: req.body.balance,
+    name: name,
+    address: address,
+    phoneNumber: phoneNumber,
+    balance: balance,
   })
     .then((result) => {
       // console.log(result);
@@ -111,25 +112,53 @@ exports.getCustomersKhata = (req, res, next) => {
         return res.redirect("/customer");
       }
       const customerDetails = [];
-      let customerBalance = customer.balance;
+      let customerBalance = 0;
       const RoznamchaDetails = await customer.getRoznamchas({
-        include: [BankAccount, EntryType],
+        include: [BankAccount, Pattern, Size],
+        order: [["id", "ASC"]],
       });
 
       for (let i of RoznamchaDetails) {
-        (customerBalance =
-          i.entryType.type === "Credit"
+        customerBalance =
+          i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
             ? Number(customerBalance) + Number(i.amount)
-            : i.entryType.type === "Debit"
-            ? Number(customerBalance) - Number(i.amount)
-            : 0),
-          customerDetails.push({
-            Date: i.updatedAt,
-            bankDetails: i.bankAccount.accountName,
-            credit: i.entryType.type === "Credit" ? i.amount : 0,
-            debit: i.entryType.type === "Debit" ? i.amount : 0,
-            balance: customerBalance,
-          });
+            : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
+              i.customerType ===
+                CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
+            ? Number(customerBalance) -
+              Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+            : 0;
+        console.log(i.pattern);
+        customerDetails.push({
+          Date: i.updatedAt,
+          entryType: i.entryType,
+          paymentType: i.paymentType,
+          qty: i.qty,
+          pattern:
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+              ? i.pattern.name
+              : i.pattern,
+          size:
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+              ? i.size.type
+              : i.size,
+          bankDetails:
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+              ? i.bankAccount.accountName
+              : i.bankAccount,
+          credit:
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+              ? i.amount
+              : 0,
+          debit:
+            (i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) &
+            (i.customerType ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH)
+              ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+              : 0,
+          amount: i.amount,
+          balance: customerBalance,
+        });
       }
       console.log(customerDetails);
       res.render("customer/customer-khata.ejs", {

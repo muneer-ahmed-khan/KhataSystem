@@ -3,39 +3,128 @@
 
 <body>
   <%- include('../includes/navigation.ejs') %>
-
   <main class="row vertical-center">
     <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
       <span for="name" class="fs-3" style="display: flex;
-        margin-bottom: 20px;">Enter Roznamcha Entry Details:</span>
-      <form class="form-control " action="/<% if (editing) { %>edit-roznamcha<% } else { %>add-roznamcha<% } %>" method="POST">
+        margin-bottom: 20px;">Enter <%= addStockType ? "Add Stock" : sellStockType ? "Sell Stock" : "Amount" %> Entry Details:</span>
+      <form class="form-control " action="/<% if (editing) { %>edit-roznamcha/?type=<%=  addStockType ? "addStock" : sellStockType ? "sellStock" : "amount" %> <% } else { %>add-roznamcha/?type=<%=  addStockType ? "addStock" : sellStockType ? "sellStock" : "amount" %><% } %>" method="POST">
 
-        <label for="customer"><% if (editing) { %>Update Customer Name :<% } else { %>Select Customer:<% } %></label>
+
+        <!-- Entry Type Input Field should be disabled -->
+        <input style="margin: 10px 0px;" type="hidden" class="form-control form-control-lg" placeholder="e.g 325000/=" name="entryType" id="entryType" value="<%=  addStockType ? "addStock" : sellStockType ? "sellStock" : "amount" %>">
+
+
+        <% if (addStockType || sellStockType) { %>
+        <!-- Qty Input Field -->
+        <label for="qty">
+          <% if (editing) { %>Update existing QTY:<% } else { %>Enter QTY :<% } %>
+        </label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 10,20,30" name="qty" id="qty" value="<% if (editing) { %><%= roznamcha.qty %><% } %>">
+
+        <!-- Pattern Input Field -->
+        <label for="pattern">
+          <% if (editing) { %>Update Pattern Name :<% } else { %>Select Pattern:<% } %>
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern">
+          <option selected disabled>Select Pattern name</option>
+          <% for (let [i, pattern] of patterns.entries()) { %>
+          <option <% if (editing && pattern.id===roznamcha.patternId ) { %>selected='selected' :<% } else { %> <% } %> value="<%= pattern.id %>"><%= pattern.name %>
+          </option>
+          <% } %>
+        </select>
+
+
+        <!-- Size Input Field -->
+        <label for="size">
+          <% if (editing) { %>Update Size :<% } else { %>Select Size:<% } %>
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="size" name="size">
+          <option selected disabled>Select Size</option>
+          <% for (let [i, size] of sizes.entries()) { %>
+          <option <% if (editing && size.id===roznamcha.sizeId ) { %>selected='selected' :<% } else { %> <% } %> value="<%= size.id %>"><%= size.type %>
+          </option>
+          <% } %>
+        </select>
+
+
+        <% if (addStockType) { %>
+        <!-- truck Number Input Field // add truck number only in adding stock mode -->
+        <label for="truckNumber">
+          <% if (editing) { %>Update existing Truck Number :<% } else { %>Enter Truck Number :<% } %>
+        </label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 123-XYZ" name="truckNumber" id="truckNumber" value="<% if (editing) { %><%= roznamcha.truckNumber %><% } %>">
+        <% } %>
+        <% } %>
+
+        <!-- show customer on stock sell entry and amount entry -->
+        <% if (sellStockType ||amountType) { %>
+
+        <% if (sellStockType) { %>
+        <!-- Customer Type Input Field -->
+        <label for="customerType">
+          <% if (editing) { %>Update Customer Type :<% } else { %>Select Customer Type:<% } %>
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)">
+          <option selected disabled>Select Customer Type</option>
+          <% for (let [i, customerType] of customerTypes.entries()) { %>
+          <option <% if (editing && customerType === roznamcha.customerType ) { %>selected='selected' :<% } else { %> <% } %> value="<%= customerType %>"><%= customerType.toUpperCase() %>
+          </option>
+          <% } %>
+        </select>
+        <% } %>
+        
+
+        <!-- Customer Input Field -->
+        <label for="customer">
+          <% if (editing) { %>Update Customer Name :<% } else { %>Select Customer:<% } %>
+        </label>
+        <span id="customerField">
         <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
           <option selected disabled>Select Customer name</option>
           <% for (let [i, customer] of customers.entries()) { %>
-          <option <% if (editing && customer.id === roznamcha.customerId ) { %>selected='selected' :<% } else { %><% } %> value="<%= customer.id %>"><%= customer.name %> </option>
+          <option <% if (editing && customer.id===roznamcha.customerId ) { %>selected='selected' :<% } else { %> <% } %> value="<%= customer.id %>"><%= customer.name %>
+          </option>
+          <% } %>
+        </select>
+      </span>
+      <% } %>
+
+
+        <% if (amountType) { %>
+
+        <!-- Payment Type Input Field -->
+        <label for="paymentType">
+          <% if (editing) { %>Update Payment Type :<% } else { %>Select Payment Type:<% } %>
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="paymentType" name="paymentType">
+          <option selected disabled>Select Payment Method</option>
+          <% for (let [i, paymentType] of paymentTypes.entries()) { %>
+          <option <% if (editing && paymentType === roznamcha.paymentType ) { %>selected='selected' :<% } else { %> <% } %> value="<%= paymentType %>"><%= paymentType.toUpperCase() %>
+          </option>
           <% } %>
         </select>
 
-        <label for="bankAccount"><% if (editing) { %>Update Bank Account :<% } else { %>Select Bank Account:<% } %></label>
+        <!-- Bank Account Input Field -->
+        <label for="bankAccount">
+          <% if (editing) { %>Update Bank Account :<% } else { %>Select Bank Account:<% } %>
+        </label>
         <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount">
           <option selected disabled>Select Bank Account Name</option>
           <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
-          <option <% if (editing && bankAccount.id === roznamcha.bankAccountId ) { %>selected='selected' :<% } else { %><% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %> </option>
+          <option <% if (editing && bankAccount.id===roznamcha.bankAccountId ) { %>selected='selected' :<% } else { %> <% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %>
+          </option>
           <% } %>
         </select>
 
-        <label for="entryType"><% if (editing) { %>Update Entry Type :<% } else { %>Entry Type:<% } %></label>
-        <select class="form-select" style="margin: 10px 0px;" id="entryType" name="entryType">
-          <option selected disabled>Select Entry Type</option>
-          <% for (let [i, entryType] of entryTypes.entries()) { %>
-          <option <% if (editing && entryType.id === roznamcha.entryTypeId ) { %>selected='selected' :<% } else { %><% } %> value="<%= entryType.id %>"><%= entryType.type %> </option>
-          <% } %>
-        </select>
-        
-        <label for="amount"><% if (editing) { %>Update existing Amount:<% } else { %>Enter Amount:<% } %></label>
+        <% } %>
+
+        <!-- Amount Input Field -->
+        <label for="amount">
+          <% if (editing) { %>Update existing <%= addStockType ? "Truck Rent" : "Amount" %>:<% } else { %>Enter <%= addStockType ? "Truck Rent" : "Amount" %> :<% } %>
+        </label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= roznamcha.amount %><% } %>">
+
+
 
         <% if (editing) { %>
         <input type="hidden" value="<%= roznamcha.id %>" name="roznamchaId">
@@ -51,4 +140,46 @@
       </form>
     </div>
   </main>
+  <!-- to control the input field logic here  -->
+  <script src="/js/ejs.min.js"></script>
+  <script>
+    var nonCashCustomerFieldHtml = null;
+    let cashCustomerFieldHtml = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="">`;
+    
+    function customerTypeChange(value) {
+      let editing = '<%- editing %>';
+      let cashCustomerName = '<%- editing ? roznamcha.cashCustomer : "" %>';
+      let customerInputField = document.getElementById('customerField');
+      if(value === "nonCash" && nonCashCustomerFieldHtml){
+        customerInputField.innerHTML = nonCashCustomerFieldHtml;
+      } else if(value === 'cash') {
+        nonCashCustomerFieldHtml = customerInputField.innerHTML;
+        if(editing) {
+          customerInputField.innerHTML = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="${cashCustomerName}">`;
+        } else {
+        customerInputField.innerHTML = cashCustomerFieldHtml;
+        }
+      }
+      
+    }
+
+    window.onload = () => {
+      let editing = '<%- editing %>';
+      
+      if(editing){
+        let customerType = '<%- editing ? roznamcha.customerType : "" %>';
+        let cashCustomerName = '<%- editing ? roznamcha.cashCustomer : "" %>';
+
+        if(customerType === "nonCash" && nonCashCustomerFieldHtml){
+          customerInputField.innerHTML = nonCashCustomerFieldHtml;
+        }
+        else if(customerType === "cash"){
+          let customerInputField = document.getElementById('customerField');
+          nonCashCustomerFieldHtml = customerInputField.innerHTML;
+          customerInputField.innerHTML = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="${cashCustomerName}">`;
+        }
+    }
+      
+    }
+  </script>
   <%- include('../includes/end.ejs') %>

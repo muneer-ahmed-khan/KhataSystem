@@ -1,0 +1,46 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+      <span for="name" class="fs-3" style="display: flex;
+        margin-bottom: 20px;"><% if (editing) { %>Update existing Stock :<% } else { %>Enter new Stock Details:<% } %></span>
+
+      <form class="form-control " action="/<% if (editing) { %>edit-stock<% } else { %>add-stock<% } %>" method="POST">
+        
+        <!-- size dropdown -->
+        <label for="size"><% if (editing) { %>Update Size Info :<% } else { %>Select Size:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="size" name="size">
+          <option selected disabled>Select Size</option>
+          <% for (let [i, size] of sizes.entries()) { %>
+          <option <% if (editing && size.id === stock.sizeId ) { %>selected='selected' :<% } else { %><% } %> value="<%= size.id %>"><%= size.type %> </option>
+          <% } %>
+        </select>
+
+        <!-- pattern dropdown -->
+        <label for="pattern"><% if (editing) { %>Update Pattern Info :<% } else { %>Select Pattern:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern">
+          <option selected disabled>Select Pattern</option>
+          <% for (let [i, pattern] of patterns.entries()) { %>
+          <option <% if (editing && pattern.id === stock.patternId ) { %>selected='selected' :<% } else { %><% } %> value="<%= pattern.id %>"><%= pattern.name %> </option>
+          <% } %>
+        </select>
+
+
+        <label for="floatingInput"><% if (editing) { %>Update existing Total<% } else { %>Enter new Total<% } %></label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="name" id="floatingInput" value="<% if (editing) { %><%= stock.total %><% } %>">
+        <% if (editing) { %>
+        <input type="hidden" value="<%= stock.id %>" name="stockId">
+        <% } %>
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Stock<% } else { %>Add New Stock<% } %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>

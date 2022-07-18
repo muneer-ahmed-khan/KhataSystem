@@ -17,7 +17,7 @@
           >
             <span
               ><h5>
-                <b>Opening</b> Balance :
+                <b>Current</b> Balance :
                 <strong><%= customer.balance %>/=</strong>
               </h5></span
             >
@@ -31,7 +31,7 @@
           <tr>
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
             <th scope="col">Date</th>
-            <th scope="col">Bank Details</th>
+            <th scope="col">Details</th>
             <th scope="col">Credit +</th>
             <th scope="col">Debit -</th>
             <th scope="col">Balance</th>
@@ -42,7 +42,19 @@
           <tr>
             <th scope="row" class="text-center"><%= i+1 %></th>
             <td><%= new Date(customerKhata.Date).toDateString() %></td>
-            <td><%= customerKhata.bankDetails %></td>
+            <td>
+              <% if (customerKhata.entryType === "amount") { %>
+                PaymentType &#8594 <strong><%= customerKhata.paymentType.toUpperCase() %></strong>&nbsp; 
+                BankAccount &#8594 <strong><%=customerKhata.bankDetails %></strong>&nbsp; 
+              <% }  else if (customerKhata.entryType === "sellStock") { %>
+                QTY &#8594 <strong><%= customerKhata.qty %></strong>&nbsp; 
+                Pattern &#8594 <strong><%=customerKhata.pattern %></strong>&nbsp; 
+                Size &#8594 <strong><%=customerKhata.size %></strong>&nbsp; 
+                Amount &#8594 <strong><%=customerKhata.amount %></strong>&nbsp; 
+
+              <% } %>
+               
+            </td>
             <td><%= customerKhata.credit %></td>
             <td><%= customerKhata.debit %></td>
             <td><%= customerKhata.balance %></td>

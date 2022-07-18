@@ -1,6 +1,19 @@
 <div class="backdrop"></div>
 <header class="main-header">
   <button id="side-menu-toggle">Menu</button>
+  <span
+    id="heading"
+    style="
+      margin: 0px 100px 0px 50px;
+      color: white;
+      font-weight: 600;
+      width: 28%;
+      font-size: 32px;
+      letter-spacing: 3px;
+    "
+  >
+    <a href="/" style="text-decoration: none; color: white">Khata System App</a>
+  </span>
   <nav class="main-header__nav">
     <ul class="main-header__item-list">
       <li class="main-header__item">
@@ -16,6 +29,11 @@
       <li class="main-header__item">
         <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern"
           >Patterns</a
+        >
+      </li>
+      <li class="main-header__item">
+        <a class="<%= path === '/stock' ? 'active' : '' %>" href="/stock"
+          >Stocks</a
         >
       </li>
       <li class="main-header__item">
@@ -59,6 +77,11 @@
     <li class="mobile-nav__item">
       <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern"
         >Patterns</a
+      >
+    </li>
+    <li class="mobile-nav__item">
+      <a class="<%= path === '/stock' ? 'active' : '' %>" href="/stock"
+        >Stock</a
       >
     </li>
     <li class="mobile-nav__item">
