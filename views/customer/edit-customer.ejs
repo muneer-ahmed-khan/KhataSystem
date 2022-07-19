@@ -19,6 +19,19 @@
         <label for="customerPhoneNumber"><% if (editing) { %>Update existing Customer Phone Number:<% } else { %>Enter new Customer Phone Number:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 0826613015" name="phoneNumber" id="customerPhoneNumber" value="<% if (editing) { %><%= customer.phoneNumber %><% } %>">
 
+        <!-- amount Type field -->
+        <label for="amountType">
+          <% if (editing) { %>Update Amount Type :<% } else { %>Select Amount Type :<% } %>
+          <span style="color:darkseagreen">*customer who buy and sell has <strong>BOTH</strong> as Type</span>
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="amountType" name="amountType">
+          <option selected disabled>Select Amount Type: </option>
+          <% for (let [i, amountType] of amountTypes.entries()) { %>
+          <option <% if (editing && amountType.id === customer.amountTypeId ) { %>selected='selected' :<% } else { %> <% } %> value="<%= amountType.id %>"><%= amountType.type.toUpperCase() %>
+          </option>
+          <% } %>
+        </select>
+
         <label for="customerBalance"><% if (editing) { %>Update existing Customer Balance:<% } else { %>Enter new Customer Balance:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="balance" id="customerBalance" value="<% if (editing) { %><%= customer.balance %><% } %>">
 

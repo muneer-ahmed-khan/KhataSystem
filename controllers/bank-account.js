@@ -131,7 +131,7 @@ exports.getBankAccountKhata = (req, res, next) => {
 
       for (let [key, value] of RoznamchaDetails.entries()) {
         bankAccountBalance =
-          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
             ? Number(bankAccountBalance) + Number(value.amount)
             : value.entryType.type === "Debit"
             ? Number(bankAccountBalance) - Number(value.amount)
@@ -142,7 +142,8 @@ exports.getBankAccountKhata = (req, res, next) => {
           customerDetails: value.customer.name,
           paymentType: value.paymentType,
           credit:
-            value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+            value.entryType ===
+            CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
               ? value.amount
               : 0,
           debit: value.entryType.type === "Debit" ? value.amount : 0,

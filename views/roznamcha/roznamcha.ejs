@@ -4,45 +4,60 @@
   <%- include('../includes/navigation.ejs') %>
 
   <main class="container-fluid">
+    <!-- if we already have roznamcha entries -->
     <% if (roznamchas.length> 0) { %>
     <div class="table-wrapper">
       <div class="table-title">
-        <div class="row" style="    display: flex;
-        align-items: flex-end;">
+        <div class="row" style="display: flex; align-items: flex-end;">
           <div class="col-sm-6">
+            <!-- main roznamcha page title -->
             <h2>Manage <b>Roznamcha</b></h2>
           </div>
-          <div class="col-sm-6 table-action" style="display: flex;
-          flex-direction: row-reverse;">
+          <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse;">
+
             <!-- table action button work -->
-            <a href="/add-roznamcha/?amount=true" class="btn btn-outline-success" style="margin: 0.5rem">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+
+            <!-- add debit button  -->
+            <a href="/add-roznamcha/?debitAmount=true" class="btn btn-outline-danger" style="margin: 0.5rem">
+              <!-- and svg $ dollar icon -->
+              <span> Add <strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" />
+                  </svg> Debit</strong> Entry</span>
+            </a>
+
+            <!-- add Credit button  -->
+            <a href="/add-roznamcha/?creditAmount=true" class="btn btn-outline-success" style="margin: 0.5rem">
+              <!-- and svg $ dollar icon -->
+              <span> Add <strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                  </svg> Credit</strong> Entry</span>
+            </a>
+
+            <!-- sell stock button  -->
+            <a href="/add-roznamcha/?sellStock=true" class="btn btn-outline-warning" style="margin: 0.5rem">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
+                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z" />
               </svg>
-              <span> Add Amount Entry</span></a>
+              <span> Sell <strong>Stock</strong> Entry</span></a>
 
-              <a href="/add-roznamcha/?sellStock=true" class="btn btn-outline-primary" style="margin: 0.5rem">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"/>
-                </svg>
-                <span> Sell Stock Entry</span></a>
-
+            <!-- add stock button  -->
             <a href="/add-roznamcha/?addStock=true" class="btn btn-outline-primary" style="margin: 0.5rem">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
               </svg>
-              <span> Add Stock Entry</span></a>
+              <span> Add <strong>Stock</strong> Entry</span></a>
 
-              
             <!-- table action button ended here -->
           </div>
         </div>
       </div>
+
+      <!-- main table here -->
       <table class="table table-responsive table-bordered table-hover align-middle">
         <thead>
           <tr>
+            <!-- all table columns -->
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
             <th scope="col" style="width: 200px" class="text-center">Date</th>
             <th scope="col" style="width: 150px" class="text-center"> Entry Type</th>
@@ -50,6 +65,7 @@
             <th scope="col">Actions</th>
           </tr>
         </thead>
+        <!-- table body with all data  -->
         <tbody>
           <% for (let [i, roznamcha] of roznamchas.entries()) { %>
           <tr>
@@ -65,29 +81,30 @@
             <td>
               <!-- for sell stock and add stock -->
               <% if (roznamcha.entryType === "addStock" || roznamcha.entryType === "sellStock") { %>
-                Tyres &#8594 <strong><%= roznamcha.qty %></strong>&nbsp; 
-                Pattern &#8594 <strong><%=roznamcha.pattern.name %></strong>&nbsp; 
-                Size &#8594 <strong><%=roznamcha.size.type %></strong>&nbsp;
-                <% if (roznamcha.entryType === "addStock") { %>
-                  Truck Number &#8594<strong><%=roznamcha.truckNumber %></strong>&nbsp; 
-                  Rent &#8594 <strong><%=roznamcha.amount %></strong>
-                <% } %> 
-                <% if (roznamcha.entryType === "sellStock") { %>
-                  Customer &#8594 <strong><%=roznamcha.customerType === "nonCash" ? roznamcha.customer.name : roznamcha.cashCustomer %></strong>&nbsp;
-                  Customer Type &#8594 <strong><%=roznamcha.customerType.toUpperCase() %></strong>&nbsp; 
-                  Amount &#8594 <strong><%=roznamcha.amount %></strong>
-                <% } %> 
+              Tyres &#8594 <strong><%= roznamcha.qty %></strong>&nbsp;
+              Pattern &#8594 <strong><%=roznamcha.pattern.name %></strong>&nbsp;
+              Size &#8594 <strong><%=roznamcha.size.type %></strong>&nbsp;
+              <% if (roznamcha.entryType === "addStock") { %>
+              Truck Number &#8594<strong><%=roznamcha.truckNumber %></strong>&nbsp;
+              Rent &#8594 <strong><%=roznamcha.amount %></strong>
+              <% } %>
+              <% if (roznamcha.entryType === "sellStock") { %>
+              Customer &#8594
+              <strong><%=roznamcha.customerType === "nonCash" ? roznamcha.customer.name : roznamcha.cashCustomer %></strong>&nbsp;
+              Customer Type &#8594 <strong><%=roznamcha.customerType.toUpperCase() %></strong>&nbsp;
+              Price &#8594 <strong><%=roznamcha.amount %></strong>
+              <% } %>
               <% } %>
 
               <!-- for amount type -->
-              <% if (roznamcha.entryType === "amount") { %>
-                Customer &#8594 <strong><%=roznamcha.customer.name %></strong>&nbsp;
-                Payment Type &#8594 <strong><%=roznamcha.paymentType.toUpperCase() %></strong>&nbsp;
-                Bank Account &#8594 <strong><%=roznamcha.bankAccount.accountName %></strong>&nbsp; 
-                Amount &#8594 <strong><%=roznamcha.amount %></strong>
+              <% if (roznamcha.entryType === "creditAmount") { %>
+              Customer &#8594 <strong><%=roznamcha.customer.name %></strong>&nbsp;
+              Payment Type &#8594 <strong><%=roznamcha.paymentType.toUpperCase() %></strong>&nbsp;
+              Bank Account &#8594 <strong><%=roznamcha.bankAccount.accountName %></strong>&nbsp;
+              Amount &#8594 <strong><%=roznamcha.amount %></strong>
 
               <% } %>
-              
+
             </td>
             <td>
               <form action="/edit-roznamcha/<%= roznamcha.id %>" method="get">
@@ -117,16 +134,22 @@
     </tbody>
     </table>
     </div>
+
+    <!-- if we don't have any data in roznamcha right now -->
     <% } else { %>
+
     <!-- table action button work -->
-    <a href="/add-roznamcha/?addStock=true" class="btn btn-outline-primary" style="margin: 0.5rem">Add First Stock
+    <a href="/add-roznamcha/?addStock=true" class="btn btn-outline-primary" style="margin: 0.5rem">Add First <strong>Stock</strong>
       Entry</a>
-    <a href="/add-roznamcha/?sellStock=true" class="btn btn-outline-info" style="margin: 0.5rem">First Sell Stock
-        Entry</a>
-    <a href="/add-roznamcha/?amount=true" class="btn btn-outline-success" style="margin: 0.5rem">Add First
+    <a href="/add-roznamcha/?sellStock=true" class="btn btn-outline-warning" style="margin: 0.5rem">First Sell <strong>Stock</strong>
+      Entry</a>
+    <a href="/add-roznamcha/?creditAmount=true" class="btn btn-outline-success" style="margin: 0.5rem"><strong>+ Credit</strong> First
+      Amount Entry</a>
+    <a href="/add-roznamcha/?debitAmount=true" class="btn btn-outline-danger" style="margin: 0.5rem"><strong>- Debit</strong> First
       Amount Entry</a>
     <h1 class="centered">No Roznamcha Data Found!</h1>
     <% } %>
+
   </main>
   <%- include('../includes/end.ejs') %>
 </body>

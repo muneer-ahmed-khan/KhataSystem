@@ -17,7 +17,7 @@ const bankRoutes = require("./routes/bank");
 const sizeRoutes = require("./routes/size");
 const patternRoutes = require("./routes/pattern");
 const stockRoutes = require("./routes/stock");
-// const entryTypesRoutes = require("./routes/entry-types");
+const amountTypesRoutes = require("./routes/amount-type");
 const bankAccountRoutes = require("./routes/bank-account");
 const customerRoutes = require("./routes/customer");
 const roznamchaRoutes = require("./routes/roznamcha");
@@ -29,7 +29,7 @@ const Size = require("./models/size");
 const Pattern = require("./models/pattern");
 const Customer = require("./models/customer");
 const Roznamcha = require("./models/roznamcha");
-// const EntryType = require("./models/entry-type");
+const AmountType = require("./models/amount-type");
 const Stock = require("./models/stock");
 
 // database object
@@ -56,7 +56,7 @@ app.use(bankRoutes);
 app.use(sizeRoutes);
 app.use(patternRoutes);
 app.use(stockRoutes);
-// app.use(entryTypesRoutes);
+app.use(amountTypesRoutes);
 app.use(bankAccountRoutes);
 app.use(customerRoutes);
 app.use(roznamchaRoutes);
@@ -88,6 +88,10 @@ Size.hasMany(Stock);
 // Stock --> Pattern
 Stock.belongsTo(Pattern);
 Pattern.hasMany(Stock);
+
+// Customer --> AmountType
+Customer.belongsTo(AmountType);
+AmountType.hasMany(Customer);
 
 // import whatsapp file settings
 // require("./services/whatsapp");

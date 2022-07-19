@@ -18,7 +18,8 @@ exports.CONSTANTS = {
     ENTRY_TYPE: {
       ADD_STOCK: "addStock",
       SELL_STOCK: "sellStock",
-      AMOUNT: "amount",
+      CREDIT_AMOUNT: "creditAmount",
+      DEBIT_AMOUNT: "debitAmount",
     },
     CUSTOMER_TYPE: {
       NON_CASH: "nonCash",
@@ -28,6 +29,11 @@ exports.CONSTANTS = {
       CHECK: "check",
       TRANSFER: "transfer",
       CASH: "cash",
+    },
+    AMOUNT_TYPE: {
+      CREDIT: "credit",
+      DEBIT: "debit",
+      BOTH: "both",
     },
   },
 };

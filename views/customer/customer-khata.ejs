@@ -11,22 +11,17 @@
           <div class="col-sm-6">
             <h2><b><%= customer.name %> </b> Khata</h2>
           </div>
-          <div
-            class="col-sm-6 table-action"
-            style="display: flex; flex-direction: row-reverse"
-          >
-            <span
-              ><h5>
+          <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse">
+            <span>
+              <h5>
                 <b>Current</b> Balance :
                 <strong><%= customer.balance %>/=</strong>
-              </h5></span
-            >
+              </h5>
+            </span>
           </div>
         </div>
       </div>
-      <table
-        class="table table-responsive table-bordered table-hover align-middle"
-      >
+      <table class="table table-responsive table-bordered table-hover align-middle">
         <thead>
           <tr>
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
@@ -43,17 +38,16 @@
             <th scope="row" class="text-center"><%= i+1 %></th>
             <td><%= new Date(customerKhata.Date).toDateString() %></td>
             <td>
-              <% if (customerKhata.entryType === "amount") { %>
-                PaymentType &#8594 <strong><%= customerKhata.paymentType.toUpperCase() %></strong>&nbsp; 
-                BankAccount &#8594 <strong><%=customerKhata.bankDetails %></strong>&nbsp; 
+              <% if (customerKhata.entryType === "creditAmount") { %>
+              PaymentType &#8594 <strong><%= customerKhata.paymentType.toUpperCase() %></strong>&nbsp;
+              BankAccount &#8594 <strong><%=customerKhata.bankDetails %></strong>&nbsp;
               <% }  else if (customerKhata.entryType === "sellStock") { %>
-                QTY &#8594 <strong><%= customerKhata.qty %></strong>&nbsp; 
-                Pattern &#8594 <strong><%=customerKhata.pattern %></strong>&nbsp; 
-                Size &#8594 <strong><%=customerKhata.size %></strong>&nbsp; 
-                Amount &#8594 <strong><%=customerKhata.amount %></strong>&nbsp; 
-
+              QTY &#8594 <strong><%= customerKhata.qty %></strong>&nbsp;
+              Pattern &#8594 <strong><%=customerKhata.pattern %></strong>&nbsp;
+              Size &#8594 <strong><%=customerKhata.size %></strong>&nbsp;
+              Price &#8594 <strong><%=customerKhata.amount %></strong>&nbsp;
               <% } %>
-               
+
             </td>
             <td><%= customerKhata.credit %></td>
             <td><%= customerKhata.debit %></td>

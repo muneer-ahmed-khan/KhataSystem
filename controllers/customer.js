@@ -1,11 +1,12 @@
 const Customer = require("../models/customer");
 const BankAccount = require("../models/bank-account");
+const AmountType = require("../models/amount-type");
 const { CONSTANTS } = require("../config/constants");
 const Pattern = require("../models/pattern");
 const Size = require("../models/size");
 
 exports.getCustomers = (req, res, next) => {
-  Customer.findAll({ order: [["id", "DESC"]] })
+  Customer.findAll({ include: [AmountType], order: [["id", "DESC"]] })
     .then((customers) => {
       res.render("customer/customer.ejs", {
         customers: customers,
@@ -18,11 +19,14 @@ exports.getCustomers = (req, res, next) => {
     });
 };
 
-exports.addCustomer = (req, res, next) => {
+exports.addCustomer = async (req, res, next) => {
+  // get amount types for customer
+  const amountTypes = await AmountType.findAll({ order: [["id", "DESC"]] });
   res.render("customer/edit-customer", {
     pageTitle: "Add Customer",
     path: "/add-customer",
     editing: false,
+    amountTypes: amountTypes,
   });
 };
 
@@ -31,12 +35,14 @@ exports.postAddCustomer = (req, res, next) => {
   const address = req.body.address;
   const phoneNumber = req.body.phoneNumber;
   const balance = req.body.balance;
+  const amountType = req.body.amountType;
 
   Customer.create({
     name: name,
     address: address,
     phoneNumber: phoneNumber,
     balance: balance,
+    amountTypeId: amountType,
   })
     .then((result) => {
       // console.log(result);
@@ -48,11 +54,12 @@ exports.postAddCustomer = (req, res, next) => {
     });
 };
 
-exports.getEditCustomer = (req, res, next) => {
+exports.getEditCustomer = async (req, res, next) => {
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect("/customer");
   }
+  const amountTypes = await AmountType.findAll({ order: [["id", "DESC"]] });
   const customerId = req.params.customerId;
   Customer.findByPk(customerId)
     .then((customer) => {
@@ -64,6 +71,7 @@ exports.getEditCustomer = (req, res, next) => {
         path: "/edit-customer",
         editing: editMode,
         customer: customer,
+        amountTypes: amountTypes,
       });
     })
     .catch((err) => console.log(err));
@@ -75,6 +83,7 @@ exports.postEditCustomer = (req, res, next) => {
   const updateAddress = req.body.address;
   const updatePhoneNumber = req.body.phoneNumber;
   const updateBalance = req.body.balance;
+  const updateAmountType = req.body.amountType;
 
   Customer.findByPk(customerId)
     .then((customer) => {
@@ -82,6 +91,7 @@ exports.postEditCustomer = (req, res, next) => {
       customer.address = updateAddress;
       customer.phoneNumber = updatePhoneNumber;
       customer.balance = updateBalance;
+      customer.amountTypeId = updateAmountType;
       return customer.save();
     })
     .then((result) => {
@@ -120,7 +130,7 @@ exports.getCustomersKhata = (req, res, next) => {
 
       for (let i of RoznamchaDetails) {
         customerBalance =
-          i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+          i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
             ? Number(customerBalance) + Number(i.amount)
             : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
               i.customerType ===
@@ -143,11 +153,11 @@ exports.getCustomersKhata = (req, res, next) => {
               ? i.size.type
               : i.size,
           bankDetails:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
               ? i.bankAccount.accountName
               : i.bankAccount,
           credit:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.AMOUNT
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
               ? i.amount
               : 0,
           debit:
