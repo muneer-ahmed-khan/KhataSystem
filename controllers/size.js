@@ -1,7 +1,7 @@
 const Size = require("../models/size");
 
 exports.getSize = (req, res, next) => {
-  Size.findAll({ order: [["id", "DESC"]] })
+  Size.findAll({ order: [["type", "DESC"]] })
     .then((sizes) => {
       res.render("size/size.ejs", {
         sizes: sizes,

@@ -21,6 +21,10 @@ const Customer = sequelize.define("customer", {
     type: Sequelize.BIGINT,
     allowNull: false,
   },
+  startingBalance: {
+    type: Sequelize.DECIMAL,
+    allowNull: false,
+  },
   balance: {
     type: Sequelize.DECIMAL,
     allowNull: false,

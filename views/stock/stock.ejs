@@ -31,6 +31,7 @@
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
             <th scope="col">Size</th>
             <th scope="col">Pattern</th>
+            <th scope="col">Starting Stock</th>
             <th scope="col">Total Stock</th>
             <th scope="col">Actions</th>
             <th scope="col">Details</th>
@@ -44,6 +45,7 @@
             </th>
             <td><%= stock.size.type %></td>
             <td><%= stock.pattern.name %></td>
+            <td><%= stock.startingStock %></td>
             <td><%= stock.total %></td>
             <td>
               <form action="/edit-stock/<%= stock.id %>/?edit=true" method="get">
@@ -75,7 +77,7 @@
     </div>
     <% } else { %>
     <!-- table action button work -->
-    <a href="/add-stock" class="btn btn-outline-success" style="margin: 0.5rem">Add First Stock</a>
+    <a href="/add-stock" class="btn btn-outline-success" style="margin: 0.5rem">Add Starting Stock</a>
     <h1 class="centered">No Stock Data Found!</h1>
     <% } %>
   </main>

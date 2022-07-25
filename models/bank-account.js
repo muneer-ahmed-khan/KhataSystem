@@ -25,6 +25,10 @@ const BankAccount = sequelize.define("bankAccount", {
     type: Sequelize.BIGINT,
     allowNull: false,
   },
+  startingBalance: {
+    type: Sequelize.DECIMAL,
+    allowNull: false,
+  },
   balance: {
     type: Sequelize.DECIMAL,
     allowNull: false,

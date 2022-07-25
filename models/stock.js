@@ -9,6 +9,10 @@ const Stock = sequelize.define("stock", {
     allowNull: false,
     primaryKey: true,
   },
+  startingStock: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
   total: Sequelize.INTEGER,
 });
 

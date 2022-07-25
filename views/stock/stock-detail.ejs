@@ -14,22 +14,17 @@
               Khata
             </h2>
           </div>
-          <div
-            class="col-sm-6 table-action"
-            style="display: flex; flex-direction: row-reverse"
-          >
-            <span
-              ><h5>
+          <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse">
+            <span>
+              <h5>
                 <b>Current</b> Stock :
                 <strong><%= stock.total %>/=</strong>
-              </h5></span
-            >
+              </h5>
+            </span>
           </div>
         </div>
       </div>
-      <table
-        class="table table-responsive table-bordered table-hover align-middle"
-      >
+      <table class="table table-responsive table-bordered table-hover align-middle">
         <thead>
           <tr>
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
@@ -42,29 +37,38 @@
         </thead>
         <tbody>
           <% for (let [i, stockDetail] of stockDetails.entries()) { %>
+          <!-- starting stock entry -->
+          <% if (i === 0) { %>
           <tr>
-            <th scope="row" class="text-center"><%= i+1 %></th>
+            <th colspan="5" class="text-end text-uppercase fs-6 fst-normal">Opening Stock</th>
+            <th><%= stockDetail.startingStock %></th>
+          </tr>
+          <!-- handle all other entries in table -->
+          <% } else { %>
+          <tr>
+            <th scope="row" class="text-center"><%= i %></th>
             <td><%= new Date(stockDetail.Date).toDateString() %></td>
             <td>
               <% if (stockDetail.entryType === "addStock") { %>
-                TruckNumber &#8594 <strong><%= stockDetail.truckNumber %></strong>&nbsp; 
+              TruckNumber &#8594 <strong><%= stockDetail.truckNumber %></strong>&nbsp;
               <% } else if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "nonCash") { %>
-                Customer &#8594 <strong><%= stockDetail.customer.name %></strong>&nbsp; 
+              Customer &#8594 <strong><%= stockDetail.customer.name %></strong>&nbsp;
               <% } else if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "cash") { %>
-                Customer &#8594 <strong><%= stockDetail.cashCustomer %></strong>&nbsp; 
-               <% } %>
+              Customer &#8594 <strong><%= stockDetail.cashCustomer %></strong>&nbsp;
+              <% } %>
             </td>
             <td><%= stockDetail.credit %></td>
             <td><%= stockDetail.debit %></td>
             <td><%= stockDetail.total %></td>
           </tr>
           <% } %>
+          <% } %>
         </tbody>
       </table>
     </div>
     <% } else { %>
     <!-- table action button work -->
-    <h1 class="centered">No stock Details for <%= stockDetails %>!</h1>
+    <h1 class="centered">No Details for <b><%= stock.pattern.name %> <%= stock.size.type %> </b> Stock in Roznamcha !</h1>
     <% } %>
   </main>
   <%- include('../includes/end.ejs') %>
