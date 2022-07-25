@@ -1,35 +1,14 @@
 const path = require("path");
+
 // import environment variables
 require("dotenv").config();
 
+// setting up express server
 const express = require("express");
 const bodyParser = require("body-parser");
-
-// new controllers
-const errorController = require("./controllers/error");
-
-// new models
-const Bank = require("./models/bank");
-const BankAccount = require("./models/bank-account");
-const Size = require("./models/size");
-const Pattern = require("./models/pattern");
-const Customer = require("./models/customer");
-const Roznamcha = require("./models/roznamcha");
-const EntryType = require("./models/entry-type");
-
-// old models
-// const Product = require("./models/product");
-// const User = require('./models/user');
-// const Cart = require('./models/cart');
-// const CartItem = require('./models/cart-item');
-// const Order = require('./models/order');
-// const OrderItem = require('./models/order-item');
-
 const app = express();
 
-// database object
-const sequelize = require("./util/database");
-
+// views settings for express app - ejs -views
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -37,14 +16,29 @@ app.set("views", "views");
 const bankRoutes = require("./routes/bank");
 const sizeRoutes = require("./routes/size");
 const patternRoutes = require("./routes/pattern");
-const entryTypesRoutes = require("./routes/entry-types");
+const stockRoutes = require("./routes/stock");
+const amountTypesRoutes = require("./routes/amount-type");
 const bankAccountRoutes = require("./routes/bank-account");
 const customerRoutes = require("./routes/customer");
 const roznamchaRoutes = require("./routes/roznamcha");
 
-// const adminRoutes = require('./routes/admin');
-// const shopRoutes = require('./routes/shop');
+// new models import
+const Bank = require("./models/bank");
+const BankAccount = require("./models/bank-account");
+const Size = require("./models/size");
+const Pattern = require("./models/pattern");
+const Customer = require("./models/customer");
+const Roznamcha = require("./models/roznamcha");
+const AmountType = require("./models/amount-type");
+const Stock = require("./models/stock");
 
+// database object
+const sequelize = require("./util/database");
+
+// new controllers
+const errorController = require("./controllers/error");
+
+// request body parser and static folder settings
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -61,46 +55,46 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bankRoutes);
 app.use(sizeRoutes);
 app.use(patternRoutes);
-app.use(entryTypesRoutes);
+app.use(stockRoutes);
+app.use(amountTypesRoutes);
 app.use(bankAccountRoutes);
 app.use(customerRoutes);
 app.use(roznamchaRoutes);
 // app.use(whatsapp);
 
-// app.use('/admin', adminRoutes);
-// app.use(shopRoutes);
-
 app.use(errorController.get404);
 
-// Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
-// User.hasMany(Product);
-// User.hasOne(Cart);
-// Cart.belongsTo(User);
-// Cart.belongsToMany(Product, { through: CartItem });
-// Product.belongsToMany(Cart, { through: CartItem });
-// Order.belongsTo(User);
-// User.hasMany(Order);
-// Order.belongsToMany(Product, { through: OrderItem });
-
-// create table relations
-
+// create database relationships
 // Bank --> BankAccount
 BankAccount.belongsTo(Bank);
 Bank.hasMany(BankAccount);
 
-// Roznamcha --> EntryTypes --> Customer --> BankAccount
-Roznamcha.belongsTo(EntryType);
-EntryType.hasMany(Roznamcha);
+// Roznamcha --> EntryTypes --> Customer --> BankAccount --> Size --> Pattern
+// Roznamcha.belongsTo(EntryType);
+// EntryType.hasMany(Roznamcha);
 Roznamcha.belongsTo(Customer);
 Customer.hasMany(Roznamcha);
 Roznamcha.belongsTo(BankAccount);
 BankAccount.hasMany(Roznamcha);
+Roznamcha.belongsTo(Size);
+Size.hasMany(Roznamcha);
+Roznamcha.belongsTo(Pattern);
+Pattern.hasMany(Roznamcha);
 
-// Size --> Pattern
-Size.belongsToMany(Pattern, { through: "sizePattern" });
-Pattern.belongsToMany(Size, { through: "sizePattern" });
+// Stock --> Size
+Stock.belongsTo(Size);
+Size.hasMany(Stock);
 
-require("./services/whatsapp");
+// Stock --> Pattern
+Stock.belongsTo(Pattern);
+Pattern.hasMany(Stock);
+
+// Customer --> AmountType
+Customer.belongsTo(AmountType);
+AmountType.hasMany(Customer);
+
+// import whatsapp file settings
+// require("./services/whatsapp");
 
 // authenticate the connection
 sequelize

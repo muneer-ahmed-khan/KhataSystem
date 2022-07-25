@@ -14,4 +14,26 @@ exports.CONSTANTS = {
       FILE_FORMAT: ".pdf",
     },
   },
+  DATABASE_FIELDS: {
+    ENTRY_TYPE: {
+      ADD_STOCK: "addStock",
+      SELL_STOCK: "sellStock",
+      CREDIT_AMOUNT: "creditAmount",
+      DEBIT_AMOUNT: "debitAmount",
+    },
+    CUSTOMER_TYPE: {
+      NON_CASH: "nonCash",
+      CASH: "cash",
+    },
+    PAYMENT_TYPE: {
+      CHECK: "check",
+      TRANSFER: "transfer",
+      CASH: "cash",
+    },
+    AMOUNT_TYPE: {
+      CREDIT: "credit",
+      DEBIT: "debit",
+      BOTH: "both",
+    },
+  },
 };

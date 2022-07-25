@@ -1,48 +1,34 @@
 <div class="backdrop"></div>
 <header class="main-header">
   <button id="side-menu-toggle">Menu</button>
+  <span id="heading" class="heading">
+    <a href="/" style="text-decoration: none; color: white; font-weight: 600;">Khata System App</a>
+  </span>
   <nav class="main-header__nav">
     <ul class="main-header__item-list">
       <li class="main-header__item">
-        <a class="<%= path === '/bank' ? 'active' : '' %>" href="/bank"
-          >Banks</a
-        >
+        <a class="<%= path === '/bank' ? 'active' : '' %>" href="/bank" style="font-weight: 600;">Banks</a>
       </li>
       <li class="main-header__item">
-        <a class="<%= path === '/size' ? 'active' : '' %>" href="/size"
-          >Sizes</a
-        >
+        <a class="<%= path === '/size' ? 'active' : '' %>" href="/size" style="font-weight: 600;">Sizes</a>
       </li>
       <li class="main-header__item">
-        <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern"
-          >Patterns</a
-        >
+        <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern" style="font-weight: 600;">Patterns</a>
       </li>
       <li class="main-header__item">
-        <a
-          class="<%= path === '/entry-type' ? 'active' : '' %>"
-          href="/entry-type"
-          >Entry Types</a
-        >
+        <a class="<%= path === '/amount-type' ? 'active' : '' %>" href="/amount-type" style="font-weight: 600;">Amount Types</a>
       </li>
       <li class="main-header__item">
-        <a
-          class="<%= path === '/bank-account' ? 'active' : '' %>"
-          href="/bank-account"
-          >Bank Accounts</a
-        >
+        <a class="<%= path === '/stock' ? 'active' : '' %>" href="/stock" style="font-weight: 600;">Stocks</a>
       </li>
       <li class="main-header__item">
-        <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer"
-          >Customers</a
-        >
+        <a class="<%= path === '/bank-account' ? 'active' : '' %>" href="/bank-account" style="font-weight: 600;">Bank Accounts</a>
       </li>
       <li class="main-header__item">
-        <a
-          class="<%= path === '/roznamcha' ? 'active' : '' %>"
-          href="/roznamcha"
-          >Roznamcha</a
-        >
+        <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer" style="font-weight: 600;">Customers</a>
+      </li>
+      <li class="main-header__item">
+        <a class="<%= path === '/roznamcha' ? 'active' : '' %>" href="/roznamcha" style="font-weight: 600;">Roznamcha</a>
       </li>
     </ul>
   </nav>
@@ -51,39 +37,28 @@
 <nav class="mobile-nav">
   <ul class="mobile-nav__item-list">
     <li class="mobile-nav__item">
-      <a class="<%= path === '/bank' ? 'active' : '' %>" href="/bank">Banks</a>
+      <a class="<%= path === '/bank' ? 'active' : '' %>" href="/bank" style="font-weight: 600;">Banks</a>
     </li>
     <li class="mobile-nav__item">
-      <a class="<%= path === '/size' ? 'active' : '' %>" href="/size">Sizes</a>
+      <a class="<%= path === '/size' ? 'active' : '' %>" href="/size" style="font-weight: 600;">Sizes</a>
     </li>
     <li class="mobile-nav__item">
-      <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern"
-        >Patterns</a
-      >
+      <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern" style="font-weight: 600;">Patterns</a>
     </li>
     <li class="mobile-nav__item">
-      <a
-        class="<%= path === '/entry-type' ? 'active' : '' %>"
-        href="/entry-type"
-        >Entry Types</a
-      >
+      <a class="<%= path === '/amount-type' ? 'active' : '' %>" href="/amount-type" style="font-weight: 600;">Amount Types</a>
     </li>
     <li class="mobile-nav__item">
-      <a
-        class="<%= path === '/bank-account' ? 'active' : '' %>"
-        href="/bank-account"
-        >Bank Accounts</a
-      >
+      <a class="<%= path === '/stock' ? 'active' : '' %>" href="/stock" style="font-weight: 600;">Stock</a>
     </li>
     <li class="mobile-nav__item">
-      <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer"
-        >Customers</a
-      >
+      <a class="<%= path === '/bank-account' ? 'active' : '' %>" href="/bank-account" style="font-weight: 600;">Bank Accounts</a>
     </li>
     <li class="mobile-nav__item">
-      <a class="<%= path === '/roznamcha' ? 'active' : '' %>" href="/roznamcha"
-        >Roznamcha</a
-      >
+      <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer" style="font-weight: 600;">Customers</a>
+    </li>
+    <li class="mobile-nav__item">
+      <a class="<%= path === '/roznamcha' ? 'active' : '' %>" href="/roznamcha" style="font-weight: 600;">Roznamcha</a>
     </li>
   </ul>
 </nav>

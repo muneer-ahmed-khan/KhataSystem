@@ -12,8 +12,9 @@ if (process.env.NODE_ENV === "local") {
     {
       dialect: "postgres",
       host: process.env.HOST,
-      // logging: (msg) => console.log("\n-----Database --> Log: \n", msg, "\n"),
-      logging: false,
+      logging: (msg) => console.log("\n-----Database --> Log: \n", msg, "\n"),
+      logQueryParameters: true,
+      // logging: false,
     }
   );
   // database settings for production environment

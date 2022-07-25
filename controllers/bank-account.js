@@ -1,7 +1,7 @@
 const BankAccount = require("../models/bank-account");
 const Bank = require("../models/bank");
 const Customer = require("../models/customer");
-const EntryType = require("../models/entry-type");
+const { CONSTANTS } = require("../config/constants");
 
 exports.getBankAccount = (req, res, next) => {
   BankAccount.findAll({ include: [Bank], order: [["id", "DESC"]] })
@@ -123,26 +123,39 @@ exports.getBankAccountKhata = (req, res, next) => {
         return res.redirect("/bank-account");
       }
       const bankAccountDetails = [];
-      let bankAccountBalance = bankAccount.balance;
+      let bankAccountBalance = 0;
       const RoznamchaDetails = await bankAccount.getRoznamchas({
-        include: [Customer, EntryType],
+        include: [Customer],
+        order: [["id", "ASC"]],
       });
-      for (let i of RoznamchaDetails) {
-        (bankAccountBalance =
-          i.entryType.type === "Credit"
-            ? Number(bankAccountBalance) + Number(i.amount)
-            : i.entryType.type === "Debit"
-            ? Number(bankAccountBalance) - Number(i.amount)
-            : 0),
-          bankAccountDetails.push({
-            Date: i.updatedAt,
-            customerDetails: i.customer.name,
-            credit: i.entryType.type === "Credit" ? i.amount : 0,
-            debit: i.entryType.type === "Debit" ? i.amount : 0,
-            balance: bankAccountBalance,
-          });
+
+      for (let [key, value] of RoznamchaDetails.entries()) {
+        bankAccountBalance =
+          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+            ? Number(bankAccountBalance) + Number(value.amount)
+            : value.entryType ===
+              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+            ? Number(bankAccountBalance) - Number(value.amount)
+            : Number(bankAccountBalance);
+
+        bankAccountDetails.push({
+          Date: value.updatedAt,
+          customerDetails: value.customer.name,
+          paymentType: value.paymentType,
+          credit:
+            value.entryType ===
+            CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+              ? value.amount
+              : 0,
+          debit:
+            value.entryType ===
+            CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+              ? value.amount
+              : 0,
+          balance: bankAccountBalance,
+        });
       }
-      console.log(bankAccountDetails);
+
       res.render("bank-account/bank-account-khata.ejs", {
         bankAccountDetails: bankAccountDetails,
         bankAccount: bankAccount,

@@ -4,12 +4,15 @@
   <%- include('../includes/navigation.ejs') %>
 
   <main class="container-fluid">
-    <% if (bankAccountDetails.length > 0) { %>
+    <% if (stockDetails.length > 0) { %>
     <div class="table-wrapper">
       <div class="table-title">
         <div class="row" style="display: flex; align-items: flex-end">
           <div class="col-sm-6">
-            <h2><b><%= bankAccount.accountName %> </b> Khata</h2>
+            <h2>
+              <b><%= stock.pattern.name %> <%= stock.size.type %> </b> Stock
+              Khata
+            </h2>
           </div>
           <div
             class="col-sm-6 table-action"
@@ -17,8 +20,8 @@
           >
             <span
               ><h5>
-                <b>Current</b> Balance :
-                <strong><%= bankAccount.balance %>/=</strong>
+                <b>Current</b> Stock :
+                <strong><%= stock.total %>/=</strong>
               </h5></span
             >
           </div>
@@ -34,22 +37,26 @@
             <th scope="col">Details</th>
             <th scope="col">Credit +</th>
             <th scope="col">Debit -</th>
-            <th scope="col">Balance</th>
+            <th scope="col">Total</th>
           </tr>
         </thead>
         <tbody>
-          <% for (let [i, bankAccountKhata] of bankAccountDetails.entries()) {
-          %>
+          <% for (let [i, stockDetail] of stockDetails.entries()) { %>
           <tr>
             <th scope="row" class="text-center"><%= i+1 %></th>
-            <td><%= new Date(bankAccountKhata.Date).toDateString() %></td>
+            <td><%= new Date(stockDetail.Date).toDateString() %></td>
             <td>
-              Customer &#8594 <strong><%= bankAccountKhata.customerDetails %></strong>&nbsp; 
-              PaymentType &#8594 <strong><%= bankAccountKhata.paymentType.toUpperCase() %></strong>&nbsp; 
+              <% if (stockDetail.entryType === "addStock") { %>
+                TruckNumber &#8594 <strong><%= stockDetail.truckNumber %></strong>&nbsp; 
+              <% } else if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "nonCash") { %>
+                Customer &#8594 <strong><%= stockDetail.customer.name %></strong>&nbsp; 
+              <% } else if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "cash") { %>
+                Customer &#8594 <strong><%= stockDetail.cashCustomer %></strong>&nbsp; 
+               <% } %>
             </td>
-            <td><%= bankAccountKhata.credit %></td>
-            <td><%= bankAccountKhata.debit %></td>
-            <td><%= bankAccountKhata.balance %></td>
+            <td><%= stockDetail.credit %></td>
+            <td><%= stockDetail.debit %></td>
+            <td><%= stockDetail.total %></td>
           </tr>
           <% } %>
         </tbody>
@@ -57,7 +64,7 @@
     </div>
     <% } else { %>
     <!-- table action button work -->
-    <h1 class="centered">No Khata Details for <%= bankAccountDetails %>!</h1>
+    <h1 class="centered">No stock Details for <%= stockDetails %>!</h1>
     <% } %>
   </main>
   <%- include('../includes/end.ejs') %>

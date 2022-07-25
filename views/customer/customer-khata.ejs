@@ -11,27 +11,22 @@
           <div class="col-sm-6">
             <h2><b><%= customer.name %> </b> Khata</h2>
           </div>
-          <div
-            class="col-sm-6 table-action"
-            style="display: flex; flex-direction: row-reverse"
-          >
-            <span
-              ><h5>
-                <b>Opening</b> Balance :
+          <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse">
+            <span>
+              <h5>
+                <b>Current</b> Balance :
                 <strong><%= customer.balance %>/=</strong>
-              </h5></span
-            >
+              </h5>
+            </span>
           </div>
         </div>
       </div>
-      <table
-        class="table table-responsive table-bordered table-hover align-middle"
-      >
+      <table class="table table-responsive table-bordered table-hover align-middle">
         <thead>
           <tr>
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
             <th scope="col">Date</th>
-            <th scope="col">Bank Details</th>
+            <th scope="col">Details</th>
             <th scope="col">Credit +</th>
             <th scope="col">Debit -</th>
             <th scope="col">Balance</th>
@@ -42,7 +37,20 @@
           <tr>
             <th scope="row" class="text-center"><%= i+1 %></th>
             <td><%= new Date(customerKhata.Date).toDateString() %></td>
-            <td><%= customerKhata.bankDetails %></td>
+            <td>
+              <% if (customerKhata.entryType === "creditAmount" || customerKhata.entryType === "debitAmount") { %>
+              PaymentType &#8594 <strong><%= customerKhata.paymentType.toUpperCase() %></strong>&nbsp;
+              <% if (customerKhata.paymentType !== "cash") { %>
+              BankAccount &#8594 <strong><%=customerKhata.bankDetails %></strong>&nbsp;
+              <% } %>
+              <% }  else if (customerKhata.entryType === "sellStock") { %>
+              QTY &#8594 <strong><%= customerKhata.qty %></strong>&nbsp;
+              Pattern &#8594 <strong><%=customerKhata.pattern %></strong>&nbsp;
+              Size &#8594 <strong><%=customerKhata.size %></strong>&nbsp;
+              Price &#8594 <strong><%=customerKhata.amount %></strong>&nbsp;
+              <% } %>
+
+            </td>
             <td><%= customerKhata.credit %></td>
             <td><%= customerKhata.debit %></td>
             <td><%= customerKhata.balance %></td>
