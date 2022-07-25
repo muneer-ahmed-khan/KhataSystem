@@ -101,7 +101,8 @@
           <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
             <option selected disabled>Select Customer name</option>
             <% for (let [i, customer] of customers.entries()) { %>
-            <option <% if (editing && customer.id===roznamcha.customerId ) { %> selected='selected' <% } else { %> <% } %> value="<%= customer.id %>"><%= customer.name %>
+            <option <% if (editing && customer.id===roznamcha.customerId ) { %> selected='selected' <% } else { %> <% } %> style="color: green" value="<%= customer.id %>">
+              <%= customer.name %>
             </option>
             <% } %>
           </select>
@@ -116,7 +117,7 @@
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Payment Type : </b>
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="paymentType" name="paymentType">
+        <select class="form-select" style="margin: 10px 0px;" id="paymentType" name="paymentType" onchange="paymentTypeChange(this.value)">
           <option selected disabled>Select Payment Method</option>
           <% for (let [i, paymentType] of paymentTypes.entries()) { %>
           <option <% if (editing && paymentType===roznamcha.paymentType ) { %> selected='selected' <% } else { %> <% } %> value="<%= paymentType %>"><%= paymentType.toUpperCase() %>
@@ -125,18 +126,19 @@
         </select>
 
         <!-- Bank Account Input Field -->
-        <label for="bankAccount">
-          <% if (editing) { %>Update <% } else { %>Select <% } %>
-          <b>Bank Account : </b>
-        </label>
-        <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount">
-          <option selected disabled>Select Bank Account Name</option>
-          <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
-          <option <% if (editing && bankAccount.id===roznamcha.bankAccountId ) { %> selected='selected' <% } else { %> <% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %>
-          </option>
-          <% } %>
-        </select>
-
+        <span id="bankAccount">
+          <label for="bankAccount">
+            <% if (editing) { %>Update <% } else { %>Select <% } %>
+            <b>Bank Account : </b>
+          </label>
+          <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount">
+            <option selected disabled>Select Bank Account Name</option>
+            <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
+            <option <% if (editing && bankAccount.id===roznamcha.bankAccountId ) { %> selected='selected' <% } else { %> <% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %>
+            </option>
+            <% } %>
+          </select>
+        </span>
         <% } %>
 
         <!-- Amount Input Field -->
@@ -167,7 +169,8 @@
   <!-- below first script tag is to support ejs in script tag -->
   <script src="/js/ejs.min.js"></script>
   <script>
-    var nonCashCustomerFieldHtml = null;
+    let bankAccountFieldHtml = null;
+    let nonCashCustomerFieldHtml = null;
     let cashCustomerFieldHtml = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="">`;
 
     // function is called when something is changes in customer type in input field
@@ -188,15 +191,34 @@
           customerInputField.innerHTML = cashCustomerFieldHtml;
         }
       }
-
     }
+
+    // function is called when something is changes in customer type in input field
+    function paymentTypeChange(value) {
+      let bankAccountField = document.getElementById('bankAccount');
+      if (value === 'cash') {
+        bankAccountFieldHtml = bankAccountField.innerHTML;
+        bankAccountField.innerHTML = '';
+      } else {
+        bankAccountField.innerHTML = bankAccountFieldHtml;
+      }
+    }
+
 
 
     // these settings are loaded on page load
     window.onload = () => {
+
+      // first save bank field html
+      let bankAccountField = document.getElementById('bankAccount');
+      if (bankAccountField)
+        bankAccountFieldHtml = bankAccountField.innerHTML;
+
       let editing = '<%- editing %>';
 
       if (editing) {
+
+        // first handle here the customer type here
         let customerType = '<%- editing ? roznamcha.customerType : "" %>';
         let cashCustomerName = '<%- editing ? roznamcha.cashCustomer : "" %>';
 
@@ -210,6 +232,18 @@
           nonCashCustomerFieldHtml = customerInputField.innerHTML;
           customerInputField.innerHTML = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="${cashCustomerName}">`;
         }
+
+        // handle here the payment type here
+
+        let paymentType = '<%- editing ? roznamcha.paymentType : "" %>';
+        let bankAccountField = document.getElementById('bankAccount');
+        if (paymentType === 'cash') {
+          bankAccountFieldHtml = bankAccountField.innerHTML;
+          bankAccountField.innerHTML = '';
+        } else {
+          bankAccountField.innerHTML = bankAccountFieldHtml;
+        }
+
       }
 
     }

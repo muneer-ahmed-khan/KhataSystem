@@ -76,7 +76,15 @@
               <%= new Date(roznamcha.updatedAt).toDateString() %>
             </td>
             <td class="text-center">
-              <%= roznamcha.entryType.toUpperCase() %>
+              <% if (roznamcha.entryType === "addStock") { %>
+              <span class="text-primary" style="font-weight: 600;">New Stock</span>
+              <% } else if (roznamcha.entryType === "sellStock") { %>
+              <span class="text-warning" style="font-weight: 600;">Sell Tyres</span>
+              <% } else if (roznamcha.entryType === "creditAmount") { %>
+              <span class="text-success" style="font-weight: 600;">Credit Amount</span>
+              <% } else if (roznamcha.entryType === "debitAmount") { %>
+              <span class="text-danger" style="font-weight: 600;">Debit Amount</span>
+              <% } %>
             </td>
             <td>
               <!-- for sell stock and add stock -->
@@ -97,10 +105,12 @@
               <% } %>
 
               <!-- for amount type -->
-              <% if (roznamcha.entryType === "creditAmount") { %>
+              <% if (roznamcha.entryType === "creditAmount" || roznamcha.entryType === "debitAmount") { %>
               Customer &#8594 <strong><%=roznamcha.customer.name %></strong>&nbsp;
               Payment Type &#8594 <strong><%=roznamcha.paymentType.toUpperCase() %></strong>&nbsp;
+              <% if (roznamcha.paymentType !== "cash") { %>
               Bank Account &#8594 <strong><%=roznamcha.bankAccount.accountName %></strong>&nbsp;
+              <% } %>
               Amount &#8594 <strong><%=roznamcha.amount %></strong>
 
               <% } %>

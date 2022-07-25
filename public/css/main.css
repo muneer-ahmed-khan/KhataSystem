@@ -202,10 +202,32 @@ form {
   }
 }
 
-@media only screen and (min-width: 200px) and (max-width: 600px) {
-  #heading {
-    font-size: 14 !important;
+@media only screen and (min-width: 200px) and (max-width: 768px) {
+  .heading {
+    font-size: 0.8rem !important;
   }
+  .main-header__item {
+    font-size: 0.5rem !important;
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 1384px) {
+  .heading {
+    font-size: 0.8rem !important;
+  }
+  .main-header__item {
+    font-size: 0.7rem !important;
+    margin: 0 0.5rem;
+  }
+}
+
+.heading {
+  margin: 0px 100px 0px 50px;
+  color: white;
+  font-weight: 600;
+  width: 28%;
+  font-size: 1.9rem;
+  letter-spacing: 3px;
 }
 
 .table-wrapper {

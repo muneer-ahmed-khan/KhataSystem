@@ -132,13 +132,15 @@ exports.getCustomersKhata = (req, res, next) => {
         customerBalance =
           i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
             ? Number(customerBalance) + Number(i.amount)
+            : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+            ? Number(customerBalance) + Number(i.amount)
             : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
               i.customerType ===
                 CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
             ? Number(customerBalance) -
               Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
             : 0;
-        console.log(i.pattern);
+
         customerDetails.push({
           Date: i.updatedAt,
           entryType: i.entryType,
@@ -153,7 +155,11 @@ exports.getCustomersKhata = (req, res, next) => {
               ? i.size.type
               : i.size,
           bankDetails:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+            (i.entryType ===
+              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+              i.entryType ===
+                CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+            i.paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH
               ? i.bankAccount.accountName
               : i.bankAccount,
           credit:
@@ -161,16 +167,14 @@ exports.getCustomersKhata = (req, res, next) => {
               ? i.amount
               : 0,
           debit:
-            (i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) &
-            (i.customerType ===
-              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH)
-              ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+              ? i.amount
               : 0,
           amount: i.amount,
           balance: customerBalance,
         });
       }
-      console.log(customerDetails);
+
       res.render("customer/customer-khata.ejs", {
         customerDetails: customerDetails,
         customer: customer,

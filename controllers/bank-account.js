@@ -133,7 +133,8 @@ exports.getBankAccountKhata = (req, res, next) => {
         bankAccountBalance =
           value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
             ? Number(bankAccountBalance) + Number(value.amount)
-            : value.entryType.type === "Debit"
+            : value.entryType ===
+              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
             ? Number(bankAccountBalance) - Number(value.amount)
             : Number(bankAccountBalance);
 
@@ -146,7 +147,11 @@ exports.getBankAccountKhata = (req, res, next) => {
             CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
               ? value.amount
               : 0,
-          debit: value.entryType.type === "Debit" ? value.amount : 0,
+          debit:
+            value.entryType ===
+            CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+              ? value.amount
+              : 0,
           balance: bankAccountBalance,
         });
       }
