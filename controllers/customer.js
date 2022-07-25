@@ -169,6 +169,8 @@ exports.getCustomersKhata = (req, res, next) => {
           debit:
             i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
               ? i.amount
+              : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+              ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
               : 0,
           amount: i.amount,
           balance: customerBalance,

@@ -7,7 +7,7 @@
   <main class="row vertical-center">
     <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
       <span for="name" class="fs-3" style="display: flex;
-        margin-bottom: 20px;"><% if (editing) { %>Update existing <% } else { %>Enter new :<% } %> <b>Stock</b> Details :</span>
+        margin-bottom: 20px;"><% if (editing) { %>Update existing <% } else { %>Enter new <% } %> &nbsp;<b class="text-primary">Stock</b> &nbsp;Details :</span>
 
       <form class="form-control " action="/<% if (editing) { %>edit-stock<% } else { %>add-stock<% } %>" method="POST">
 
@@ -29,12 +29,17 @@
           <% } %>
         </select>
 
-
-        <label for="floatingInput"><% if (editing) { %>Update existing Total<% } else { %>Enter new Total<% } %></label>
-        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="name" id="floatingInput" value="<% if (editing) { %><%= stock.total %><% } %>">
+        <!-- starting stock -->
+        <label for="floatingInput" class="lh-lg"><% if (editing) { %>Update Starting Stock:<% } else { %>Enter Starting Stock:<% } %></label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="startingStock" id="floatingInput" value="<% if (editing) { %><%= stock.startingStock %><% } %>">
+        <!-- total stock -->
         <% if (editing) { %>
+        <label for="floatingInput">Update Total Stock:</label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="totalStock" id="floatingInput" value="<% if (editing) { %><%= stock.total %><% } %>">
+        <!-- hidden field for stock id  -->
         <input type="hidden" value="<%= stock.id %>" name="stockId">
         <% } %>
+
         <div>
           <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
             <% if (editing) { %>Update Stock<% } else { %>Add New Stock<% } %>

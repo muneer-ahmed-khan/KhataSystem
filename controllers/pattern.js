@@ -1,7 +1,7 @@
 const Pattern = require("../models/pattern");
 
 exports.getPattern = (req, res, next) => {
-  Pattern.findAll({ order: [["id", "DESC"]] })
+  Pattern.findAll({ order: [["name", "ASC"]] })
     .then((patterns) => {
       res.render("pattern/pattern.ejs", {
         patterns: patterns,

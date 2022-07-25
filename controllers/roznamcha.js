@@ -31,7 +31,19 @@ exports.addRoznamcha = async (req, res, next) => {
   const creditAmountType = req.query.creditAmount;
   const debitAmountType = req.query.debitAmount;
 
+  let entryType = addStockType
+    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
+    : sellStockType
+    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+    : creditAmountType
+    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+    : debitAmountType
+    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+    : "";
+
   console.log(
+    "entryType ",
+    entryType,
     "addStockType ",
     addStockType,
     "sellStockType ",
@@ -145,6 +157,7 @@ exports.addRoznamcha = async (req, res, next) => {
     sellStockType: sellStockType,
     creditAmountType: creditAmountType,
     debitAmountType: debitAmountType,
+    entryType: entryType,
   });
 };
 
@@ -270,6 +283,7 @@ exports.postAddRoznamcha = async (req, res, next) => {
         defaults: {
           patternId: patternId,
           sizeId: sizeId,
+          startingStock: 0,
           total: qty,
         },
       });
@@ -332,7 +346,6 @@ exports.getEditRoznamcha = async (req, res, next) => {
           },
         ],
       });
-
       patterns = await Pattern.findAll({
         include: [
           {
@@ -428,6 +441,7 @@ exports.getEditRoznamcha = async (req, res, next) => {
           entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
             ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
             : "",
+        entryType: entryType,
       });
     })
     .catch((err) => console.log(err));
@@ -477,7 +491,11 @@ exports.postEditRoznamcha = async (req, res, next) => {
   try {
     const roznamchaId = req.body.roznamchaId;
     const roznamcha = await Roznamcha.findByPk(roznamchaId);
-    // get old Stock value
+    // get old Patter id
+    const oldPatternId = roznamcha.patternId;
+    // get old Size value
+    const oldSizeId = roznamcha.sizeId;
+    // get old qty value
     const oldQty = roznamcha.qty;
     // get old Customer Balance
     const oldCustomerAmount = roznamcha.amount;
@@ -676,17 +694,38 @@ exports.postEditRoznamcha = async (req, res, next) => {
       entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK ||
       entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
     ) {
-      const updateStock = await Stock.findOne({
-        where: { patternId: patternId, sizeId: sizeId },
-      });
       // check if the stock is already exist then add to total stock or remove from stock
       if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK) {
-        const updateTotal = Number(qty) - Number(oldQty);
-        updateStock.total = Number(updateStock.total) + updateTotal;
-        await updateStock.save();
+        const [createOrUpdateStock, created] = await Stock.findOrCreate({
+          where: { patternId: patternId, sizeId: sizeId },
+          defaults: {
+            patternId: patternId,
+            sizeId: sizeId,
+            startingStock: 0,
+            total: qty,
+          },
+        });
+
+        // if the stock was edited then run this case
+        if (!created) {
+          const updateTotal = Number(qty) - Number(oldQty);
+          createOrUpdateStock.total = Number(updateStock.total) + updateTotal;
+          await createOrUpdateStock.save();
+        }
+        // if the stock was replace by other pattern or size then update this back to old values
+        else if (created) {
+          const updateStock = await Stock.findOne({
+            where: { patternId: oldPatternId, sizeId: oldSizeId },
+          });
+          updateStock.total = Number(updateStock.total) - Number(oldQty);
+          await updateStock.save();
+        }
       } else if (
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
       ) {
+        const updateStock = await Stock.findOne({
+          where: { patternId: patternId, sizeId: sizeId },
+        });
         const updateTotal = Number(qty) - Number(oldQty);
         updateStock.total = Number(updateStock.total) - updateTotal;
         await updateStock.save();

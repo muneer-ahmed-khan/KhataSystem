@@ -236,11 +236,12 @@
         // handle here the payment type here
 
         let paymentType = '<%- editing ? roznamcha.paymentType : "" %>';
+        let entryType = '<%-  entryType ? entryType : "" %>';
         let bankAccountField = document.getElementById('bankAccount');
         if (paymentType === 'cash') {
           bankAccountFieldHtml = bankAccountField.innerHTML;
           bankAccountField.innerHTML = '';
-        } else {
+        } else if (entryType !== 'addStock' && entryType !== 'sellStock') {
           bankAccountField.innerHTML = bankAccountFieldHtml;
         }
 

@@ -26,7 +26,7 @@ exports.addStock = async (req, res, next) => {
 
   res.render("stock/edit-stock", {
     pageTitle: "Add Stock",
-    path: "/add-stock",
+    path: "/stock",
     editing: false,
     sizes: sizes,
     patterns: patterns,
@@ -36,9 +36,11 @@ exports.addStock = async (req, res, next) => {
 exports.postAddStock = (req, res, next) => {
   const size = req.body.size;
   const pattern = req.body.pattern;
-  const total = req.body.name;
+  const startingStock = req.body.startingStock;
+
   Stock.create({
-    total: total,
+    startingStock: startingStock,
+    total: startingStock,
     sizeId: size,
     patternId: pattern,
   })
@@ -68,7 +70,8 @@ exports.getEditStock = async (req, res, next) => {
       }
       res.render("stock/edit-stock", {
         pageTitle: "Edit Stock",
-        path: "/edit-stock",
+        path: "/stock",
+
         editing: editMode,
         stock: stock,
         sizes: sizes,
@@ -82,10 +85,12 @@ exports.postEditStock = (req, res, next) => {
   const updatedSize = req.body.size;
   const updatedPattern = req.body.pattern;
   const stockId = req.body.stockId;
-  const updatedQty = req.body.name;
+  const updatedStartingStock = req.body.startingStock;
+  const updatedTotal = req.body.totalStock;
   Stock.findByPk(stockId)
     .then((stock) => {
-      stock.total = updatedQty;
+      stock.startingStock = updatedStartingStock;
+      stock.total = updatedTotal;
       stock.sizeId = updatedSize;
       stock.patternId = updatedPattern;
       return stock.save();
@@ -118,7 +123,7 @@ exports.getStockDetails = (req, res, next) => {
         return res.redirect("/stock");
       }
       const stockDetails = [];
-      let stockTotal = 0;
+      let stockTotal = stock.startingStock;
       const RoznamchaDetails = await Roznamcha.findAll({
         where: {
           patternId: stock.patternId,
@@ -130,6 +135,10 @@ exports.getStockDetails = (req, res, next) => {
         },
         include: [Pattern, Size, Customer],
         order: [["id", "ASC"]],
+      });
+
+      stockDetails.push({
+        startingStock: stockTotal,
       });
 
       for (let [key, value] of RoznamchaDetails.entries()) {
