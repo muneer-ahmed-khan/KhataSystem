@@ -8,7 +8,7 @@ module.exports = {
         {
           startingStock: 320,
           total: 320,
-          sizeId: 1,
+          sizeId: 2,
           patternId: 6,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -16,7 +16,7 @@ module.exports = {
         {
           startingStock: 40,
           total: 40,
-          sizeId: 1,
+          sizeId: 2,
           patternId: 2,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -24,7 +24,7 @@ module.exports = {
         {
           startingStock: 4,
           total: 4,
-          sizeId: 1,
+          sizeId: 2,
           patternId: 3,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -32,7 +32,7 @@ module.exports = {
         {
           startingStock: 12,
           total: 12,
-          sizeId: 1,
+          sizeId: 2,
           patternId: 4,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -40,7 +40,7 @@ module.exports = {
         {
           startingStock: 14,
           total: 14,
-          sizeId: 1,
+          sizeId: 2,
           patternId: 5,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -48,7 +48,7 @@ module.exports = {
         {
           startingStock: 18,
           total: 18,
-          sizeId: 1,
+          sizeId: 2,
           patternId: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -56,7 +56,7 @@ module.exports = {
         {
           startingStock: 2,
           total: 2,
-          sizeId: 7,
+          sizeId: 1,
           patternId: 14,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -64,7 +64,7 @@ module.exports = {
         {
           startingStock: 34,
           total: 34,
-          sizeId: 2,
+          sizeId: 3,
           patternId: 6,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -72,7 +72,7 @@ module.exports = {
         {
           startingStock: 30,
           total: 30,
-          sizeId: 3,
+          sizeId: 4,
           patternId: 6,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -80,7 +80,7 @@ module.exports = {
         {
           startingStock: 26,
           total: 26,
-          sizeId: 3,
+          sizeId: 4,
           patternId: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
