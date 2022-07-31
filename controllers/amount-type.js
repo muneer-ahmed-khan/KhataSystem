@@ -1,88 +1,141 @@
-const AmountType = require("../models/amount-type");
+// import import amount type model first
+const { AmountType } = require("../models");
 
-exports.getAmountType = (req, res, next) => {
-  AmountType.findAll({ order: [["id", "DESC"]] })
-    .then((amount_types) => {
-      res.render("amount-type/amount-type.ejs", {
-        amount_types: amount_types,
-        pageTitle: "All AmountTypes",
-        path: "/amount-type",
-      });
-    })
-    .catch((err) => {
-      console.log(err);
+// render all amount types
+exports.getAllAmountType = async (req, res, next) => {
+  try {
+    // get all amount types from db
+    const amountTypes = await AmountType.findAll({ order: [["type", "ASC"]] });
+
+    // render the all amount type screen
+    res.render("amount-type/amount-type.ejs", {
+      amount_types: amountTypes,
+      pageTitle: "All AmountTypes",
+      path: "/amount-type",
     });
+  } catch (reason) {
+    console.log(
+      "Error: in getAllAmountType controller with reason --> ",
+      reason
+    );
+  }
 };
 
+// add new amount type screen where editing = false
 exports.addAmountType = (req, res, next) => {
+  // render new amount type screen
   res.render("amount-type/edit-amount-type", {
     pageTitle: "Add AmountType",
-    path: "/add-amount-type",
+    path: "/amount-type",
     editing: false,
   });
 };
 
-exports.postAddAmountType = (req, res, next) => {
+// add new amount type to db
+exports.postAddAmountType = async (req, res, next) => {
+  // get the new type details from request params
   const type = req.body.name;
-  AmountType.create({
-    type: type,
-  })
-    .then((result) => {
-      // console.log(result);
-      console.log("Created AmountType");
-      res.redirect("/amount-type");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+
+  try {
+    // check if user has the filled the field with the data
+    if (type)
+      // create new amount type
+      await AmountType.create({
+        type: type,
+      });
+
+    // render all types with new types
+    console.log("Created AmountType");
+    res.redirect("/amount-type");
+  } catch (reason) {
+    console.log(
+      "Error: in postAddAmountType controller with reason --> ",
+      reason
+    );
+  }
 };
 
-exports.getEditAmountType = (req, res, next) => {
+// get edit screen from existing amount type
+exports.getEditAmountType = async (req, res, next) => {
+  // check for edit mode in request params
   const editMode = req.query.edit;
+
+  // if editMode = false then show all amount types
   if (!editMode) {
     return res.redirect("/amount-type");
   }
+
+  // get amount type id from request params
   const amountTypeId = req.params.amountTypeId;
-  console.log("check band id bro ", amountTypeId);
-  AmountType.findByPk(amountTypeId)
-    .then((amount_type) => {
-      if (!amount_type) {
-        return res.redirect("/amount-type");
-      }
-      res.render("amount-type/edit-amount-type", {
-        pageTitle: "Edit AmountType",
-        path: "/edit-amount-type",
-        editing: editMode,
-        amount_type: amount_type,
-      });
-    })
-    .catch((err) => console.log(err));
+
+  try {
+    // get amount type form db
+    const amountType = await AmountType.findByPk(amountTypeId);
+
+    // if amount types doesn't exist then do nothing
+    if (!amountType) {
+      return res.redirect("/amount-type");
+    }
+
+    // render edit mode from amount type
+    res.render("amount-type/edit-amount-type", {
+      pageTitle: "Edit AmountType",
+      path: "/amount-type",
+      editing: editMode,
+      amount_type: amountType,
+    });
+  } catch (reason) {
+    console.log(
+      "Error: in getEditAmountType controller with reason --> ",
+      reason
+    );
+  }
 };
 
-exports.postEditAmountType = (req, res, next) => {
+// update the amount type name in db
+exports.postEditAmountType = async (req, res, next) => {
+  // get the amount type id and amount type detail from request params
   const amountTypeId = req.body.amountTypeId;
   const updatedType = req.body.name;
-  AmountType.findByPk(amountTypeId)
-    .then((amount_type) => {
-      amount_type.type = updatedType;
-      return amount_type.save();
-    })
-    .then((result) => {
-      console.log("UPDATED AmountType!");
-      res.redirect("/amount-type");
-    })
-    .catch((err) => console.log(err));
+
+  try {
+    // find amount type with amount type id
+    const amountType = await AmountType.findByPk(amountTypeId);
+
+    // update amount type details in db
+    amountType.type = updatedType;
+    await amountType.save();
+
+    // render all amount type template with updated one as well
+    console.log("UPDATED AmountType!");
+    res.redirect("/amount-type");
+  } catch (reason) {
+    console.log(
+      "Error: in postEditAmountType controller with reason --> ",
+      reason
+    );
+  }
 };
 
-exports.postDeleteAmountType = (req, res, next) => {
+// delete amount type from db
+exports.postDeleteAmountType = async (req, res, next) => {
+  // get amount type id from request params
   const amountTypeId = req.body.amountTypeId;
-  AmountType.findByPk(amountTypeId)
-    .then((amount_type) => {
-      return amount_type.destroy();
-    })
-    .then((result) => {
-      console.log("DESTROYED PRODUCT");
-      res.redirect("/amount-type");
-    })
-    .catch((err) => console.log(err));
+
+  try {
+    // find amount type in db
+    const amountType = await AmountType.findByPk(amountTypeId);
+
+    // delete the amountType from db
+    await amountType.destroy();
+
+    // render all amount types with updated data
+    console.log("DESTROYED PRODUCT");
+    res.redirect("/amount-type");
+  } catch (reason) {
+    console.log(
+      "Error: in postDeleteAmountType controller with reason --> ",
+      reason
+    );
+  }
 };

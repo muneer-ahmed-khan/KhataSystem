@@ -1,8 +1,9 @@
+// get express router first
 const express = require("express");
-
-const bankController = require("../controllers/bank");
-
 const router = express.Router();
+
+// import the controller for routes
+const bankController = require("../controllers/bank");
 
 // get all banks
 router.get("/bank", bankController.getBanks);
@@ -18,4 +19,5 @@ router.post("/edit-bank", bankController.postEditBank);
 // delete bank
 router.post("/delete-bank", bankController.postDeleteBank);
 
+// export router routes to be used in main file
 module.exports = router;

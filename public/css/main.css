@@ -236,6 +236,9 @@ form {
 .table-title {
   margin: 10px;
 }
+.table-sub-title {
+  margin: 16px;
+}
 .table-action > form > button {
   margin: 0.5rem;
 }
@@ -244,4 +247,26 @@ form {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+html {
+  font-size: 1rem;
+}
+
+@include media-breakpoint-up(sm) {
+  html {
+    font-size: 1.2rem;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  html {
+    font-size: 1.4rem;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  html {
+    font-size: 1.6rem;
+  }
 }

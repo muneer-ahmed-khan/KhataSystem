@@ -1,11 +1,12 @@
+// import express router
 const express = require("express");
-
-const customerController = require("../controllers/customer");
-
 const router = express.Router();
 
+// import customer controller
+const customerController = require("../controllers/customer");
+
 // get all customers
-router.get("/customer", customerController.getCustomers);
+router.get("/customer", customerController.getAllCustomers);
 
 // add customer get and post route
 router.get("/add-customer", customerController.addCustomer);

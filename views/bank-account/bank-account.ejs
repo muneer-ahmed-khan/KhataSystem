@@ -47,7 +47,7 @@
             </th>
             <td><%= bankAccount.accountName %></td>
             <td><%= bankAccount.accountNumber %></td>
-            <td><%= bankAccount.bank.name %></td>
+            <td><%= bankAccount.bank ? bankAccount.bank.name : ''%></td>
             <td><%= bankAccount.address %></td>
             <td><%= bankAccount.phoneNumber %></td>
             <td><%= bankAccount.balance %></td>

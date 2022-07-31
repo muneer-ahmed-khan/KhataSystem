@@ -1,10 +1,10 @@
-const Customer = require("../models/customer");
-const AmountType = require("../models/amount-type");
-const BankAccount = require("../models/bank-account");
-const Pattern = require("../models/pattern");
-const Size = require("../models/size");
-const Stock = require("../models/stock");
-const Roznamcha = require("../models/roznamcha");
+const Customer = require("../models/old models/customer");
+const AmountType = require("../models/old models/amount-type1");
+const BankAccount = require("../models/old models/bank-account");
+const Pattern = require("../models/old models/pattern1");
+const Size = require("../models/old models/size1");
+const Stock = require("../models/old models/stock1");
+const Roznamcha = require("../models/old models/roznamcha");
 const { CONSTANTS } = require("../config/constants");
 const { Op } = require("sequelize");
 

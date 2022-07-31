@@ -1,38 +1,46 @@
-const Sequelize = require("sequelize");
+"use strict";
+const { Model } = require("sequelize");
 
-const sequelize = require("../util/database");
+module.exports = (sequelize, DataTypes) => {
+  const BankAccount = sequelize.define("BankAccount", {
+    accountName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    accountNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phoneNumber: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    startingBalance: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    balance: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    bankId: {
+      type: DataTypes.INTEGER,
+      foreignKey: "bankId",
+    },
+  });
 
-const BankAccount = sequelize.define("bankAccount", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  accountName: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  accountNumber: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  address: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  phoneNumber: {
-    type: Sequelize.BIGINT,
-    allowNull: false,
-  },
-  startingBalance: {
-    type: Sequelize.DECIMAL,
-    allowNull: false,
-  },
-  balance: {
-    type: Sequelize.DECIMAL,
-    allowNull: false,
-  },
-});
+  // associations can be defined here
+  BankAccount.associate = function (models) {
+    BankAccount.belongsTo(models.Bank, {
+      as: "bank",
+      foreignKey: "bankId",
+      onDelete: "CASCADE",
+    });
+  };
 
-module.exports = BankAccount;
+  return BankAccount;
+};

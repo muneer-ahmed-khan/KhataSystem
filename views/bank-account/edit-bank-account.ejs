@@ -30,8 +30,13 @@
         <label for="phoneNumber"><% if (editing) { %>Update existing Bank Account Phone Number:<% } else { %>Enter new Bank Account Phone Number:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 0313 1234567" name="phoneNumber" id="phoneNumber" value="<% if (editing) { %><%= bankAccount.phoneNumber %><% } %>">
 
-        <label for="balance"><% if (editing) { %>Update existing Bank Account Balance:<% } else { %>Enter new Bank Account Phone Balance:<% } %></label>
+        <label for="startingBalance"><% if (editing) { %>Update existing Bank Account Starting Balance:<% } else { %>Enter new Bank Account Starting Balance:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 100000/=" name="startingBalance" id="startingBalance" value="<% if (editing) { %><%= bankAccount.startingBalance %><% } %>">
+
+        <% if (editing) { %>
+        <label for="balance"><% if (editing) { %>Update existing Bank Account Balance:<% } else { %>Enter new Bank Account Balance:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 100000/=" name="balance" id="balance" value="<% if (editing) { %><%= bankAccount.balance %><% } %>">
+        <% } %>
 
         <% if (editing) { %>
         <input type="hidden" value="<%= bankAccount.id %>" name="bankAccountId">

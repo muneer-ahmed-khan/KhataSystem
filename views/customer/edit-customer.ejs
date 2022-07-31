@@ -12,7 +12,7 @@
 
         <label for="customerName"><% if (editing) { %>Update existing Customer Name:<% } else { %>Enter new Customer Name:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Bilal Sargodha" name="name" id="customerName" value="<% if (editing) { %><%= customer.name %><% } %>">
-        
+
         <label for="customerAddress"><% if (editing) { %>Update existing Customer Address:<% } else { %>Enter new Customer Address:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Sadiqabad Adha" name="address" id="customerAddress" value="<% if (editing) { %><%= customer.address %><% } %>">
 
@@ -32,10 +32,13 @@
           <% } %>
         </select>
 
+        <label for="startingBalance"><% if (editing) { %>Update existing Customer Starting Balance:<% } else { %>Enter new Customer Starting Balance:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="startingBalance" id="startingBalance" value="<% if (editing) { %><%= customer.startingBalance %><% } %>">
+
+        <!-- show balance only in edit mode -->
+        <% if (editing) { %>
         <label for="customerBalance"><% if (editing) { %>Update existing Customer Balance:<% } else { %>Enter new Customer Balance:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="balance" id="customerBalance" value="<% if (editing) { %><%= customer.balance %><% } %>">
-
-        <% if (editing) { %>
         <input type="hidden" value="<%= customer.id %>" name="customerId">
         <% } %>
 
