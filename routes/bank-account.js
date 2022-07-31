@@ -1,11 +1,12 @@
+// import express router
 const express = require("express");
-
-const bankAccountController = require("../controllers/bank-account");
-
 const router = express.Router();
 
+// import bank account controller
+const bankAccountController = require("../controllers/bank-account");
+
 // get all banks accounts
-router.get("/bank-account", bankAccountController.getBankAccount);
+router.get("/bank-account", bankAccountController.getAllBankAccount);
 
 // add bank-account get and post route
 router.get("/add-bank-account", bankAccountController.addBankAccount);

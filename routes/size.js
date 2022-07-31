@@ -1,11 +1,12 @@
+// import express router
 const express = require("express");
-
-const sizeController = require("../controllers/size");
-
 const router = express.Router();
 
+// size controller
+const sizeController = require("../controllers/size");
+
 // get all size
-router.get("/size", sizeController.getSize);
+router.get("/size", sizeController.getAllSizes);
 
 // add size get and post route
 router.get("/add-size", sizeController.addSize);

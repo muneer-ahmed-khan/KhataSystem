@@ -1,15 +1,17 @@
-const Sequelize = require("sequelize"); // main Sequelize Object
+"use strict";
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  const Bank = sequelize.define("Bank", {
+    name: DataTypes.STRING,
+  });
 
-const sequelize = require("../util/database"); // database instance
+  // associations can be defined here
+  Bank.associate = function (models) {
+    Bank.hasMany(models.BankAccount, {
+      as: "bank",
+      foreignKey: "id",
+    });
+  };
 
-const Bank = sequelize.define("bank", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  name: Sequelize.STRING,
-});
-
-module.exports = Bank;
+  return Bank;
+};

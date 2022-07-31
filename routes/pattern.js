@@ -1,11 +1,12 @@
+// import express router
 const express = require("express");
-
-const patternController = require("../controllers/pattern");
-
 const router = express.Router();
 
+// import pattern controller
+const patternController = require("../controllers/pattern");
+
 // get all pattern
-router.get("/pattern", patternController.getPattern);
+router.get("/pattern", patternController.getAllPattern);
 
 // add pattern get and post route
 router.get("/add-pattern", patternController.addPattern);

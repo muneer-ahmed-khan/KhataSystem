@@ -1,9 +1,9 @@
 const moment = require("moment");
 const Sequelize = require("sequelize");
-const Roznamcha = require("../models/roznamcha");
-const EntryType = require("../models/amount-type");
-const BankAccount = require("../models/bank-account");
-const Customer = require("../models/customer");
+const Roznamcha = require("../models/old models/roznamcha");
+const EntryType = require("../models/old models/amount-type1");
+const BankAccount = require("../models/old models/bank-account");
+const Customer = require("../models/old models/customer");
 const { CONSTANTS } = require("../config/constants");
 const { createPDF } = require("../services/pdfFile");
 

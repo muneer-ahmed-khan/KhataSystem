@@ -1,15 +1,14 @@
-const Sequelize = require("sequelize"); // main Sequelize Object
+"use strict";
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  const Pattern = sequelize.define("Pattern", {
+    name: DataTypes.STRING,
+  });
 
-const sequelize = require("../util/database"); // database instance
+  // associations can be defined here
+  Pattern.associate = function (models) {
+    Pattern.belongsTo(models.Stock, { as: "pattern", foreignKey: "id" });
+  };
 
-const Pattern = sequelize.define("pattern", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  name: Sequelize.STRING,
-});
-
-module.exports = Pattern;
+  return Pattern;
+};

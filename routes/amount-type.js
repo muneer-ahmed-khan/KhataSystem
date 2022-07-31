@@ -1,11 +1,12 @@
+// import express router
 const express = require("express");
-
-const amountTypeController = require("../controllers/amount-type");
-
 const router = express.Router();
 
+// import amount type controller
+const amountTypeController = require("../controllers/amount-type");
+
 // get all amount-type
-router.get("/amount-type", amountTypeController.getAmountType);
+router.get("/amount-type", amountTypeController.getAllAmountType);
 
 // add amount-type get and post route
 router.get("/add-amount-type", amountTypeController.addAmountType);

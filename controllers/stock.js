@@ -1,120 +1,175 @@
-const Stock = require("../models/stock");
-const Size = require("../models/size");
-const Pattern = require("../models/pattern");
-const Roznamcha = require("../models/roznamcha");
+// import models and local files
+const { Stock, Size, Pattern, Op } = require("../models");
+const Roznamcha = require("../models/old models/roznamcha");
+const Customer = require("../models/old models/customer");
 const { CONSTANTS } = require("../config/constants");
-const { Op } = require("sequelize");
-const Customer = require("../models/customer");
 
-exports.getStock = (req, res, next) => {
-  Stock.findAll({ include: [Size, Pattern], order: [["id", "DESC"]] })
-    .then((stocks) => {
-      res.render("stock/stock.ejs", {
-        stocks: stocks,
-        pageTitle: "All stocks",
-        path: "/stock",
-      });
-    })
-    .catch((err) => {
-      console.log(err);
+// get all stock details
+exports.getAllStock = async (req, res, next) => {
+  try {
+    // get all stock order by sizeId and patternId ascending order
+    const stocks = await Stock.findAll({
+      include: [
+        { model: Size, as: "size" },
+        { model: Pattern, as: "pattern" },
+      ],
+      order: [
+        ["sizeId", "ASC"],
+        ["patternId", "ASC"],
+      ],
     });
+
+    // render the all stock template
+    res.render("stock/stock.ejs", {
+      stocks: stocks,
+      pageTitle: "All stocks",
+      path: "/stock",
+    });
+  } catch (reason) {
+    console.log("Error: in getAllStock controller with reason --> ", reason);
+  }
 };
 
+// render new stock add template
 exports.addStock = async (req, res, next) => {
-  const sizes = await Size.findAll();
-  const patterns = await Pattern.findAll();
+  try {
+    // get all related sizes and patterns
+    const sizes = await Size.findAll();
+    const patterns = await Pattern.findAll();
 
-  res.render("stock/edit-stock", {
-    pageTitle: "Add Stock",
-    path: "/stock",
-    editing: false,
-    sizes: sizes,
-    patterns: patterns,
-  });
+    // render the new stock template with data of sizes and patterns
+    res.render("stock/edit-stock", {
+      pageTitle: "Add Stock",
+      path: "/stock",
+      editing: false,
+      sizes: sizes,
+      patterns: patterns,
+    });
+  } catch (reason) {
+    console.log("Error: in addStock controller with reason --> ", reason);
+  }
 };
 
-exports.postAddStock = (req, res, next) => {
+// save the new stock details in db
+exports.postAddStock = async (req, res, next) => {
+  // get the new stock details from request params
   const size = req.body.size;
   const pattern = req.body.pattern;
   const startingStock = req.body.startingStock;
 
-  Stock.create({
-    startingStock: startingStock,
-    total: startingStock,
-    sizeId: size,
-    patternId: pattern,
-  })
-    .then((result) => {
-      // console.log(result);
-      console.log("Created Stock");
-      res.redirect("/stock");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  try {
+    // check if we have found all values for new stock
+    if (size && pattern && startingStock)
+      // create new stock with new stock details and total and starting stock the same
+      await Stock.create({
+        startingStock: startingStock,
+        total: startingStock,
+        sizeId: size,
+        patternId: pattern,
+      });
+
+    // render the all stock template with stock details as well
+    console.log("Created Stock");
+    res.redirect("/stock");
+  } catch (reason) {
+    console.log("Error: in postAddStock controller with reason --> ", reason);
+  }
 };
 
+// render edit stock template
 exports.getEditStock = async (req, res, next) => {
-  const sizes = await Size.findAll();
-  const patterns = await Pattern.findAll();
+  // get editMode value from request params
   const editMode = req.query.edit;
+
+  // if editMode = false then do nothing
   if (!editMode) {
     return res.redirect("/stock");
   }
-  const stockId = req.params.stockId;
 
-  Stock.findByPk(stockId)
-    .then((stock) => {
-      if (!stock) {
-        return res.redirect("/stock");
-      }
-      res.render("stock/edit-stock", {
-        pageTitle: "Edit Stock",
-        path: "/stock",
+  try {
+    // get the stock id from the request params
+    const stockId = req.params.stockId;
 
-        editing: editMode,
-        stock: stock,
-        sizes: sizes,
-        patterns: patterns,
-      });
-    })
-    .catch((err) => console.log(err));
+    // get all the size and patterns data
+    const allSizes = await Size.findAll();
+    const allPatterns = await Pattern.findAll();
+
+    // find the stock by the provided id
+    const stock = await Stock.findByPk(stockId);
+
+    // if we don't find any stock then  do nothing
+    if (!stock) {
+      return res.redirect("/stock");
+    }
+
+    // render the edit stock template with all stock details selected
+    res.render("stock/edit-stock", {
+      pageTitle: "Edit Stock",
+      path: "/stock",
+      editing: editMode,
+      stock: stock,
+      sizes: allSizes,
+      patterns: allPatterns,
+    });
+  } catch (reason) {
+    console.log("Error: in getEditStock controller with reason --> ", reason);
+  }
 };
 
-exports.postEditStock = (req, res, next) => {
+// update the existing stock details
+exports.postEditStock = async (req, res, next) => {
+  // get all updated stock details from request params
   const updatedSize = req.body.size;
   const updatedPattern = req.body.pattern;
   const stockId = req.body.stockId;
   const updatedStartingStock = req.body.startingStock;
   const updatedTotal = req.body.totalStock;
-  Stock.findByPk(stockId)
-    .then((stock) => {
-      stock.startingStock = updatedStartingStock;
-      stock.total = updatedTotal;
-      stock.sizeId = updatedSize;
-      stock.patternId = updatedPattern;
-      return stock.save();
-    })
-    .then((result) => {
-      console.log("UPDATED Stock!");
-      res.redirect("/stock");
-    })
-    .catch((err) => console.log(err));
+
+  try {
+    // find the stock in db
+    const stock = await Stock.findByPk(stockId);
+
+    // then update all the stock details
+    stock.startingStock = updatedStartingStock;
+    stock.total = updatedTotal;
+    stock.sizeId = updatedSize;
+    stock.patternId = updatedPattern;
+
+    // now update the stock details in db
+    await stock.save();
+
+    // render the all stock template with new details as well
+    console.log("UPDATED Stock!");
+    res.redirect("/stock");
+  } catch (reason) {
+    console.log("Error: in postEditStock controller with reason --> ", reason);
+  }
 };
 
-exports.postDeleteStock = (req, res, next) => {
+// delete a stock from db
+exports.postDeleteStock = async (req, res, next) => {
+  // get the stock id from request params
   const stockId = req.body.stockId;
-  Stock.findByPk(stockId)
-    .then((stock) => {
-      return stock.destroy();
-    })
-    .then((result) => {
-      console.log("DESTROYED PRODUCT");
-      res.redirect("/stock");
-    })
-    .catch((err) => console.log(err));
+
+  try {
+    // find the stock in db with id of stock
+    const stock = await Stock.findByPk(stockId);
+
+    // delete the stock from the db
+    await stock.destroy();
+
+    // render the updated stock details
+    console.log("DESTROYED PRODUCT");
+    res.redirect("/stock");
+  } catch (reason) {
+    console.log(
+      "Error: in postDeleteStock controller with reason --> ",
+      reason
+    );
+  }
 };
 
+// need to add comments here as well
 exports.getStockDetails = (req, res, next) => {
   const stockId = req.params.stockId;
   Stock.findOne({ where: { id: stockId }, include: [Size, Pattern] })

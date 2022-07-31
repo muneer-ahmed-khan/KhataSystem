@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 
-const sequelize = require("../util/database");
-const { CONSTANTS } = require("../config/constants");
+const sequelize = require("../../util/database");
+const { CONSTANTS } = require("../../config/constants");
 
 const Roznamcha = sequelize.define("Roznamcha", {
   id: {

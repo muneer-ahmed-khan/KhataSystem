@@ -1,11 +1,12 @@
+// import express router
 const express = require("express");
-
-const stockController = require("../controllers/stock");
-
 const router = express.Router();
 
+// import stock controller
+const stockController = require("../controllers/stock");
+
 // get all stock
-router.get("/stock", stockController.getStock);
+router.get("/stock", stockController.getAllStock);
 
 // add stock get and post route
 router.get("/add-stock", stockController.addStock);

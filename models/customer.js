@@ -1,34 +1,38 @@
-const Sequelize = require("sequelize");
+"use strict";
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  const Customer = sequelize.define("Customer", {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phoneNumber: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    startingBalance: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    balance: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    amountTypeId: DataTypes.INTEGER,
+  });
 
-const sequelize = require("../util/database");
+  // associations can be defined here
+  Customer.associate = function (models) {
+    // every customer has one amountType
+    Customer.belongsTo(models.AmountType, {
+      as: "amountType",
+      foreignKey: "amountTypeId",
+    });
+  };
 
-const Customer = sequelize.define("customer", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  address: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  phoneNumber: {
-    type: Sequelize.BIGINT,
-    allowNull: false,
-  },
-  startingBalance: {
-    type: Sequelize.DECIMAL,
-    allowNull: false,
-  },
-  balance: {
-    type: Sequelize.DECIMAL,
-    allowNull: false,
-  },
-});
-
-module.exports = Customer;
+  return Customer;
+};

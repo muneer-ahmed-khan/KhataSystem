@@ -1,23 +1,26 @@
-const Sequelize = require("sequelize");
+"use strict";
+const { Model } = require("sequelize");
 const { CONSTANTS } = require("../config/constants");
 
-const sequelize = require("../util/database");
+module.exports = (sequelize, DataTypes) => {
+  const AmountType = sequelize.define("AmountType", {
+    type: {
+      type: DataTypes.ENUM([
+        CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.CREDIT,
+        CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.DEBIT,
+        CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.BOTH,
+      ]),
+      allowNull: true,
+    },
+  });
 
-const AmountType = sequelize.define("amountType", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  type: {
-    type: Sequelize.ENUM([
-      CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.CREDIT,
-      CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.DEBIT,
-      CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.BOTH,
-    ]),
-    allowNull: true,
-  },
-});
+  // associations can be defined here
+  AmountType.associate = function (models) {
+    AmountType.hasMany(models.Customer, {
+      as: "amountType",
+      foreignKey: "id",
+    });
+  };
 
-module.exports = AmountType;
+  return AmountType;
+};
