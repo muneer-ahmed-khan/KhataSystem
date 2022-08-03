@@ -4,7 +4,7 @@ const { CONSTANTS } = require("../../config/constants");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("CashBook", {
+    await queryInterface.createTable("CashBooks", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -49,6 +49,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("CashBook");
+    await queryInterface.dropTable("CashBooks");
   },
 };
