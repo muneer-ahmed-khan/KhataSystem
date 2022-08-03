@@ -1,7 +1,12 @@
 // import models and local files
-const { Stock, Size, Pattern, Op } = require("../models");
-const Roznamcha = require("../models/old models/roznamcha");
-const Customer = require("../models/old models/customer");
+const {
+  StockBook,
+  Stock,
+  Size,
+  Pattern,
+  Customer,
+  Sequelize,
+} = require("../models");
 const { CONSTANTS } = require("../config/constants");
 
 // get all stock details
@@ -169,72 +174,98 @@ exports.postDeleteStock = async (req, res, next) => {
   }
 };
 
-// need to add comments here as well
-exports.getStockDetails = (req, res, next) => {
+// get each stock details from stock book
+exports.getStockDetails = async (req, res, next) => {
+  // get stock id from request params
   const stockId = req.params.stockId;
-  Stock.findOne({ where: { id: stockId }, include: [Size, Pattern] })
-    .then(async (stock) => {
-      if (!stock) {
-        return res.redirect("/stock");
-      }
-      const stockDetails = [];
-      let stockTotal = stock.startingStock;
-      const RoznamchaDetails = await Roznamcha.findAll({
-        where: {
-          patternId: stock.patternId,
-          sizeId: stock.sizeId,
-          [Op.or]: [
-            { entryType: CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK },
-            { entryType: CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK },
-          ],
-        },
-        include: [Pattern, Size, Customer],
-        order: [["id", "ASC"]],
-      });
 
+  try {
+    // find in stock in db by stockId
+    const stock = await Stock.findOne({
+      where: { id: stockId },
+      include: [
+        { model: Size, as: "size" },
+        { model: Pattern, as: "pattern" },
+      ],
+    });
+
+    // if stock was not found in db then do nothing
+    if (!stock) {
+      return res.redirect("/stock");
+    }
+
+    // create all stock details from stock book
+    const stockDetails = [];
+    let stockTotal = stock.startingStock;
+
+    // run get all stock book detail query
+    const StockBookDetail = await StockBook.findAll({
+      where: {
+        patternId: stock.patternId,
+        sizeId: stock.sizeId,
+        [Sequelize.Op.or]: [
+          { entryType: CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK },
+          { entryType: CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK },
+        ],
+      },
+      include: [
+        { model: Size, as: "size" },
+        { model: Pattern, as: "pattern" },
+        { model: Customer, as: "customer" },
+      ],
+      order: [["id", "ASC"]],
+    });
+
+    // add starting stock to first array
+    stockDetails.push({
+      startingStock: stockTotal,
+    });
+
+    // populate stock details from stock book details
+    for (let [key, value] of StockBookDetail.entries()) {
+      stockTotal =
+        value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
+          ? Number(stockTotal) + Number(value.qty)
+          : value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+          ? Number(stockTotal) - Number(value.qty)
+          : Number(stockTotal);
+
+      // push details to stock details
       stockDetails.push({
-        startingStock: stockTotal,
-      });
-
-      for (let [key, value] of RoznamchaDetails.entries()) {
-        stockTotal =
+        Date: value.updatedAt,
+        entryType: value.entryType,
+        pattern: value.pattern.name,
+        size: value.size.type,
+        truckNumber: value.truckNumber,
+        customer:
+          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+            ? value.customer
+            : value.customer,
+        customerType: value.customerType,
+        cashCustomer: value.cashCustomer,
+        credit:
           value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-            ? Number(stockTotal) + Number(value.qty)
-            : value.entryType ===
-              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-            ? Number(stockTotal) - Number(value.qty)
-            : Number(stockTotal);
-
-        stockDetails.push({
-          Date: value.updatedAt,
-          entryType: value.entryType,
-          pattern: value.pattern.name,
-          size: value.size.type,
-          truckNumber: value.truckNumber,
-          customer:
-            value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-              ? value.customer
-              : value.customer,
-          customerType: value.customerType,
-          cashCustomer: value.cashCustomer,
-          credit:
-            value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-              ? value.qty
-              : 0,
-          debit:
-            value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-              ? value.qty
-              : 0,
-          total: stockTotal,
-        });
-      }
-
-      res.render("stock/stock-detail.ejs", {
-        stockDetails: stockDetails,
-        stock: stock,
-        pageTitle: `${stock.pattern.name} ${stock.size.type} Khata`,
-        path: "/stock",
+            ? value.qty
+            : 0,
+        debit:
+          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+            ? value.qty
+            : 0,
+        total: stockTotal,
       });
-    })
-    .catch((err) => console.log(err));
+    }
+
+    // render stock khata template
+    res.render("stock/stock-detail.ejs", {
+      stockDetails: stockDetails,
+      stock: stock,
+      pageTitle: `${stock.pattern.name} ${stock.size.type} Khata`,
+      path: "/stock",
+    });
+  } catch (reason) {
+    console.log(
+      "Error: in getStockDetails controller with reason --> ",
+      reason
+    );
+  }
 };

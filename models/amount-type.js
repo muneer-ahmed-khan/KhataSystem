@@ -1,5 +1,4 @@
 "use strict";
-const { Model } = require("sequelize");
 const { CONSTANTS } = require("../config/constants");
 
 module.exports = (sequelize, DataTypes) => {
@@ -17,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   // associations can be defined here
   AmountType.associate = function (models) {
     AmountType.hasMany(models.Customer, {
-      as: "amountType",
-      foreignKey: "id",
+      as: "customer",
+      foreignKey: "amountTypeId",
     });
   };
 

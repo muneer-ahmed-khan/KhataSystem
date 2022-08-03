@@ -1,0 +1,176 @@
+<%- include('../includes/head.ejs') %>
+
+<body>
+  <!-- control navigation of page here  -->
+  <%- include('../includes/navigation.ejs') %>
+  <main class="row vertical-center">
+    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+
+      <!-- page title for edit pages -->
+      <span for="name" class="fs-3" style="display: flex;margin-bottom: 20px;">
+        Enter <b>&nbsp; <%- entryType === 'addStock' ? "<span class='text-primary'> + New Stock Book </span>" : 
+        entryType === 'sellStock' ? "<span class='text-warning'> + Sell Stock Book </span>" : '' %> &nbsp;</b> Details:
+      </span>
+
+      <!-- edit form settings and actions -->
+      <form class="form-control " action="/<% if (editing) { %>edit-stock-book/?type=<%=  entryType === "addStock" ? " addStock"
+            : entryType === "sellStock" ? "sellStock" :  '' %>
+            <% } else { %>add-stock-book/?type=<%= entryType === 'addStock' ? "addStock" : entryType === "sellStock" ? "sellStock" :'' %><% } %>" method="POST">
+
+        <!-- hidden field to for getting entry type -->
+        <input style="margin: 10px 0px;" type="hidden" class="form-control form-control-lg" name="entryType" id="entryType" value="<%=  entryType === "addStock" ? "addStock"
+        : entryType === "sellStock" ? "sellStock" :  '' %>">
+
+        <!-- Qty Input Field -->
+        <label for="qty">
+          <% if (editing) { %>Update existing <% } else { %>Enter <% } %>
+          <b>QTY :</b>
+        </label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 10,20,30" name="qty" id="qty" value="<% if (editing) { %><%= stockBook.qty %><% } %>">
+
+        <!-- Pattern Input Field -->
+        <label for="pattern">
+          <% if (editing) { %>Update <% } else { %>Select <% } %>
+          <b>Pattern </b>name :
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern">
+          <option selected disabled>Select Pattern name</option>
+          <% for (let [i, pattern] of patterns.entries()) { %>
+          <option <% if (editing && pattern.id===stockBook.patternId ) { %>selected='selected' <% } else {%> <% } %> value="<%= pattern.id %>"><%= pattern.name %>
+          </option>
+          <% } %>
+        </select>
+
+        <!-- Size Input Field -->
+        <label for="size">
+          <% if (editing) { %>Update <% } else { %>Select <% } %>
+          <b>Size </b>type :
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="size" name="size">
+          <option selected disabled>Select Size</option>
+          <% for (let [i, size] of sizes.entries()) { %>
+          <option <% if (editing && size.id===stockBook.sizeId ) { %>selected='selected' <% } else { %> <% } %> value="<%= size.id %>"><%= size.type %>
+          </option>
+          <% } %>
+        </select>
+
+        <!-- field to shown only on add stock entry -->
+        <% if (entryType === "addStock") { %>
+        <!-- truck Number Input Field  add truck number only in adding stock mode -->
+        <label for="truckNumber">
+          <% if (editing) { %>Update existing <% } else { %>Enter <% } %>
+          <b>Truck </b>number :
+        </label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 123-XYZ" name="truckNumber" id="truckNumber" value="<% if (editing) { %><%= stockBook.truckNumber %><% } %>">
+        <% } %>
+
+        <!-- customer Type to shown only while sell stock mode -->
+        <% if (entryType === "sellStock") { %>
+        <!-- Customer Type Input Field -->
+        <label for="customerType">
+          <% if (editing) { %>Update <% } else { %>Select <% } %>
+          <b>Customer Type:</b>
+        </label>
+        <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)">
+          <option disabled>Select Customer Type</option>
+          <% for (let [i, customerType] of customerTypes.entries()) { %>
+          <option <% if (editing && customerType === stockBook.customerType ) { %> selected='selected' <% } else if(!editing && customerType === "nonCash") { %> selected='selected' <% } %> value="<%= customerType %>"><%= customerType.toUpperCase() %>
+          </option>
+          <% } %>
+        </select>
+
+        <!-- Customer Input Field -->
+        <label for="customer">
+          <% if (editing) { %>Update <% } else { %>Select <% } %>
+          <b>Customer </b> name:
+        </label>
+        <span id="customerField">
+          <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
+            <option selected disabled>Select Customer name</option>
+            <% for (let [i, customer] of customers.entries()) { %>
+            <option <% if (editing && customer.id===stockBook.customerId ) { %> selected='selected' <% } else { %> <% } %> style="color: green" value="<%= customer.id %>">
+              <%= customer.name %>
+            </option>
+            <% } %>
+          </select>
+        </span>
+        <% } %>
+
+        <!-- Amount Input Field -->
+        <label for="amount"><b>
+            <% if (editing) { %>Update existing <%= entryType === 'addStock' ? "Truck Rent :" : entryType === 'sellStock' ? "Price:" : "" %><% } else { %>Enter <%= entryType === 'addStock' ? "Truck Rent :" : entryType === 'sellStock' ? "Price:" : "" %> <% }%>
+          </b>
+        </label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= stockBook.amount %><% } %>">
+
+        <!-- hidden input field for getting stockBook id in edit mode -->
+        <% if (editing) { %>
+        <input type="hidden" value="<%= stockBook.id %>" name="stockBookId">
+        <% } %>
+
+        <!-- form submit button  -->
+        <div>
+          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            <% if (editing) { %>Update Stock Book Entry<% } else { %>Add New Stock Book
+            Entry<% } %>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- added javascript logic to control form -->
+  <!-- to control the input field logic here  -->
+  <!-- below first script tag is to support ejs in script tag -->
+  <script src="/js/ejs.min.js"></script>
+  <script>
+    let nonCashCustomerFieldHtml = null;
+    let cashCustomerFieldHtml = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="">`;
+
+    // function is called when something is changes in customer type in input field
+    function customerTypeChange(value) {
+      let editing = '<%- editing %>';
+      let cashCustomerName = '<%- editing ? stockBook.cashCustomer : "" %>';
+      let customerInputField = document.getElementById('customerField');
+
+      if (value === "nonCash" && nonCashCustomerFieldHtml) {
+        customerInputField.innerHTML = nonCashCustomerFieldHtml;
+      } else if (value === 'cash') {
+        nonCashCustomerFieldHtml = customerInputField.innerHTML;
+        if (editing) {
+          customerInputField.innerHTML = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="${cashCustomerName}">`;
+        } else {
+          customerInputField.innerHTML = cashCustomerFieldHtml;
+        }
+      }
+    }
+
+    // these settings are loaded on page load
+    window.onload = () => {
+
+      // first save bank field html
+      let editing = '<%- editing %>';
+
+      if (editing) {
+
+        // first handle here the customer type here
+        let customerType = '<%- editing ? stockBook.customerType : "" %>';
+        let cashCustomerName = '<%- editing ? stockBook.cashCustomer : "" %>';
+
+        if (customerType === "nonCash" && nonCashCustomerFieldHtml) {
+
+          customerInputField.innerHTML = nonCashCustomerFieldHtml;
+
+        } else if (customerType === "cash") {
+
+          let customerInputField = document.getElementById('customerField');
+          nonCashCustomerFieldHtml = customerInputField.innerHTML;
+          customerInputField.innerHTML = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="${cashCustomerName}">`;
+        }
+
+      }
+
+    }
+  </script>
+  <%- include('../includes/end.ejs') %>

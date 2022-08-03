@@ -16,6 +16,7 @@ const amountTypesRoutes = require("./routes/amount-type");
 const bankAccountRoutes = require("./routes/bank-account");
 const stockRoutes = require("./routes/stock");
 const customerRoutes = require("./routes/customer");
+const stockBookRoutes = require("./routes/stock-book");
 // const roznamchaRoutes = require("./routes/roznamcha");
 
 // general error controller
@@ -64,6 +65,7 @@ app.use(amountTypesRoutes);
 app.use(bankAccountRoutes);
 app.use(stockRoutes);
 app.use(customerRoutes);
+app.use(stockBookRoutes);
 // app.use(roznamchaRoutes);
 // app.use(whatsapp);
 

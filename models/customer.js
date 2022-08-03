@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   const Customer = sequelize.define("Customer", {
     name: {
@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
     Customer.belongsTo(models.AmountType, {
       as: "amountType",
       foreignKey: "amountTypeId",
+    });
+    // Customer --> StockBook
+    Customer.hasMany(models.StockBook, {
+      as: "stockBook",
+      foreignKey: "customerId",
     });
   };
 

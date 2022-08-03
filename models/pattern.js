@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   const Pattern = sequelize.define("Pattern", {
     name: DataTypes.STRING,
@@ -7,7 +7,13 @@ module.exports = (sequelize, DataTypes) => {
 
   // associations can be defined here
   Pattern.associate = function (models) {
-    Pattern.belongsTo(models.Stock, { as: "pattern", foreignKey: "id" });
+    // Pattern --> Stock
+    Pattern.hasMany(models.Stock, { as: "stock", foreignKey: "patternId" });
+    // Pattern --> StockBook
+    Pattern.hasMany(models.StockBook, {
+      as: "stockBook",
+      foreignKey: "patternId",
+    });
   };
 
   return Pattern;
