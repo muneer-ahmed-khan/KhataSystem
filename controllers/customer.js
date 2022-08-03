@@ -1,5 +1,4 @@
 const { Customer, AmountType, StockBook, Pattern, Size } = require("../models");
-const BankAccount = require("../models/old models/bank-account");
 const { CONSTANTS } = require("../config/constants");
 
 // get all customers

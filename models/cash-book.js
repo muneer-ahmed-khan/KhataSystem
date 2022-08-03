@@ -31,10 +31,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
+    bankAccountId: DataTypes.INTEGER,
+    customerId: DataTypes.INTEGER,
   });
 
   // associations can be defined here
-  CashBook.associate = function (models) {};
+  CashBook.associate = function (models) {
+    // StockBook --> Bank Account Relation
+    CashBook.belongsTo(models.BankAccount, {
+      as: "bankAccount",
+      foreignKey: "bankAccountId",
+      onDelete: "CASCADE",
+    });
+    // StockBook --> Customer Relation
+    CashBook.belongsTo(models.Customer, {
+      as: "customer",
+      foreignKey: "customerId",
+      onDelete: "CASCADE",
+    });
+  };
 
   return CashBook;
 };

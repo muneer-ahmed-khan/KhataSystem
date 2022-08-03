@@ -1,167 +1,112 @@
-const Customer = require("../models/old models/customer");
-const AmountType = require("../models/old models/amount-type1");
-const BankAccount = require("../models/old models/bank-account");
-const Pattern = require("../models/old models/pattern1");
-const Size = require("../models/old models/size1");
-const Stock = require("../models/old models/stock1");
-const Roznamcha = require("../models/old models/roznamcha");
+// import all models and local files
+const {
+  CashBook,
+  BankAccount,
+  Customer,
+  AmountType,
+  Sequelize,
+} = require("../models");
 const { CONSTANTS } = require("../config/constants");
 const { Op } = require("sequelize");
 
-exports.getRoznamcha = (req, res, next) => {
-  Roznamcha.findAll({
-    include: [BankAccount, Customer, Pattern, Size],
-    order: [["id", "DESC"]],
-  })
-    .then(async (roznamchas) => {
-      res.render("roznamcha/roznamcha.ejs", {
-        roznamchas: roznamchas,
-        pageTitle: "Roznamcha",
-        path: "/roznamcha",
-      });
-    })
-    .catch((err) => {
-      console.log(err);
+// get all cash book details
+exports.getCashBook = async (req, res, next) => {
+  try {
+    // get all cash books
+    const cashBooks = await CashBook.findAll({
+      include: [
+        {
+          model: BankAccount,
+          as: "bankAccount",
+        },
+        {
+          model: Customer,
+          as: "customer",
+        },
+      ],
+      order: [["id", "DESC"]],
     });
+
+    // render the all cash book template now
+    res.render("cash-book/cash-book.ejs", {
+      cashBooks: cashBooks,
+      pageTitle: "Cash Book",
+      path: "/cash-book",
+    });
+  } catch (reason) {
+    console.log("Error: in getCashBook controller with reason --> ", reason);
+  }
 };
 
-exports.addRoznamcha = async (req, res, next) => {
-  const addStockType = req.query.addStock;
-  const sellStockType = req.query.sellStock;
-  const creditAmountType = req.query.creditAmount;
-  const debitAmountType = req.query.debitAmount;
+// get add new cash book page
+exports.addCashBook = async (req, res, next) => {
+  // get the type of entry from request params
+  let entryType =
+    CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT in req.query
+      ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+      : CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT;
 
-  let entryType = addStockType
-    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-    : sellStockType
-    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-    : creditAmountType
-    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-    : debitAmountType
-    ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-    : "";
-
-  console.log(
-    "entryType ",
-    entryType,
-    "addStockType ",
-    addStockType,
-    "sellStockType ",
-    sellStockType,
-    " creditAmountType ",
-    creditAmountType,
-    " debitAmountType ",
-    debitAmountType
-  );
-
-  let sizes,
-    patterns,
-    customers,
+  // declare global function variables
+  let customers,
     customerTypes,
     paymentTypes,
     bankAccounts = null;
 
-  if (addStockType || sellStockType) {
-    if (addStockType) {
-      sizes = await Size.findAll({});
-      patterns = await Pattern.findAll();
-    }
-    if (sellStockType) {
-      // if we have sell stock then get only those sizes and pattern that are in stock
-      sizes = await Size.findAll({
-        include: [
-          {
-            model: Stock,
-            where: {
-              sizeId: {
-                [Op.ne]: null,
-              },
-            },
-          },
-        ],
-      });
-
-      patterns = await Pattern.findAll({
-        include: [
-          {
-            model: Stock,
-            where: {
-              patternId: {
-                [Op.ne]: null,
-              },
-            },
-          },
-        ],
-      });
-
-      // we are selling tyres to those who khata have credit and debit both
-      customers = await Customer.findAll({
-        include: [
-          {
-            model: AmountType,
-            where: {
-              type: {
-                [Op.eq]: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.BOTH,
-              },
-            },
-          },
-        ],
-      });
-
-      customerTypes = Roznamcha.rawAttributes.customerType.values;
-    }
-  } else if (creditAmountType || debitAmountType) {
+  try {
     // on credit type show only those customers that have amount type Credit or both or DebitType show only Debit accounts
-    customers = creditAmountType
-      ? await Customer.findAll({
-          include: {
-            model: AmountType,
-            where: {
-              [Op.or]: [
-                {
-                  type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.BOTH,
-                },
-                {
-                  type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.CREDIT,
-                },
-              ],
+    customers =
+      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.BOTH
+        ? await Customer.findAll({
+            include: {
+              model: AmountType,
+              as: "amountType",
+              where: {
+                [Op.or]: [
+                  {
+                    type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.BOTH,
+                  },
+                  {
+                    type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.CREDIT,
+                  },
+                ],
+              },
             },
-          },
-        })
-      : debitAmountType
-      ? await Customer.findAll({
-          include: {
-            model: AmountType,
-            where: {
-              type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.DEBIT,
+          })
+        : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+        ? await Customer.findAll({
+            include: {
+              model: AmountType,
+              as: "amountType",
+              where: {
+                type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.DEBIT,
+              },
             },
-          },
-        })
-      : [];
-    bankAccounts = await BankAccount.findAll();
-    paymentTypes = Roznamcha.rawAttributes.paymentType.values;
-  }
+          })
+        : [];
 
-  res.render("roznamcha/edit-roznamcha", {
-    pageTitle: "Add Roznamcha",
-    path: "/roznamcha",
-    editing: false,
-    customers:
-      sellStockType || creditAmountType || debitAmountType ? customers : [],
-    customerTypes: customerTypes,
-    paymentTypes: paymentTypes,
-    bankAccounts: creditAmountType || debitAmountType ? bankAccounts : [],
-    patterns: addStockType || sellStockType ? patterns : [],
-    sizes: addStockType || sellStockType ? sizes : [],
-    addStockType: addStockType,
-    sellStockType: sellStockType,
-    creditAmountType: creditAmountType,
-    debitAmountType: debitAmountType,
-    entryType: entryType,
-  });
+    // get all bank accounts and payment types
+    bankAccounts = await BankAccount.findAll();
+    paymentTypes = CashBook.rawAttributes.paymentType.values;
+    customerTypes = CashBook.rawAttributes.customerType.values;
+
+    // render add new cash book template
+    res.render("cash-book/edit-cash-book", {
+      pageTitle: "Add to Cash Book",
+      path: "/cash-book",
+      editing: false,
+      customers: customers,
+      customerTypes: customerTypes,
+      paymentTypes: paymentTypes,
+      bankAccounts: bankAccounts,
+      entryType: entryType,
+    });
+  } catch (reason) {
+    console.log("Error: in addCashBook controller with reason --> ", reason);
+  }
 };
 
-exports.postAddRoznamcha = async (req, res, next) => {
+exports.postAddCashBook = async (req, res, next) => {
   let sizeId,
     patternId,
     qty,
@@ -312,7 +257,7 @@ exports.postAddRoznamcha = async (req, res, next) => {
   }
 };
 
-exports.getEditRoznamcha = async (req, res, next) => {
+exports.getEditCashBook = async (req, res, next) => {
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect("/roznamcha");
@@ -447,7 +392,7 @@ exports.getEditRoznamcha = async (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.postEditRoznamcha = async (req, res, next) => {
+exports.postEditCashBook = async (req, res, next) => {
   let sizeId,
     patternId,
     qty,
@@ -739,7 +684,7 @@ exports.postEditRoznamcha = async (req, res, next) => {
   }
 };
 
-exports.postDeleteRoznamcha = async (req, res, next) => {
+exports.postDeleteCashBook = async (req, res, next) => {
   const roznamchaId = req.body.roznamchaId;
 
   try {
