@@ -1,5 +1,4 @@
 "use strict";
-const { Model } = require("sequelize");
 const { CONSTANTS } = require("../config/constants");
 
 module.exports = (sequelize, DataTypes) => {
@@ -25,10 +24,32 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
+    sizeId: DataTypes.INTEGER,
+    patternId: DataTypes.INTEGER,
+    customerId: DataTypes.INTEGER,
   });
 
   // associations can be defined here
-  StockBook.associate = function (models) {};
+  StockBook.associate = function (models) {
+    // StockBook --> Size Relation
+    StockBook.belongsTo(models.Size, {
+      as: "size",
+      foreignKey: "sizeId",
+      onDelete: "CASCADE",
+    });
+    // StockBook --> Pattern Relation
+    StockBook.belongsTo(models.Pattern, {
+      as: "pattern",
+      foreignKey: "patternId",
+      onDelete: "CASCADE",
+    });
+    // StockBook --> Customer Relation
+    StockBook.belongsTo(models.Customer, {
+      as: "customer",
+      foreignKey: "customerId",
+      onDelete: "CASCADE",
+    });
+  };
 
   return StockBook;
 };

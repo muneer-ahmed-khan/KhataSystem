@@ -1,8 +1,6 @@
-const { Customer, AmountType } = require("../models");
+const { Customer, AmountType, StockBook, Pattern, Size } = require("../models");
 const BankAccount = require("../models/old models/bank-account");
 const { CONSTANTS } = require("../config/constants");
-const Pattern = require("../models/old models/pattern1");
-const Size = require("../models/old models/size1");
 
 // get all customers
 exports.getAllCustomers = async (req, res, next) => {
@@ -177,76 +175,121 @@ exports.postDeleteCustomer = async (req, res, next) => {
   }
 };
 
-// need to add the comments after cash book and stock book
-exports.getCustomersKhata = (req, res, next) => {
+// create customer khata from stock book and cash book
+exports.getCustomersKhata = async (req, res, next) => {
+  // get customer id from request params first
   const customerId = req.params.customerId;
-  Customer.findByPk(customerId)
-    .then(async (customer) => {
-      if (!customer) {
-        return res.redirect("/customer");
-      }
-      const customerDetails = [];
-      let customerBalance = 0;
-      const RoznamchaDetails = await customer.getRoznamchas({
-        include: [BankAccount, Pattern, Size],
-        order: [["id", "ASC"]],
-      });
 
-      for (let i of RoznamchaDetails) {
-        customerBalance =
-          i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-            ? Number(customerBalance) + Number(i.amount)
-            : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-            ? Number(customerBalance) + Number(i.amount)
-            : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-              i.customerType ===
-                CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
-            ? Number(customerBalance) -
-              Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
-            : 0;
+  // find customer by in db
+  const customer = await Customer.findByPk(customerId);
+  // if we don't find customer then do nothing in that case
+  if (!customer) {
+    return res.redirect("/customer");
+  }
 
-        customerDetails.push({
-          Date: i.updatedAt,
-          entryType: i.entryType,
-          paymentType: i.paymentType,
-          qty: i.qty,
-          pattern:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-              ? i.pattern.name
-              : i.pattern,
-          size:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-              ? i.size.type
-              : i.size,
-          bankDetails:
-            (i.entryType ===
-              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-              i.entryType ===
-                CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
-            i.paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH
-              ? i.bankAccount.accountName
-              : i.bankAccount,
-          credit:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-              ? i.amount
-              : 0,
-          debit:
-            i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-              ? i.amount
-              : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-              ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
-              : 0,
-          amount: i.amount,
-          balance: customerBalance,
-        });
-      }
+  // create customer information array first
+  const customerDetails = [];
 
-      res.render("customer/customer-khata.ejs", {
-        customerDetails: customerDetails,
-        customer: customer,
-        pageTitle: customer.name + " Khata",
-        path: "/customer",
-      });
-    })
-    .catch((err) => console.log(err));
+  // initiate customer balance from customer starting balance
+  let customerBalance = customer.startingBalance;
+
+  const stockBookDetails = await customer.getStockBook({
+    include: [
+      { model: Size, as: "size" },
+      { model: Pattern, as: "pattern" },
+    ],
+    order: [["id", "ASC"]],
+  });
+
+  // const stockBookDetails = await StockBook.findAll({
+  //   where: {
+  //     entryType: CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK,
+  //   },
+  //   include: [{ model: Customer, as: "customer" }],
+  //   order: [["id", "ASC"]],
+  // });
+
+  for (let i of stockBookDetails) {
+    customerBalance =
+      // i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+      //   ? Number(customerBalance) + Number(i.amount)
+      //   : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+      //   ? Number(customerBalance) + Number(i.amount)
+      //   : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
+      //     i.customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
+      //   ? Number(customerBalance) -
+      //     Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+      //   : 0;
+      i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
+      i.customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
+        ? Number(customerBalance) -
+          Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+        : 0;
+
+    customerDetails.push({
+      Date: i.updatedAt,
+      entryType: i.entryType,
+      qty: i.qty,
+      pattern:
+        i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+          ? i.pattern.name
+          : i.pattern,
+      size:
+        i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+          ? i.size.type
+          : i.size,
+      credit:
+        i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+          ? i.amount
+          : 0,
+      debit:
+        i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+          ? i.amount
+          : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+          ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+          : 0,
+      amount: i.amount,
+      balance: customerBalance,
+    });
+
+    // customerDetails.push({
+    //   Date: i.updatedAt,
+    //   entryType: i.entryType,
+    //   paymentType: i.paymentType,
+    //   qty: i.qty,
+    //   pattern:
+    //     i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+    //       ? i.pattern.name
+    //       : i.pattern,
+    //   size:
+    //     i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+    //       ? i.size.type
+    //       : i.size,
+    //   bankDetails:
+    //     (i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+    //       i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+    //     i.paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH
+    //       ? i.bankAccount.accountName
+    //       : i.bankAccount,
+    //   credit:
+    //     i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+    //       ? i.amount
+    //       : 0,
+    //   debit:
+    //     i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+    //       ? i.amount
+    //       : i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+    //       ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
+    //       : 0,
+    //   amount: i.amount,
+    //   balance: customerBalance,
+    // });
+  }
+
+  res.render("customer/customer-khata.ejs", {
+    customerDetails: customerDetails,
+    customer: customer,
+    pageTitle: customer.name + " Khata",
+    path: "/customer",
+  });
 };

@@ -39,6 +39,7 @@
             <th scope="col">Address</th>
             <th scope="col">Phone Number</th>
             <th scope="col">Amount Type</th>
+            <th scope="col">Starting Balance</th>
             <th scope="col">Balance</th>
             <th scope="col">Actions</th>
             <th scope="col">Details</th>
@@ -56,6 +57,7 @@
             <td><%= customer.address %></td>
             <td><%= customer.phoneNumber %></td>
             <td><%= customer.amountType.type.toUpperCase() %></td>
+            <td><%= customer.startingBalance %></td>
             <td><%= customer.balance %></td>
             <td>
               <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
@@ -99,6 +101,7 @@
           <th scope="col">Address</th>
           <th scope="col">Phone Number</th>
           <th scope="col">Amount Type</th>
+          <th scope="col">Starting Balance</th>
           <th scope="col">Balance</th>
           <th scope="col">Actions</th>
           <th scope="col">Details</th>
@@ -116,6 +119,7 @@
           <td><%= customer.address %></td>
           <td><%= customer.phoneNumber %></td>
           <td><%= customer.amountType.type.toUpperCase() %></td>
+          <td><%= customer.startingBalance %></td>
           <td><%= customer.balance %></td>
           <td>
             <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
@@ -159,6 +163,7 @@
           <th scope="col">Address</th>
           <th scope="col">Phone Number</th>
           <th scope="col">Amount Type</th>
+          <th scope="col">Starting Balance</th>
           <th scope="col">Balance</th>
           <th scope="col">Actions</th>
           <th scope="col">Details</th>
@@ -176,6 +181,7 @@
           <td><%= customer.address %></td>
           <td><%= customer.phoneNumber %></td>
           <td><%= customer.amountType.type.toUpperCase() %></td>
+          <td><%= customer.startingBalance %></td>
           <td><%= customer.balance %></td>
           <td>
             <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">

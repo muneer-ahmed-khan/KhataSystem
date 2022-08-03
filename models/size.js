@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   const Size = sequelize.define("Size", {
     type: DataTypes.STRING,
@@ -7,7 +7,10 @@ module.exports = (sequelize, DataTypes) => {
 
   // associations can be defined here
   Size.associate = function (models) {
-    Size.hasMany(models.Stock, { as: "size", foreignKey: "id" });
+    // Size --> Stock
+    Size.hasMany(models.Stock, { as: "stock", foreignKey: "sizeId" });
+    // Size --> StockBook
+    Size.hasMany(models.StockBook, { as: "stockBook", foreignKey: "sizeId" });
   };
 
   return Size;

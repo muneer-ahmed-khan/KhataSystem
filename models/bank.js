@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   const Bank = sequelize.define("Bank", {
     name: DataTypes.STRING,
@@ -8,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
   // associations can be defined here
   Bank.associate = function (models) {
     Bank.hasMany(models.BankAccount, {
-      as: "bank",
-      foreignKey: "id",
+      as: "bankAccount",
+      foreignKey: "bankId",
     });
   };
 
