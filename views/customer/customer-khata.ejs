@@ -34,8 +34,16 @@
         </thead>
         <tbody>
           <% for (let [i, customerKhata] of customerDetails.entries()) { %>
+          <!-- starting stock entry -->
+          <% if (i === 0) { %>
           <tr>
-            <th scope="row" class="text-center"><%= i+1 %></th>
+            <th colspan="5" class="text-end text-uppercase fs-6 fst-normal">Opening Balance</th>
+            <th><%= customerKhata.startingBalance %></th>
+          </tr>
+          <!-- handle all other entries in table -->
+          <% } else { %>
+          <tr>
+            <th scope="row" class="text-center"><%= i %></th>
             <td><%= new Date(customerKhata.Date).toDateString() %></td>
             <td>
               <% if (customerKhata.entryType === "creditAmount" || customerKhata.entryType === "debitAmount") { %>
@@ -55,6 +63,7 @@
             <td><%= customerKhata.debit %></td>
             <td><%= customerKhata.balance %></td>
           </tr>
+          <% } %>
           <% } %>
         </tbody>
       </table>

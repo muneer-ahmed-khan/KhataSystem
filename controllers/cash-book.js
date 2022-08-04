@@ -72,6 +72,10 @@ exports.addCashBook = async (req, res, next) => {
                 ],
               },
             },
+            order: [
+              ["name", "ASC"],
+              [{ model: AmountType, as: "amountType" }, "type", "DESC"],
+            ],
           })
         : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
         ? await Customer.findAll({
@@ -86,7 +90,9 @@ exports.addCashBook = async (req, res, next) => {
         : [];
 
     // get all bank accounts and payment types
-    bankAccounts = await BankAccount.findAll();
+    bankAccounts = await BankAccount.findAll({
+      order: [["accountName", "ASC"]],
+    });
     paymentTypes = CashBook.rawAttributes.paymentType.values;
     customerTypes = CashBook.rawAttributes.customerType.values;
 
@@ -106,227 +112,138 @@ exports.addCashBook = async (req, res, next) => {
   }
 };
 
+// add new cash book to db
 exports.postAddCashBook = async (req, res, next) => {
-  let sizeId,
-    patternId,
-    qty,
-    truckNumber,
-    amount,
+  // create function global variables
+  let amount,
     customerType,
     paymentType,
     cashCustomer,
     customerId,
-    bankAccountId,
-    location = null;
+    bankAccountId = null;
 
+  // get entryType from request params
   const entryType = req.body.entryType.trim();
 
-  if (
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK ||
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-  ) {
-    sizeId = req.body.size;
-    patternId = req.body.pattern;
-    qty = req.body.qty;
-    amount = req.body.amount;
-    // truck number only for add stock entry
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK)
-      truckNumber = req.body.truckNumber;
-    // customer and customer entry for sell stock entry
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-      customerId = req.body.customer;
-      customerType = req.body.customerType;
-      if (customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH)
-        cashCustomer = req.body.cashCustomer;
-    }
-  } else if (
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-  ) {
-    customerId = req.body.customer;
-    paymentType = req.body.paymentType;
-    if (paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH)
-      bankAccountId = req.body.bankAccount;
-    amount = req.body.amount;
-  }
+  // get data from request params
+  customerId = req.body.customer;
+  cashCustomer = req.body.cashCustomer;
+  customerType = req.body.customerType;
+  paymentType = req.body.paymentType;
+  if (paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH)
+    bankAccountId = req.body.bankAccount;
+  amount = req.body.amount;
 
   try {
-    const entry = await Roznamcha.create({
+    // update Bank Khata only while entryType is credit amount
+    if (
+      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
+      bankAccountId
+    ) {
+      // find bank account by id from db
+      const UpdateBankAccountBalance = await BankAccount.findByPk(
+        bankAccountId
+      );
+
+      // add the credit amount to bankAccount balance
+      UpdateBankAccountBalance.balance =
+        Number(UpdateBankAccountBalance.balance) + Number(amount);
+
+      // update bank account info in db
+      await UpdateBankAccountBalance.save();
+    }
+    // update Bank Khata only while entryType is debit amount
+    else if (
+      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
+      bankAccountId
+    ) {
+      // find bank account by id from db
+      const UpdateBankAccountBalance = await BankAccount.findByPk(
+        bankAccountId
+      );
+
+      // remove debit amount from bank account balance
+      UpdateBankAccountBalance.balance =
+        Number(UpdateBankAccountBalance.balance) - Number(amount);
+
+      // update bank account info in db
+      await UpdateBankAccountBalance.save();
+    }
+
+    // update Customer info only while receive amount and only for nonCash/Khata customers
+    if (
+      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+      customerId
+    ) {
+      // find customer in db by id
+      const UpdateCustomerBalance = await Customer.findByPk(customerId);
+
+      // if it was credit amount entry then add to customer balance
+      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
+        UpdateCustomerBalance.balance =
+          Number(UpdateCustomerBalance.balance) + Number(amount);
+      }
+      // if it was debit amount entry then remove from customer balance
+      else if (
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+      ) {
+        UpdateCustomerBalance.balance =
+          Number(UpdateCustomerBalance.balance) - Number(amount);
+      }
+
+      // update customer info in db
+      await UpdateCustomerBalance.save();
+    }
+
+    // add new cash book entry to db
+    const entry = await CashBook.create({
       entryType: entryType,
       customerType: customerType,
       paymentType: paymentType,
-      truckNumber: truckNumber,
-      qty: qty,
       amount: amount,
-      location: location,
-      sizeId: sizeId,
-      patternId: patternId,
       customerId: customerId,
       cashCustomer: cashCustomer,
       bankAccountId: bankAccountId,
     });
 
-    // update Bank Khata only while entryType is amount
-    if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
-      bankAccountId
-    ) {
-      const UpdateBankAccountBalance = await BankAccount.findByPk(
-        bankAccountId
-      );
-
-      UpdateBankAccountBalance.balance =
-        Number(UpdateBankAccountBalance.balance) + Number(amount);
-      await UpdateBankAccountBalance.save();
-    } else if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
-      bankAccountId
-    ) {
-      const UpdateBankAccountBalance = await BankAccount.findByPk(
-        bankAccountId
-      );
-
-      UpdateBankAccountBalance.balance =
-        Number(UpdateBankAccountBalance.balance) - Number(amount);
-      await UpdateBankAccountBalance.save();
-    }
-
-    // update Customer info only while sell stock or receive amount and only for nonCash/Khata customers
-    if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT ||
-      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-        customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH)
-    ) {
-      const UpdateCustomerBalance = await Customer.findByPk(customerId);
-      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) -
-          Number(amount) *
-            (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty));
-      } else if (
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-      ) {
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) + Number(amount);
-      } else if (
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-      ) {
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) + Number(amount);
-      }
-      await UpdateCustomerBalance.save();
-    }
-
-    // update stock while entry type is add stock and sell stock
-    if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK ||
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-    ) {
-      const [createOrUpdateStock, created] = await Stock.findOrCreate({
-        where: { patternId: patternId, sizeId: sizeId },
-        defaults: {
-          patternId: patternId,
-          sizeId: sizeId,
-          startingStock: 0,
-          total: qty,
-        },
-      });
-      // check if the stock is already exist then add to total stock or remove from stock
-      if (
-        !created &&
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-      ) {
-        createOrUpdateStock.total =
-          Number(createOrUpdateStock.total) + Number(qty);
-        await createOrUpdateStock.save();
-      } else if (
-        !created &&
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-      ) {
-        createOrUpdateStock.total =
-          Number(createOrUpdateStock.total) - Number(qty);
-        await createOrUpdateStock.save();
-      }
-    }
-
-    console.log("Created Roznamcha Entry Successfully");
-    res.redirect("/roznamcha");
-  } catch (err) {
-    console.log("err in adding new roznamcha entry", err);
+    // render all cash book template
+    console.log("Created Cash Book Entry Successfully");
+    res.redirect("/cash-book");
+  } catch (reason) {
+    console.log(
+      "Error: in postAddCashBook controller with reason --> ",
+      reason
+    );
   }
 };
 
+// edit the existing cash book
 exports.getEditCashBook = async (req, res, next) => {
+  // check the editMode in request params
   const editMode = req.query.edit;
+
+  // if editMode is false then do nothing
   if (!editMode) {
-    return res.redirect("/roznamcha");
+    return res.redirect("/cash-book");
   }
+
+  // get entry type from request params
   const entryType = req.query.entryType.trim();
 
-  let sizes,
-    patterns,
-    customers,
+  // define function global variables
+  let customers,
     customerTypes,
     paymentTypes,
     bankAccounts = null;
-
-  if (
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK ||
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-  ) {
-    sizes = await Size.findAll();
-    patterns = await Pattern.findAll();
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-      // if we have sell stock then get only those sizes and pattern that are in stock
-      sizes = await Size.findAll({
-        include: [
-          {
-            model: Stock,
-            where: {
-              sizeId: {
-                [Op.ne]: null,
-              },
-            },
-          },
-        ],
-      });
-      patterns = await Pattern.findAll({
-        include: [
-          {
-            model: Stock,
-            where: {
-              patternId: {
-                [Op.ne]: null,
-              },
-            },
-          },
-        ],
-      });
-      // we are selling tyres to those who khata have credit and debit both
-      customers = await Customer.findAll({
-        include: [
-          {
-            model: AmountType,
-            where: {
-              type: {
-                [Op.eq]: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.BOTH,
-              },
-            },
-          },
-        ],
-      });
-      customerTypes = Roznamcha.rawAttributes.customerType.values;
-    }
-  } else if (
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-  ) {
+  try {
+    // get credit customers in case of credit or both and get debit customers in case of debit
     customers =
       entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
         ? await Customer.findAll({
             include: {
               model: AmountType,
+              as: "amountType",
               where: {
                 [Op.or]: [
                   {
@@ -338,438 +255,409 @@ exports.getEditCashBook = async (req, res, next) => {
                 ],
               },
             },
+            order: [["name", "ASC"]],
           })
         : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
         ? await Customer.findAll({
             include: {
               model: AmountType,
+              as: "amountType",
               where: {
                 type: CONSTANTS.DATABASE_FIELDS.AMOUNT_TYPE.DEBIT,
               },
             },
           })
         : [];
-    bankAccounts = await BankAccount.findAll();
-    paymentTypes = Roznamcha.rawAttributes.paymentType.values;
-  }
 
-  const roznamchaId = req.params.roznamchaId;
-  Roznamcha.findByPk(roznamchaId)
-    .then((roznamcha) => {
-      if (!roznamcha) {
-        return res.redirect("/roznamcha");
-      }
-      res.render("roznamcha/edit-roznamcha", {
-        pageTitle: "Edit Roznamcha",
-        path: "/roznamcha",
-        editing: editMode,
-        roznamcha: roznamcha,
-        customers: customers,
-        customerTypes: customerTypes,
-        paymentTypes: paymentTypes,
-        bankAccounts: bankAccounts,
-        sizes: sizes,
-        patterns: patterns,
-        addStockType:
-          entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-            ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-            : "",
-        sellStockType:
-          entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-            ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-            : "",
-        creditAmountType:
-          entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-            ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-            : "",
-        debitAmountType:
-          entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-            ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-            : "",
-        entryType: entryType,
-      });
-    })
-    .catch((err) => console.log(err));
+    // get bank accounts and customer types and payment types
+    bankAccounts = await BankAccount.findAll();
+    paymentTypes = CashBook.rawAttributes.paymentType.values;
+    customerTypes = CashBook.rawAttributes.customerType.values;
+
+    // get cash book id from request params
+    const cashBookId = req.params.cashBookId;
+    const cashBook = await CashBook.findByPk(cashBookId);
+
+    // if there was no data found for the cash book then do nothing
+    if (!cashBook) {
+      return res.redirect("/cash-book");
+    }
+
+    // render the edit cash book template
+    res.render("cash-book/edit-cash-book", {
+      pageTitle: "Edit Cash Book",
+      path: "/cash-book",
+      editing: editMode,
+      cashBook: cashBook,
+      customers: customers,
+      customerTypes: customerTypes,
+      paymentTypes: paymentTypes,
+      bankAccounts: bankAccounts,
+      entryType: entryType,
+    });
+  } catch (reason) {
+    console.log(
+      "Error: in getEditCashBook controller with reason --> ",
+      reason
+    );
+  }
 };
 
+// update existing cash book info in db
 exports.postEditCashBook = async (req, res, next) => {
-  let sizeId,
-    patternId,
-    qty,
-    truckNumber,
-    amount,
+  // define global function variable
+  let amount,
     customerType,
     cashCustomer,
     paymentType,
     customerId,
-    bankAccountId,
-    location = null;
+    bankAccountId = null;
 
+  // get entrytype from the request params
   const entryType = req.body.entryType.trim();
 
-  if (
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK ||
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-  ) {
-    sizeId = req.body.size;
-    patternId = req.body.pattern;
-    qty = req.body.qty;
-    amount = req.body.amount;
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK)
-      truckNumber = req.body.truckNumber;
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-      customerId = req.body.customer ?? null;
-      customerType = req.body.customerType;
-      if (customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH)
-        cashCustomer = req.body.cashCustomer;
-    }
-  } else if (
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-    entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-  ) {
-    customerId = req.body.customer;
-    bankAccountId = req.body.bankAccount;
-    paymentType = req.body.paymentType;
-    amount = req.body.amount;
-  }
+  // get data variable from request params
+  customerId = req.body.customer;
+  bankAccountId = req.body.bankAccount;
+  paymentType = req.body.paymentType;
+  amount = req.body.amount;
+  customerType = req.body.customerType;
+  cashCustomer = req.body.cashCustomer;
 
   try {
-    const roznamchaId = req.body.roznamchaId;
-    const roznamcha = await Roznamcha.findByPk(roznamchaId);
-    // get old Patter id
-    const oldPatternId = roznamcha.patternId;
-    // get old Size value
-    const oldSizeId = roznamcha.sizeId;
-    // get old qty value
-    const oldQty = roznamcha.qty;
-    // get old Customer Balance
-    const oldCustomerAmount = roznamcha.amount;
-    // get old Customer Type
-    const oldCustomerType = roznamcha.customerType;
-    // get old Customer Id
-    const oldCustomerId = roznamcha.customerId;
-    // get old payment type
-    const oldPaymentType = roznamcha.paymentType;
-    // get old payment type
-    const oldBankAccountId = roznamcha.bankAccountId;
-
-    // update roznamcha entry with new updates
-    roznamcha.entryType = entryType;
-    roznamcha.customerType = customerType;
-    roznamcha.paymentType = paymentType;
-    roznamcha.truckNumber = truckNumber;
-    roznamcha.qty = qty;
-    roznamcha.amount = amount;
-    roznamcha.location = location;
-    roznamcha.sizeId = sizeId;
-    roznamcha.patternId = patternId;
-    roznamcha.customerId = customerId;
-    roznamcha.bankAccountId = bankAccountId ? bankAccountId : null;
-    roznamcha.cashCustomer = cashCustomer;
-
-    // update roznamcha now
-    await roznamcha.save();
+    // get cash book from request params
+    let cashBookId = req.body.cashBookId;
+    const cashBook = await CashBook.findByPk(cashBookId);
 
     // update Bank Khata only while entryType is credit amount or debit amount
+    // when entry is credit or debit payment is not cash old payment is also not cash and having bank id
     if (
       (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
       paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH &&
-      oldPaymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH &&
+      cashBook.paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH &&
       bankAccountId
     ) {
+      // find bankAccount by id from db
       const UpdateBankAccountBalance = await BankAccount.findByPk(
         bankAccountId
       );
 
+      // if it credit amount use case
       if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
-        const updateBankAccountBalance =
-          Number(amount) - Number(oldCustomerAmount);
+        const updatedBalance = Number(amount) - Number(cashBook.amount);
         console.log(
           "if condition credit mode bank update ",
           UpdateBankAccountBalance.balance,
-          updateBankAccountBalance
+          updatedBalance
         );
         UpdateBankAccountBalance.balance =
-          Number(UpdateBankAccountBalance.balance) + Number(oldCustomerAmount);
-      } else if (
+          Number(UpdateBankAccountBalance.balance) + Number(updatedBalance);
+      }
+      // if it is debit amount use case
+      else if (
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
       ) {
         // if current new balance is less then old balance then add to balance else minus from balance
         UpdateBankAccountBalance.balance =
-          Number(amount) < Number(oldCustomerAmount)
+          Number(amount) < Number(cashBook.amount)
             ? Number(UpdateBankAccountBalance.balance) +
-              (Number(oldCustomerAmount) - Number(amount))
+              (Number(cashBook.amount) - Number(amount))
             : Number(UpdateBankAccountBalance.balance) -
-              (Number(amount) - Number(oldCustomerAmount));
+              (Number(amount) - Number(cashBook.amount));
       }
+
+      // save bank account updated balance in db
       await UpdateBankAccountBalance.save();
     }
+
     // handle the use case while use update payment type from bank methods to Cash
+    // when credit or debit amount old payment type is not equal new payment type new payment is cash
     else if (
       (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
-      oldPaymentType !== paymentType &&
+      cashBook.paymentType !== paymentType &&
       !bankAccountId &&
-      oldBankAccountId
+      cashBook.bankAccountId
     ) {
+      // find bank account with old id first
       const UpdateBankAccountBalance = await BankAccount.findByPk(
-        oldBankAccountId
+        cashBook.bankAccountId
       );
       console.log(
         "else if first condition from nonCash to Cash bank update ",
         UpdateBankAccountBalance.balance,
-        Number(oldCustomerAmount)
+        Number(cashBook.amount)
       );
+
       if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT)
         UpdateBankAccountBalance.balance =
-          Number(UpdateBankAccountBalance.balance) - Number(oldCustomerAmount);
+          Number(UpdateBankAccountBalance.balance) - Number(cashBook.amount);
       else if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT)
         UpdateBankAccountBalance.balance =
-          Number(UpdateBankAccountBalance.balance) + Number(oldCustomerAmount);
+          Number(UpdateBankAccountBalance.balance) + Number(cashBook.amount);
+
+      // update new balance in bank account in db
       await UpdateBankAccountBalance.save();
     }
     // handle the use case while use update payment type from Cash to bank methods
+    // when credit or debit entry and old payment type is not equal to new old method is cash
     else if (
       (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
-      oldPaymentType !== paymentType &&
+      cashBook.paymentType !== paymentType &&
       bankAccountId &&
-      !oldBankAccountId
+      !cashBook.bankAccountId
     ) {
+      // bank account by bankAccountId in db
       const UpdateBankAccountBalance = await BankAccount.findByPk(
         bankAccountId
       );
+
       console.log(
         "else if second condition from Cash to nonCash bank update ",
         UpdateBankAccountBalance.balance,
-        Number(oldCustomerAmount)
+        Number(cashBook.amount)
       );
       if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT)
         UpdateBankAccountBalance.balance =
-          Number(UpdateBankAccountBalance.balance) + Number(oldCustomerAmount);
+          Number(UpdateBankAccountBalance.balance) + Number(cashBook.amount);
       else if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT)
         UpdateBankAccountBalance.balance =
-          Number(UpdateBankAccountBalance.balance) - Number(oldCustomerAmount);
+          Number(UpdateBankAccountBalance.balance) - Number(cashBook.amount);
+
+      // save the updated info in db
       await UpdateBankAccountBalance.save();
     }
 
-    // update Customer info only while sell stock or receive amount and only for non cash customers
+    // update Customer info only while customer type change from non Cash --> cash
     if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT ||
-      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-        customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH &&
-        customerType === oldCustomerType)
+      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+      customerType !== cashBook.customerType &&
+      customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH
     ) {
-      const UpdateCustomerBalance = await Customer.findByPk(customerId);
-      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-        const updateCustomerAmount =
-          Number(amount) *
-            (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty)) -
-          Number(oldCustomerAmount) *
-            (Number(oldQty) % 2 === 0 ? Number(oldQty) / 2 : Number(oldQty));
+      // update back customer balance in that case
+      const UpdateCustomerBalance = await Customer.findByPk(
+        cashBook.customerId
+      );
+
+      // handle the use case while entry type is credit
+      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
         UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) - updateCustomerAmount;
-      } else if (
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-      ) {
-        const updateBalance = Number(amount) - Number(oldCustomerAmount);
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) + updateBalance;
-      } else if (
+          Number(UpdateCustomerBalance.balance) - Number(cashBook.amount);
+      }
+      // handle the use case while entry type is debit
+      else if (
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
       ) {
         UpdateCustomerBalance.balance =
-          Number(amount) < Number(oldCustomerAmount)
-            ? Number(UpdateCustomerBalance.balance) -
-              (Number(oldCustomerAmount) - Number(amount))
-            : Number(UpdateCustomerBalance.balance) +
-              (Number(amount) - Number(oldCustomerAmount));
+          Number(UpdateCustomerBalance.balance) - Number(cashBook.amount);
       }
-      await UpdateCustomerBalance.save();
-    }
-    // this case is when someone edit customer Type and change from one type to other --> from Cash --> nonCash
-    else if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-      customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH &&
-      customerType !== oldCustomerType
-    ) {
-      const UpdateCustomerBalance = await Customer.findByPk(customerId);
-      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-        console.log(
-          "customer Type update------ cash to NonCash ",
-          UpdateCustomerBalance.balance,
-          Number(amount) *
-            (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty))
-        );
-        const updateCustomerAmount =
-          Number(amount) *
-          (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty));
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) - updateCustomerAmount;
-      }
-      await UpdateCustomerBalance.save();
-    }
-    // this case is when someone edit customer Type and change from one type to other --> from nonCash --> Cash
-    else if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-      customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH &&
-      customerType !== oldCustomerType
-    ) {
-      const UpdateCustomerBalance = await Customer.findByPk(oldCustomerId);
-      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-        console.log(
-          "customer Type update------ nonCash to Cash ",
-          UpdateCustomerBalance.balance,
-          Number(oldCustomerAmount) *
-            (Number(oldQty) % 2 === 0 ? Number(oldQty) / 2 : Number(oldQty))
-        );
-        const updateCustomerAmount =
-          Number(oldCustomerAmount) *
-          (Number(oldQty) % 2 === 0 ? Number(oldQty) / 2 : Number(oldQty));
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) + updateCustomerAmount;
-      }
+
+      // update the updated info in db now
       await UpdateCustomerBalance.save();
     }
 
-    // update stock while entry type is add stock and sell stock
+    // update Customer info only while customer type change from  cash --> non Cash
     if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK ||
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+      customerType !== cashBook.customerType &&
+      customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
     ) {
-      // check if the stock is already exist then add to total stock or remove from stock
-      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK) {
-        const [createOrUpdateStock, created] = await Stock.findOrCreate({
-          where: { patternId: patternId, sizeId: sizeId },
-          defaults: {
-            patternId: patternId,
-            sizeId: sizeId,
-            startingStock: 0,
-            total: qty,
-          },
-        });
+      // update back customer balance in that case
+      const UpdateCustomerBalance = await Customer.findByPk(customerId);
 
-        // if the stock was edited then run this case
-        if (!created) {
-          const updateTotal = Number(qty) - Number(oldQty);
-          createOrUpdateStock.total = Number(updateStock.total) + updateTotal;
-          await createOrUpdateStock.save();
-        }
-        // if the stock was replace by other pattern or size then update this back to old values
-        else if (created) {
-          const updateStock = await Stock.findOne({
-            where: { patternId: oldPatternId, sizeId: oldSizeId },
-          });
-          updateStock.total = Number(updateStock.total) - Number(oldQty);
-          await updateStock.save();
-        }
-      } else if (
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
-      ) {
-        const updateStock = await Stock.findOne({
-          where: { patternId: patternId, sizeId: sizeId },
-        });
-        const updateTotal = Number(qty) - Number(oldQty);
-        updateStock.total = Number(updateStock.total) - updateTotal;
-        await updateStock.save();
+      // handle the use case while entry type is credit
+      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
+        UpdateCustomerBalance.balance =
+          Number(UpdateCustomerBalance.balance) + Number(amount);
       }
+      // handle the use case while entry type is debit
+      else if (
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+      ) {
+        UpdateCustomerBalance.balance =
+          Number(UpdateCustomerBalance.balance) + Number(amount);
+      }
+
+      // update the updated info in db now
+      await UpdateCustomerBalance.save();
     }
 
-    console.log("UPDATED Roznamcha!");
-    res.redirect("/roznamcha");
-  } catch (err) {
-    console.log(err);
+    // update Customer info only while receive amount and only for non cash customers and same customer update
+    if (
+      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+      customerType === cashBook.customerType &&
+      customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH &&
+      customerId === cashBook.customerId
+    ) {
+      // find customer by id in db
+      const UpdateCustomerBalance = await Customer.findByPk(customerId);
+
+      // handle the use case while entry type is credit
+      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
+        const updateBalance = Number(amount) - Number(cashBook.amount);
+        UpdateCustomerBalance.balance =
+          Number(UpdateCustomerBalance.balance) + updateBalance;
+      }
+      // handle the use case while entry type is debit
+      else if (
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+      ) {
+        UpdateCustomerBalance.balance =
+          Number(amount) < Number(cashBook.amount)
+            ? Number(UpdateCustomerBalance.balance) -
+              (Number(cashBook.amount) - Number(amount))
+            : Number(UpdateCustomerBalance.balance) +
+              (Number(amount) - Number(cashBook.amount));
+      }
+
+      // update the updated info in db now
+      await UpdateCustomerBalance.save();
+    }
+    // update Customer info only while receive amount and only for non cash customers and existing customer update by new one
+    else if (
+      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+      customerType === cashBook.customerType &&
+      customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH &&
+      customerId !== cashBook.customerId
+    ) {
+      // first update the old customer
+      let UpdateOldCustomerBalance = await Customer.findByPk(
+        cashBook.customerId
+      );
+
+      // update old customer balance to back to old balance
+      UpdateOldCustomerBalance.balance =
+        Number(UpdateOldCustomerBalance.balance) - Number(cashBook.amount);
+
+      // update the updated info in db now
+      await UpdateOldCustomerBalance.save();
+
+      // find customer by id in db
+      const UpdateCustomerBalance = await Customer.findByPk(customerId);
+
+      // handle the use case while entry type is credit
+      UpdateCustomerBalance.balance =
+        Number(UpdateCustomerBalance.balance) + Number(amount);
+
+      // update the updated info in db now
+      await UpdateCustomerBalance.save();
+    }
+
+    // update roznamcha entry with new updates
+    cashBook.entryType = entryType;
+    cashBook.customerType = customerType;
+    cashBook.paymentType = paymentType;
+    cashBook.amount = amount;
+    cashBook.customerId = customerId ? customerId : null;
+    cashBook.bankAccountId = bankAccountId ? bankAccountId : null;
+    cashBook.cashCustomer = cashCustomer;
+
+    // update roznamcha now
+    await cashBook.save();
+
+    // show all updated information on cash book
+    console.log("UPDATED Cash Book!");
+    res.redirect("/cash-book");
+  } catch (reason) {
+    console.log(
+      "Error: in postEditCashBook controller with reason --> ",
+      reason
+    );
   }
 };
 
+// remove a cash book entry from db
 exports.postDeleteCashBook = async (req, res, next) => {
-  const roznamchaId = req.body.roznamchaId;
-
+  // get cashbook id from request params
+  const cashBookId = req.body.cashBookId;
   try {
-    const roznamcha = await Roznamcha.findByPk(roznamchaId);
+    // get cashbook from db first
+    const cashBook = await CashBook.findByPk(cashBookId);
 
-    const entryType = roznamcha.entryType;
-    const bankAccountId = roznamcha.bankAccountId;
-    const amount = roznamcha.amount;
-    const customerId = roznamcha.customerId;
-    const customerType = roznamcha.customerType;
-    const qty = roznamcha.qty;
-    const sizeId = roznamcha.sizeId;
-    const patternId = roznamcha.patternId;
+    const entryType = cashBook.entryType;
+    const bankAccountId = cashBook.bankAccountId;
+    const amount = cashBook.amount;
+    const customerId = cashBook.customerId;
 
-    // update Bank Khata only while entryType is amount
+    // update Bank Khata only while entryType is credit amount
     if (
       entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
       bankAccountId
     ) {
+      // get bank account data from db
       const UpdateBankAccountBalance = await BankAccount.findByPk(
         bankAccountId
       );
+
+      // reverse back the account balance
       UpdateBankAccountBalance.balance =
         Number(UpdateBankAccountBalance.balance) - Number(amount);
+
+      // update the new balance in bank account
       await UpdateBankAccountBalance.save();
-    } else if (
+    }
+    // update Bank Khata only while entryType is debit amount
+    else if (
       entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
       bankAccountId
     ) {
+      // get bank account data from db
       const UpdateBankAccountBalance = await BankAccount.findByPk(
         bankAccountId
       );
+
+      // add back the amount in bank khata
       UpdateBankAccountBalance.balance =
         Number(UpdateBankAccountBalance.balance) + Number(amount);
+
+      // update the info in db
       await UpdateBankAccountBalance.save();
     }
 
-    // update Customer info only while sell stock or receive amount and only for non cash customers
+    // update Customer info only while receive amount and only for non cash customers
     if (
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-      entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT ||
-      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-        customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH)
+      (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+      customerId
     ) {
+      // find customer by id first
       const UpdateCustomerBalance = await Customer.findByPk(customerId);
 
-      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) +
-          Number(amount) *
-            (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty));
-      } else if (
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-      ) {
-        UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) - Number(amount);
-      } else if (
-        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-      ) {
+      // if entry type was credit amount
+      if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
+        // then reverse back the amount from customer account
         UpdateCustomerBalance.balance =
           Number(UpdateCustomerBalance.balance) - Number(amount);
       }
+      // if the entry type was debit amount
+      else if (
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+      ) {
+        // minus back the amount from the customer account
+        UpdateCustomerBalance.balance =
+          Number(UpdateCustomerBalance.balance) - Number(amount);
+      }
+
+      // update customer info in db back
       await UpdateCustomerBalance.save();
     }
 
-    // check if the stock is already exist then add to total stock or remove from stock
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK) {
-      const updateStock = await Stock.findOne({
-        where: { patternId: patternId, sizeId: sizeId },
-      });
-      updateStock.total = Number(updateStock.total) - Number(qty);
-      await updateStock.save();
-    } else if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-      const updateStock = await Stock.findOne({
-        where: { patternId: patternId, sizeId: sizeId },
-      });
-      updateStock.total = Number(updateStock.total) + Number(qty);
-      await updateStock.save();
-    }
+    // delete entry from db
+    await cashBook.destroy();
 
-    await roznamcha.destroy();
-
-    console.log("DESTROYED PRODUCT");
-    res.redirect("/roznamcha");
-  } catch {
-    (reason) => console.log(reason);
+    // render back the main template
+    console.log("DESTROYED Cash Book");
+    res.redirect("/cash-book");
+  } catch (reason) {
+    console.log(
+      "Error: in postDeleteCashBook controller with reason --> ",
+      reason
+    );
   }
 };
