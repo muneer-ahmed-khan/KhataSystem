@@ -188,54 +188,72 @@ exports.postDeleteBankAccount = async (req, res, next) => {
   }
 };
 
-// need to add the details for bank khata
-exports.getBankAccountKhata = (req, res, next) => {
+// show bank account khata in response
+exports.getBankAccountKhata = async (req, res, next) => {
+  // get bank account id from request params
   const bankAccountId = req.params.bankAccountId;
-  BankAccount.findByPk(bankAccountId)
-    .then(async (bankAccount) => {
-      if (!bankAccount) {
-        return res.redirect("/bank-account");
-      }
-      const bankAccountDetails = [];
-      let bankAccountBalance = 0;
-      const RoznamchaDetails = await bankAccount.getRoznamchas({
-        include: [Customer],
-        order: [["id", "ASC"]],
-      });
 
-      for (let [key, value] of RoznamchaDetails.entries()) {
-        bankAccountBalance =
-          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-            ? Number(bankAccountBalance) + Number(value.amount)
-            : value.entryType ===
-              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-            ? Number(bankAccountBalance) - Number(value.amount)
-            : Number(bankAccountBalance);
+  try {
+    // find bank account by bank account id in db
+    const bankAccount = await BankAccount.findByPk(bankAccountId);
 
-        bankAccountDetails.push({
-          Date: value.updatedAt,
-          customerDetails: value.customer.name,
-          paymentType: value.paymentType,
-          credit:
-            value.entryType ===
-            CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
-              ? value.amount
-              : 0,
-          debit:
-            value.entryType ===
+    // if don't find bank account info in db then do nothing
+    if (!bankAccount) {
+      return res.redirect("/bank-account");
+    }
+
+    // define global variables for bank account khata info
+    const bankAccountDetails = [];
+    let bankAccountBalance = bankAccount.startingBalance;
+
+    // get bank account details from cash book
+    const cashBookDetails = await bankAccount.getCashBook({
+      include: [
+        {
+          model: Customer,
+          as: "customer",
+        },
+      ],
+      order: [["id", "ASC"]],
+    });
+
+    for (let [key, value] of cashBookDetails.entries()) {
+      bankAccountBalance =
+        value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+          ? Number(bankAccountBalance) + Number(value.amount)
+          : value.entryType ===
             CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
-              ? value.amount
-              : 0,
-          balance: bankAccountBalance,
-        });
-      }
+          ? Number(bankAccountBalance) - Number(value.amount)
+          : Number(bankAccountBalance);
 
-      res.render("bank-account/bank-account-khata.ejs", {
-        bankAccountDetails: bankAccountDetails,
-        bankAccount: bankAccount,
-        pageTitle: bankAccount.accountName,
-        path: "/bank-account",
+      bankAccountDetails.push({
+        Date: value.updatedAt,
+        customerDetails: value.customer
+          ? value.customer.name
+          : value.cashCustomer,
+        paymentType: value.paymentType,
+        credit:
+          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+            ? value.amount
+            : 0,
+        debit:
+          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
+            ? value.amount
+            : 0,
+        balance: bankAccountBalance,
       });
-    })
-    .catch((err) => console.log(err));
+    }
+
+    res.render("bank-account/bank-account-khata.ejs", {
+      bankAccountDetails: bankAccountDetails,
+      bankAccount: bankAccount,
+      pageTitle: bankAccount.accountName,
+      path: "/bank-account",
+    });
+  } catch (reason) {
+    console.log(
+      "Error: in getBankAccountKhata controller with reason --> ",
+      reason
+    );
+  }
 };

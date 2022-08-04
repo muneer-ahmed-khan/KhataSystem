@@ -50,40 +50,11 @@ exports.addStockBook = async (req, res, next) => {
 
   try {
     // check the type of entry and process
-    if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK) {
-      sizes = await Size.findAll({});
-      patterns = await Pattern.findAll();
-    }
+    sizes = await Size.findAll({});
+    patterns = await Pattern.findAll();
+
     // if we have sell stock then get only those sizes and pattern that are in stock
     if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK) {
-      sizes = await Size.findAll({
-        include: [
-          {
-            model: Stock,
-            as: "stock",
-            where: {
-              sizeId: {
-                [Sequelize.Op.ne]: null,
-              },
-            },
-          },
-        ],
-      });
-
-      patterns = await Pattern.findAll({
-        include: [
-          {
-            model: Stock,
-            as: "stock",
-            where: {
-              patternId: {
-                [Sequelize.Op.ne]: null,
-              },
-            },
-          },
-        ],
-      });
-
       // we are selling tyres to those who khata have credit and debit both
       customers = await Customer.findAll({
         include: [

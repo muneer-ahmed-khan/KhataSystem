@@ -10,8 +10,7 @@
 
       <!-- page title for edit pages -->
       <span for="name" class="fs-3" style="display: flex;margin-bottom: 20px;">
-        Enter <b>&nbsp; <%- entryType === "debitAmount" ? "<span class='text-danger'> - Debit Amount </span>"
-              : entryType === 'creditAmount' ? "<span class='text-success'> + Credit Amount </span>" : '' %> &nbsp;</b> Details:
+        Enter <b>&nbsp; <%- entryType === "debitAmount" ? "<span class='text-danger'> - Debit Amount </span>" : entryType === 'creditAmount' ? "<span class='text-success'> + Credit Amount </span>" : '' %> &nbsp;</b> Details:
       </span>
 
       <!-- edit form settings and actions -->
@@ -21,7 +20,7 @@
 
 
         <!-- hidden field to for getting entry type -->
-        <input style="margin: 10px 0px;" type="hidden" class="form-control form-control-lg" placeholder="e.g 325000/=" name="entryType" id="entryType" value="<%= entryType === 'creditAmount' ? "creditAmount" : entryType === 'debitAmount' ? "debitAmount": '' %>">
+        <input style="margin: 10px 0px;" type="hidden" class="form-control form-control-lg" name="entryType" id="entryType" value="<%= entryType === 'creditAmount' ? "creditAmount" : entryType === 'debitAmount' ? "debitAmount": '' %>">
 
 
         <!-- Customer Type Input Field -->
@@ -32,7 +31,7 @@
         <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)">
           <option disabled>Select Customer Type</option>
           <% for (let [i, customerType] of customerTypes.entries()) { %>
-          <option <% if (editing && customerType === cash-book.customerType ) { %> selected='selected' <% } else if(!editing && customerType === "nonCash") { %> selected='selected' <% } %> value="<%= customerType %>"><%= customerType.toUpperCase() %>
+          <option <% if (editing && customerType === cashBook.customerType ) { %> selected='selected' <% } else if(!editing && customerType === "nonCash") { %> selected='selected' <% } %> value="<%= customerType %>"><%= customerType.toUpperCase() %>
           </option>
           <% } %>
         </select>
@@ -47,7 +46,7 @@
           <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
             <option selected disabled>Select Customer name</option>
             <% for (let [i, customer] of customers.entries()) { %>
-            <option <% if (editing && customer.id===cash-book.customerId ) { %> selected='selected' <% } else { %> <% } %> style="color: green" value="<%= customer.id %>">
+            <option <% if (editing && customer.id===cashBook.customerId ) { %> selected='selected' <% } else { %> <% } %> style="color: green" value="<%= customer.id %>">
               <%= customer.name %>
             </option>
             <% } %>
@@ -63,7 +62,7 @@
         <select class="form-select" style="margin: 10px 0px;" id="paymentType" name="paymentType" onchange="paymentTypeChange(this.value)">
           <option selected disabled>Select Payment Method</option>
           <% for (let [i, paymentType] of paymentTypes.entries()) { %>
-          <option <% if (editing && paymentType===cash-book.paymentType ) { %> selected='selected' <% } else { %> <% } %> value="<%= paymentType %>"><%= paymentType.toUpperCase() %>
+          <option <% if (editing && paymentType===cashBook.paymentType ) { %> selected='selected' <% } else { %> <% } %> value="<%= paymentType %>"><%= paymentType.toUpperCase() %>
           </option>
           <% } %>
         </select>
@@ -77,7 +76,7 @@
           <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount">
             <option selected disabled>Select Bank Account Name</option>
             <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
-            <option <% if (editing && bankAccount.id===cash-book.bankAccountId ) { %> selected='selected' <% } else { %> <% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %>
+            <option <% if (editing && bankAccount.id===cashBook.bankAccountId ) { %> selected='selected' <% } else { %> <% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %>
             </option>
             <% } %>
           </select>
@@ -88,11 +87,11 @@
             <% if (editing) { %>Update existing <%= "Amount :" %><% } else { %>Enter <%= "Amount :" %> <% }%>
           </b>
         </label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= cash-book.amount %><% } %>">
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= cashBook.amount %><% } %>">
 
-        <!-- hidden input field for getting cash-book id in edit mode -->
+        <!-- hidden input field for getting cashBook id in edit mode -->
         <% if (editing) { %>
-        <input type="hidden" value="<%= cash-book.id %>" name="cashBookId">
+        <input type="hidden" value="<%= cashBook.id %>" name="cashBookId">
         <% } %>
 
         <!-- form submit button  -->
@@ -118,7 +117,7 @@
     // function is called when something is changes in customer type in input field
     function customerTypeChange(value) {
       let editing = '<%- editing %>';
-      let cashCustomerName = '<%- editing ? cash-book.cashCustomer : "" %>';
+      let cashCustomerName = '<%- editing ? cashBook.cashCustomer : "" %>';
       let customerInputField = document.getElementById('customerField');
 
       if (value === "nonCash" && nonCashCustomerFieldHtml) {
@@ -161,8 +160,8 @@
       if (editing) {
 
         // first handle here the customer type here
-        let customerType = '<%- editing ? cash-book.customerType : "" %>';
-        let cashCustomerName = '<%- editing ? cash-book.cashCustomer : "" %>';
+        let customerType = '<%- editing ? cashBook.customerType : "" %>';
+        let cashCustomerName = '<%- editing ? cashBook.cashCustomer : "" %>';
 
         if (customerType === "nonCash" && nonCashCustomerFieldHtml) {
 
@@ -177,7 +176,7 @@
 
         // handle here the payment type here
 
-        let paymentType = '<%- editing ? cash-book.paymentType : "" %>';
+        let paymentType = '<%- editing ? cashBook.paymentType : "" %>';
         let entryType = '<%-  entryType ? entryType : "" %>';
         let bankAccountField = document.getElementById('bankAccount');
         if (paymentType === 'cash') {
