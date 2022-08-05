@@ -11,116 +11,122 @@
         <div class="row" style="display: flex; align-items: flex-end;">
           <div class="col-sm-6">
             <!-- main stockBook page title -->
-            <h2>Manage <b>Stock Book</b></h2>
+            <h4>Manage <b>Stock Book</b></h4>
           </div>
           <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse;">
 
             <!-- table action button work -->
-            <!-- sell stock button  -->
-            <a href="/add-stock-book/?sellStock=true" class="btn btn-outline-warning" style="margin: 0.5rem">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z" />
-              </svg>
-              <span> Sell <strong>Stock</strong> Entry</span></a>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <!-- add stock button  -->
+              <a href="/add-stock-book/?addStock=true" class="btn btn-sm btn-outline-primary me-md-2" style="text-decoration: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                </svg>
+                Add <strong>Stock</strong> Entry
+              </a>
 
-            <!-- add stock button  -->
-            <a href="/add-stock-book/?addStock=true" class="btn btn-outline-info" style="margin: 0.5rem">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-              </svg>
-              <span> Add <strong>Stock</strong> Entry</span></a>
-
-            <!-- table action button ended here -->
+              <!-- sell stock button  -->
+              <a href="/add-stock-book/?sellStock=true" class="btn btn-sm btn-outline-dark" style="text-decoration: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
+                  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z" />
+                </svg>
+                Sell <strong>Stock</strong> Entry
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- main table here -->
-      <table class="table table-responsive-sm table-bordered table-hover align-middle text-nowrap">
-        <thead>
-          <tr>
-            <!-- all table columns -->
-            <th scope="col" class="text-center"># ID</th>
-            <th scope="col" class="text-center">Date</th>
-            <th scope="col" class="text-center"> Entry Type</th>
-            <th scope="col">Details</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <!-- table body with all data  -->
-        <tbody>
-          <% for (let [i, stockBook] of stockBooks.entries()) { %>
-          <tr>
-            <!-- id column -->
-            <th scope="row" class="text-center">
-              <%= i+1 %>
-            </th>
-            <!-- date column -->
-            <td class="text-center">
-              <%= new Date(stockBook.updatedAt).toDateString() %>
-            </td>
-            <!-- entry type column -->
-            <td class="text-center">
-              <% if (stockBook.entryType === "addStock") { %>
-              <span class="text-info" style="font-weight: 600;">New Stock</span>
-              <% } else if (stockBook.entryType === "sellStock") { %>
-              <span class="text-warning" style="font-weight: 600;">Sell Tyres</span>
-              <% }
+      <div class="table-responsive-sm">
+        <table class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark caption-top">
+          <caption class="text-center">
+            <u style="margin: 0px 50px;">Total <span class="text-primary"><b>Receive</b></span>= <b><%= totalReceived %></b> Tyres</u>
+            <u style="margin: 0px 50px;">Total <span class="text-dark"><b>Sell</b></span> = <b><%= totalSell %></b> Tyres</u>
+          </caption>
+          <thead class="table-secondary">
+            <tr>
+              <!-- all table columns -->
+              <th scope="col" class="text-center"># ID</th>
+              <th scope="col" class="text-center">Date</th>
+              <th scope="col">Details</th>
+              <th scope="col" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <!-- table body with all data  -->
+          <tbody>
+            <% for (let [i, stockBook] of stockBooks.entries()) { %>
+            <tr scope="row">
+              <!-- id column -->
+              <th class="text-center">
+                <%= i+1 %>
+              </th>
+              <!-- date column -->
+              <td class="text-center">
+                <%= new Date(stockBook.updatedAt).toDateString() %>
+              </td>
+
+              <!-- for sell stock and add stock -->
+              <!-- <a href='/stock/khata/' +  +"'"> -->
+              <td>
+                <% if (stockBook.entryType === "addStock") { %>
+                <span class="text-primary" style="font-weight: 600; margin: 0px 5px 0px 2px;">Receive</span> &#8594
+                <% } else if (stockBook.entryType === "sellStock") { %>
+                <span class="text-dark" style="font-weight: 600; margin: 0px 23px 0px 17px;">Sell</span> &#8594
+                <% }
+                %>
+                <strong style="margin: 0px 8px;"><%= stockBook.qty %></strong> Tyres <span style="margin: 0px 0px 0px 10px;">&#8594</span>
+                <a href="<%='/stock/1?sizeId=' + stockBook.sizeId + '&patternId=' + stockBook.patternId %>" style="color:black"> <strong><%=stockBook.pattern.name %></strong>&nbsp;
+                  <strong><%=stockBook.size.type %></strong>&nbsp;</a>
+                <% if (stockBook.entryType === "addStock") { %>
+                Truck Number &#8594<strong><%=stockBook.truckNumber %></strong>&nbsp;
+                Rent &#8594 <strong><%=stockBook.amount %></strong>
+                <% } %>
+                <% if (stockBook.entryType === "sellStock") { %>
+                <% if (stockBook.customerType === "nonCash") { %>
+                Khata Customer
+                <% } else if (stockBook.entryType === "cash") { %>
+                Cash Customer
+                <% }
               %>
-            </td>
-
-            <!-- for sell stock and add stock -->
-            <!-- <a href='/stock/khata/' +  +"'"> -->
-            <td>
-              <% if (stockBook.entryType === "addStock" || stockBook.entryType === "sellStock") { %>
-              <strong><%= stockBook.qty %></strong> &#8594 Tyres&nbsp;
-              <a href="<%='/stock/1?sizeId=' + stockBook.sizeId + '&patternId=' + stockBook.patternId %>"> <strong><%=stockBook.pattern.name %></strong>&nbsp;
-                <strong><%=stockBook.size.type %></strong>&nbsp;</a>
-              <% if (stockBook.entryType === "addStock") { %>
-              Truck Number &#8594<strong><%=stockBook.truckNumber %></strong>&nbsp;
-              Rent &#8594 <strong><%=stockBook.amount %></strong>
-              <% } %>
-              <% if (stockBook.entryType === "sellStock") { %>
-              Customer &#8594
-              <strong><%-stockBook.customerType === "nonCash" ? '<a href="/customer/khata/' + stockBook.customerId + '">' + stockBook.customer.name + '</a>' : stockBook.cashCustomer %></strong>&nbsp;
-              Customer Type &#8594 <strong><%=stockBook.customerType.toUpperCase() %></strong>&nbsp;
-              Price &#8594 <strong><%=stockBook.amount %></strong>
-              Total &#8594 <strong><%=Number(stockBook.amount) *
+                <strong><%-stockBook.customerType === "nonCash" ? '<a href="/customer/khata/' + stockBook.customerId + '" style="color:black">' + stockBook.customer.name + '</a>' : stockBook.cashCustomer %></strong>&nbsp;
+                Price &#8594 <strong><%=stockBook.amount %></strong>
+                Total &#8594 <strong><%=Number(stockBook.amount) *
                 (Number(stockBook.qty) % 2 === 0 ? Number(stockBook.qty) / 2 : Number(stockBook.qty)) %></strong>
-              <% } %>
-              <% } %>
-            </td>
+                <% } %>
+              </td>
 
-            <!-- action buttons -->
-            <td>
-              <form action="/edit-stock-book/<%= stockBook.id %>" method="get">
-                <!-- edit button -->
-                <button type="submit" class="btn btn-outline-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                  </svg></button>
-                <input type="hidden" name="edit" value="true" />
-                <input type="hidden" name="entryType" value="<%= stockBook.entryType %>" />
-              </form>
+              <!-- action buttons -->
+              <td class="text-center">
+                <form action="/edit-stock-book/<%= stockBook.id %>" method="get">
+                  <!-- edit button -->
+                  <button type="submit" class="btn btn-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                      <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                      <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                    </svg></button>
+                  <input type="hidden" name="edit" value="true" />
+                  <input type="hidden" name="entryType" value="<%= stockBook.entryType %>" />
+                </form>
 
-              <form action="/delete-stock-book" method="post">
-                <!-- delete button -->
-                <button class="btn btn-outline-danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                  </svg></button>
-                <input type="hidden" value="<%= stockBook.id %>" name="stockBookId">
-                <input type="hidden" name="entryType" value="<%= stockBook.entryType %>" />
-              </form>
-            </td>
-          </tr>
-          <% } %>
+                <form action="/delete-stock-book" method="post">
+                  <!-- delete button -->
+                  <button class="btn btn-link" style="color: red;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                    </svg></button>
+                  <input type="hidden" value="<%= stockBook.id %>" name="stockBookId">
+                  <input type="hidden" name="entryType" value="<%= stockBook.entryType %>" />
+                </form>
+              </td>
+            </tr>
+            <% } %>
+      </div>
+      </tbody>
+      </table>
     </div>
-    </tbody>
-    </table>
     </div>
 
     <!-- if we don't have any data in stockBook right now -->
