@@ -23,9 +23,25 @@ exports.getStockBook = async (req, res, next) => {
       order: [["id", "DESC"]],
     });
 
+    // get total receive and buy tyres
+    let received = 0,
+      sell = 0;
+
+    for (const stockBook of stockBooks) {
+      if (
+        stockBook.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
+      )
+        received += Number(stockBook.qty);
+      else if (
+        stockBook.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+      )
+        sell += Number(stockBook.qty);
+    }
     // render all stock book template
     res.render("stock-book/stock-book.ejs", {
       stockBooks: stockBooks,
+      totalReceived: received,
+      totalSell: sell,
       pageTitle: "Stock Book",
       path: "/stock-book",
     });
