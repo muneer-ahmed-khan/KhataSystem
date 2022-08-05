@@ -14,7 +14,7 @@ const { CONSTANTS } = require("../config/constants");
 exports.getStockBook = async (req, res, next) => {
   try {
     // get all stock book records from db
-    const stockBooks = await StockBook.findAll({
+    let stockBooks = await StockBook.findAll({
       include: [
         { model: Customer, as: "customer" },
         { model: Pattern, as: "pattern" },
