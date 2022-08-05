@@ -180,14 +180,27 @@ exports.getStockDetails = async (req, res, next) => {
   const stockId = req.params.stockId;
 
   try {
+    let stock;
+    // check if we have patternId and stockId in request params then change query format
+    if (Object.keys(req.query).length) {
+      stock = await Stock.findOne({
+        where: { patternId: req.query.patternId, sizeId: req.query.sizeId },
+        include: [
+          { model: Size, as: "size" },
+          { model: Pattern, as: "pattern" },
+        ],
+      });
+    }
     // find in stock in db by stockId
-    const stock = await Stock.findOne({
-      where: { id: stockId },
-      include: [
-        { model: Size, as: "size" },
-        { model: Pattern, as: "pattern" },
-      ],
-    });
+    else {
+      stock = await Stock.findOne({
+        where: { id: stockId },
+        include: [
+          { model: Size, as: "size" },
+          { model: Pattern, as: "pattern" },
+        ],
+      });
+    }
 
     // if stock was not found in db then do nothing
     if (!stock) {
