@@ -6,7 +6,7 @@ module.exports = {
       "BankAccounts",
       [
         {
-          accountName: "Sky Line Commission Agent - AlFalah Bank",
+          accountName: "Sky - AlFalah",
           accountNumber: "0121-1007593270",
           address: "unknown",
           phoneNumber: 0,
@@ -17,7 +17,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Sky Line Commission Agent - Faysal Bank",
+          accountName: "Sky - Faysal",
           accountNumber: "310787000002491",
           address: "unknown",
           phoneNumber: 0,
@@ -28,7 +28,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Sky Line Commission Agent - Meezan Bank",
+          accountName: "Sky - Meezan",
           accountNumber: "9806-0105876952",
           address: "unknown",
           phoneNumber: 0,
@@ -39,7 +39,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Sky Line Commission Agent - MCB Bank",
+          accountName: "Sky - MCB",
           accountNumber: "3107139701003322",
           address: "unknown",
           phoneNumber: 0,
@@ -50,7 +50,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Sky Line Commission Agent - Bank Al Habib",
+          accountName: "Sky - Al Habib",
           accountNumber: "30270981000290",
           address: "unknown",
           phoneNumber: 0,
@@ -61,7 +61,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Abdul Qadeem - HBL Bank",
+          accountName: "Qadeem - HBL",
           accountNumber: "7901007803",
           address: "unknown",
           phoneNumber: 0,
@@ -72,7 +72,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Fahad Tyre Dealer - Alied Bank",
+          accountName: "Fahad - Alied",
           accountNumber: "10074331070012",
           address: "unknown",
           phoneNumber: 0,
@@ -83,7 +83,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Abdul Shakoor- UBL Bank",
+          accountName: "Shakoor - UBL",
           accountNumber: "37101437",
           address: "unknown",
           phoneNumber: 0,
@@ -94,7 +94,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          accountName: "Abdul Ghafoor - Soneri Bank",
+          accountName: "Ghafoor - Soneri",
           accountNumber: "0024420008724688",
           address: "unknown",
           phoneNumber: 0,
