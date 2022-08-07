@@ -1,41 +1,45 @@
 <div class="backdrop"></div>
-<header class="main-header">
-  <button id="side-menu-toggle">Menu</button>
-  <span id="heading" class="heading">
-    <a href="/" style="text-decoration: none; color: white; font-weight: 600;">Khata System App</a>
-  </span>
-  <nav class="main-header__nav">
-    <ul class="main-header__item-list">
-      <li class="main-header__item">
-        <a class="<%= path === '/bank' ? 'active' : '' %>" href="/bank" style="font-weight: 600;">Banks</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/size' ? 'active' : '' %>" href="/size" style="font-weight: 600;">Sizes</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/pattern' ? 'active' : '' %>" href="/pattern" style="font-weight: 600;">Patterns</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/amount-type' ? 'active' : '' %>" href="/amount-type" style="font-weight: 600;">Amount Types</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/bank-account' ? 'active' : '' %>" href="/bank-account" style="font-weight: 600;">Bank Accounts</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/stock' ? 'active' : '' %>" href="/stock" style="font-weight: 600;">Stocks</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/customer' ? 'active' : '' %>" href="/customer" style="font-weight: 600;">Customers</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/stock-book' ? 'active' : '' %>" href="/stock-book" style="font-weight: 600;">Stock Book</a>
-      </li>
-      <li class="main-header__item">
-        <a class="<%= path === '/cash-book' ? 'active' : '' %>" href="/cash-book" style="font-weight: 600;">Cash Book</a>
-      </li>
-    </ul>
+<header>
+  <nav class="navbar navbar-expand-sm sticky-top navbar-dark" style="background-color: #00695c;">
+    <div class="container-fluid">
+      <button id="side-menu-toggle">Menu</button>
+      <a class="navbar-brand mb-0 h1" href="/">Khata System App</a>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/bank' ? 'active' : '' %>" aria-current="page" href="/bank">Banks</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/size' ? 'active' : '' %>" aria-current="page" href="/size">Sizes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/pattern' ? 'active' : '' %>" aria-current="page" href="/pattern">Patterns</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/amount-type' ? 'active' : '' %>" aria-current="page" href="/amount-type">Amount Types</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/bank-account' ? 'active' : '' %>" aria-current="page" href="/bank-account">Bank Accounts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/stock' ? 'active' : '' %>" aria-current="page" href="/stock">Stocks</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/customer' ? 'active' : '' %>" aria-current="page" href="/customer">Customers</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/stock-book' ? 'active' : '' %>" aria-current="page" href="/stock-book">Stock Book</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/cash-book' ? 'active' : '' %>" aria-current="page" href="/cash-book">Cash Book</a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </nav>
 </header>
+
 
 <nav class="mobile-nav">
   <ul class="mobile-nav__item-list">

@@ -80,7 +80,7 @@ form {
   max-width: 90%;
   position: fixed;
   left: 0;
-  top: 0;
+  top: 25px;
   background: white;
   z-index: 10;
   padding: 2rem 1rem 1rem 2rem;
