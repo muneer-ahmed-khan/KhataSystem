@@ -217,6 +217,11 @@ exports.getBankAccountKhata = async (req, res, next) => {
       order: [["id", "ASC"]],
     });
 
+    // add starting stock to first array
+    bankAccountDetails.push({
+      startingBalance: bankAccountBalance,
+    });
+
     for (let [key, value] of cashBookDetails.entries()) {
       bankAccountBalance =
         value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
