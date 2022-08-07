@@ -9,67 +9,157 @@
       <div class="table-title">
         <div class="row" style="display: flex; align-items: flex-end">
           <div class="col-sm-6">
-            <h2>
+            <h4>
               <b><%= stock.pattern.name %> <%= stock.size.type %> </b> Stock
               Khata
-            </h2>
+            </h4>
           </div>
           <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse">
             <span>
-              <h5>
+              <h6>
                 <b>Current</b> Stock :
                 <strong><%= stock.total %>/=</strong>
-              </h5>
+              </h6>
             </span>
           </div>
         </div>
       </div>
-      <table class="table table-responsive table-bordered table-hover align-middle">
-        <thead>
+
+      <!-- stock khata -->
+      <table id="example1" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
+        <thead class="table-secondary">
           <tr>
             <th scope="col" style="width: 70px" class="text-center"># ID</th>
             <th scope="col">Date</th>
-            <th scope="col">Details</th>
-            <th scope="col">Credit +</th>
-            <th scope="col">Debit -</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Truck #</th>
+            <th scope="col">Arrive</th>
+            <th scope="col">Sell </th>
             <th scope="col">Total</th>
           </tr>
         </thead>
         <tbody>
+          <% var stockId  = 0 %>
           <% for (let [i, stockDetail] of stockDetails.entries()) { %>
           <!-- starting stock entry -->
           <% if (i === 0) { %>
           <tr>
-            <th colspan="5" class="text-end text-uppercase fs-6 fst-normal">Opening Stock</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th class="text-end text-uppercase fs-6 fst-normal">start</th>
             <th><%= stockDetail.startingStock %></th>
           </tr>
           <!-- handle all other entries in table -->
           <% } else { %>
           <tr>
-            <th scope="row" class="text-center"><%= i %></th>
-            <td><%= new Date(stockDetail.Date).toDateString() %></td>
-            <td>
-              <% if (stockDetail.entryType === "addStock") { %>
-              TruckNumber &#8594 <strong><%= stockDetail.truckNumber %></strong>&nbsp;
-              <% } else if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "nonCash") { %>
-              Customer &#8594 <strong><%= stockDetail.customer.name %></strong>&nbsp;
+            <th scope="row" class="text-center"><%= ++stockId %></th>
+            <td style="padding-left: 5px;"><%= new Date(stockDetail.Date).toLocaleDateString() %></td>
+            <td style="padding-left: 5px;">
+              <%  if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "nonCash") { %>
+              <%= stockDetail.customer.name %>
               <% } else if (stockDetail.entryType === "sellStock" && stockDetail.customerType === "cash") { %>
-              Customer &#8594 <strong><%= stockDetail.cashCustomer %></strong>&nbsp;
+              <%= stockDetail.cashCustomer %>
+              <% } else { %>
+              -
               <% } %>
             </td>
-            <td><%= stockDetail.credit %></td>
-            <td><%= stockDetail.debit %></td>
-            <td><%= stockDetail.total %></td>
+            <td style="padding-left: 5px;"><% if (stockDetail.entryType === "addStock") { %>
+              <%= stockDetail.truckNumber %>
+              <% } else { %>
+              -
+              <% } %>
+            </td>
+            <td style="padding-left: 5px;"><%= stockDetail.credit %></td>
+            <td style="padding-left: 5px;"><%= stockDetail.debit %></td>
+            <td style="padding-left: 5px;"><%= stockDetail.total %></td>
           </tr>
           <% } %>
           <% } %>
         </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" style="text-align:right">Total <span class="text-primary">Arrive</span>
+              :</th>
+            <th colspan="1"></th>
+            <th style="text-align:right">Total <span class="text-dark">Sell</span>
+              :</th>
+            <th colspan="1">
+            </th>
+          </tr>
+        </tfoot>
       </table>
     </div>
     <% } else { %>
     <!-- table action button work -->
     <h1 class="centered">No Details for <b><%= stock.pattern.name %> <%= stock.size.type %> </b> Stock in Roznamcha !</h1>
     <% } %>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"> </script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"> </script>
+
+    <script>
+      $('#example1').DataTable({
+        aLengthMenu: [
+          [50, 100, 200, -1],
+          [50, 100, 200, "All"]
+        ],
+        "columns": [{
+            "data": "id"
+          },
+          {
+            "data": "date"
+          },
+          {
+            "data": "customer"
+          },
+          {
+            "data": "paymentType"
+          },
+          {
+            "data": "credit",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+          {
+            "data": "debit",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+          {
+            "data": "balance",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+        ],
+        footerCallback: function(row, data, start, end, display) {
+          var api = this.api();
+          // Remove the formatting to get integer data for summation
+          var intVal = function(i) {
+            return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+          };
+          // Total over this page
+          var sellTotal = 0;
+          var arriveTotal = 0;
+
+          let [arriveData, sellData] = api.columns([4, 5], {
+            page: "current"
+          }).data().toArray();
+          // console.log("check ", sellData, arriveData);
+
+          for (let index = 0; index < arriveData.length; index++) {
+            if (Number(arriveData[index]))
+              arriveTotal += Number(arriveData[index])
+            if (!isNaN(sellData[index]))
+              sellTotal += Number(sellData[index])
+
+          }
+          // // Update footer
+          $(api.column(3).footer()).html(arriveTotal);
+          $(api.column(5).footer()).html(sellTotal);
+        },
+      });
+    </script>
   </main>
   <%- include('../includes/end.ejs') %>
 </body>

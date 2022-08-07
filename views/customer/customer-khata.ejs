@@ -9,24 +9,28 @@
       <div class="table-title">
         <div class="row" style="display: flex; align-items: flex-end">
           <div class="col-sm-6">
-            <h2><b><%= customer.name %> </b> Khata</h2>
+            <h4><b><%= customer.name %> </b> Khata</h4>
           </div>
           <div class="col-sm-6 table-action" style="display: flex; flex-direction: row-reverse">
             <span>
-              <h5>
+              <h6>
                 <b>Current</b> Balance :
                 <strong><%= customer.balance %>/=</strong>
-              </h5>
+              </h6>
             </span>
           </div>
         </div>
       </div>
-      <table class="table table-responsive table-bordered table-hover align-middle">
-        <thead>
+      <table id="example1" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
+        <thead class="table-secondary">
           <tr>
-            <th scope="col" style="width: 70px" class="text-center"># ID</th>
+            <th scope="col" class="text-center"># ID</th>
             <th scope="col">Date</th>
-            <th scope="col">Details</th>
+            <th scope="col">Qty</th>
+            <th scope="col">Pattern/Size</th>
+            <th scope="col">Price</th>
+            <th scope="col">Pay Type</th>
+            <th scope="col">Bank Account</th>
             <th scope="col">Credit +</th>
             <th scope="col">Debit -</th>
             <th scope="col">Balance</th>
@@ -37,41 +41,151 @@
           <!-- starting stock entry -->
           <% if (i === 0) { %>
           <tr>
-            <th colspan="5" class="text-end text-uppercase fs-6 fst-normal">Opening Balance</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th class="text-end text-uppercase fs-6 fst-normal">Start</th>
             <th><%= customerKhata.startingBalance %></th>
           </tr>
           <!-- handle all other entries in table -->
           <% } else { %>
           <tr>
             <th scope="row" class="text-center"><%= i %></th>
-            <td><%= new Date(customerKhata.Date).toDateString() %></td>
-            <td>
-              <% if (customerKhata.entryType === "creditAmount" || customerKhata.entryType === "debitAmount") { %>
-              PaymentType &#8594 <strong><%= customerKhata.paymentType.toUpperCase() %></strong>&nbsp;
-              <% if (customerKhata.paymentType !== "cash") { %>
-              BankAccount &#8594 <strong><%=customerKhata.bankDetails %></strong>&nbsp;
-              <% } %>
-              <% }  else if (customerKhata.entryType === "sellStock") { %>
-              QTY &#8594 <strong><%= customerKhata.qty %></strong>&nbsp;
-              Pattern &#8594 <strong><%=customerKhata.pattern %></strong>&nbsp;
-              Size &#8594 <strong><%=customerKhata.size %></strong>&nbsp;
-              Price &#8594 <strong><%=customerKhata.amount %></strong>&nbsp;
-              <% } %>
+            <td style="padding-left: 5px;"><%= new Date(customerKhata.Date).toLocaleDateString() %></td>
 
+            <td style="padding-left: 5px;"><% if (customerKhata.entryType === "sellStock") { %>
+              <%= customerKhata.qty %>
+              <% } else { %>
+              -
+              <% }  %>
             </td>
-            <td><%= customerKhata.credit %></td>
-            <td><%= customerKhata.debit %></td>
-            <td><%= customerKhata.balance %></td>
+            <td style="padding-left: 5px;"><% if (customerKhata.entryType === "sellStock") { %>
+              <%= customerKhata.size %> <%= customerKhata.pattern %>
+              <% } else { %>
+              -
+              <% }  %>
+            </td>
+            <td style="padding-left: 5px;"><% if (customerKhata.entryType === "sellStock") { %>
+              <%= customerKhata.amount %>
+              <% } else { %>
+              -
+              <% }  %>
+            </td>
+            <td style="padding-left: 5px;"><% if (customerKhata.entryType === "creditAmount" || customerKhata.entryType === "debitAmount") { %>
+              <%= customerKhata.paymentType.toUpperCase() %>
+              <% } else { %>
+              -
+              <% }  %>
+            </td>
+            <td style="padding-left: 5px;"><% if (customerKhata.entryType === "creditAmount" || customerKhata.entryType === "debitAmount") { %>
+              <%= customerKhata.bankDetails %>
+              <% } else { %>
+              -
+              <% }  %>
+            </td>
+
+            <td style="padding-left: 5px;"><%= customerKhata.credit %></td>
+            <td style="padding-left: 5px;"><%= customerKhata.debit %></td>
+            <td style="padding-left: 5px;"><%= customerKhata.balance %></td>
           </tr>
           <% } %>
           <% } %>
         </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="4" style="text-align:right">Total <span class="text-success">Credit</span>
+              :</th>
+            <th></th>
+            <th colspan="2" style="text-align:right">Total <span class="text-danger">Debit</span>
+              :</th>
+            <th>
+            </th>
+          </tr>
+        </tfoot>
       </table>
     </div>
     <% } else { %>
     <!-- table action button work -->
     <h1 class="centered">No Khata Details for <%= customerDetails %>!</h1>
     <% } %>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"> </script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"> </script>
+
+    <script>
+      $('#example1').DataTable({
+        aLengthMenu: [
+          [50, 100, 200, -1],
+          [50, 100, 200, "All"]
+        ],
+        "columns": [{
+            "data": "id"
+          },
+          {
+            "data": "date"
+          },
+          {
+            "data": "qty"
+          },
+          {
+            "data": "pattern/size"
+          },
+          {
+            "data": "price",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+          {
+            "data": "payType",
+          },
+          {
+            "data": "bankAccount",
+          },
+          {
+            "data": "credit",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+          {
+            "data": "debit",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+          {
+            "data": "balance",
+            render: $.fn.dataTable.render.number(',', '.')
+          },
+        ],
+        footerCallback: function(row, data, start, end, display) {
+          var api = this.api();
+          // Remove the formatting to get integer data for summation
+          var intVal = function(i) {
+            return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+          };
+          // Total over this page
+          var creditTotal = 0;
+          var debitTotal = 0;
+
+          let [creditData, debitData] = api.columns([7, 8], {
+            page: "current"
+          }).data().toArray();
+
+          for (let index = 0; index < creditData.length; index++) {
+            if (Number(creditData[index]))
+              creditTotal += Number(creditData[index])
+            if (!isNaN(debitData[index]))
+              debitTotal += Number(debitData[index])
+
+          }
+          // // Update footer
+          $(api.column(4).footer()).html(creditTotal.toLocaleString('en-US'));
+          $(api.column(7).footer()).html(debitTotal.toLocaleString('en-US'));
+        },
+      });
+    </script>
   </main>
   <%- include('../includes/end.ejs') %>
 </body>

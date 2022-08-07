@@ -129,6 +129,7 @@ exports.postEditCustomer = async (req, res, next) => {
   const updateName = req.body.name;
   const updateAddress = req.body.address;
   const updatePhoneNumber = req.body.phoneNumber;
+  const updateStartingBalance = req.body.startingBalance;
   const updateBalance = req.body.balance;
   const updateAmountType = req.body.amountType;
 
@@ -140,6 +141,7 @@ exports.postEditCustomer = async (req, res, next) => {
     customer.name = updateName;
     customer.address = updateAddress;
     customer.phoneNumber = updatePhoneNumber;
+    customer.startingBalance = updateStartingBalance;
     customer.balance = updateBalance;
     customer.amountTypeId = updateAmountType;
 
@@ -216,24 +218,14 @@ exports.getCustomersKhata = async (req, res, next) => {
   const cashBookDetails = await customer.getCashBook({
     include: [{ model: BankAccount, as: "bankAccount" }],
   });
-  // add starting stock to first array
-  // customerDetails.push({
-  //   customerBalance: customerBalance,
-  // });
 
   // arrange stock details first
   for (let i of stockBookDetails) {
-    customerBalance =
-      i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-      i.customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
-        ? Number(customerBalance) -
-          Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
-        : 0;
-
     customerDetails.push({
       Date: i.updatedAt,
       entryType: i.entryType,
       qty: i.qty,
+      customerType: i.customerType,
       pattern:
         i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
           ? i.pattern.name
@@ -253,27 +245,16 @@ exports.getCustomersKhata = async (req, res, next) => {
           ? Number(i.amount) * (i.qty % 2 === 0 ? i.qty / 2 : i.qty)
           : 0,
       amount: i.amount,
-      balance: customerBalance,
     });
   }
-  console.log("check here the details ", customerDetails);
-  customerBalance =
-    customerDetails.length > 1
-      ? customerDetails[customerDetails.length - 1].balance
-      : customerDetails[customerDetails.length - 1].startingBalance;
   // need to use while loop then
   // now arrange cash book details
   for (let i of cashBookDetails) {
-    customerBalance =
-      (i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
-        i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
-      i.customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
-        ? Number(customerBalance) + Number(i.amount)
-        : 0;
     customerDetails.push({
       Date: i.updatedAt,
       entryType: i.entryType,
       paymentType: i.paymentType,
+      customerType: i.customerType,
       bankDetails:
         (i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
           i.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
@@ -289,9 +270,38 @@ exports.getCustomersKhata = async (req, res, next) => {
           ? i.amount
           : 0,
       amount: i.amount,
-      balance: customerBalance,
     });
   }
+
+  // sort data
+  customerDetails.sort(function (a, b) {
+    return new Date(a.Date) - new Date(b.Date);
+  });
+
+  // add total to each row now
+  customerDetails.map((item) => {
+    if (!item.startingBalance) {
+      customerBalance =
+        item.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
+        item.customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
+          ? Number(customerBalance) -
+            Number(item.amount) * (item.qty % 2 === 0 ? item.qty / 2 : item.qty)
+          : (item.entryType ===
+              CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT ||
+              item.entryType ===
+                CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT) &&
+            item.customerType ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
+          ? Number(customerBalance) + Number(item.amount)
+          : 0;
+
+      console.log("check bro ", customerBalance, item);
+      item.balance = customerBalance;
+    }
+  });
+
+  console.log("check here the details ", customerDetails);
+
   res.render("customer/customer-khata.ejs", {
     customerDetails: customerDetails,
     customer: customer,
