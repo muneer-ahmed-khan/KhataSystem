@@ -40,17 +40,30 @@
 
       <!-- main table here -->
       <div class="table-responsive-sm">
-        <table class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark caption-top">
-          <caption class="text-center">
-            <u style="margin: 0px 50px;">Total <span class="text-primary"><b>Receive</b></span>= <b><%= totalReceived %></b> Tyres</u>
-            <u style="margin: 0px 50px;">Total <span class="text-dark"><b>Sell</b></span> = <b><%= totalSell %></b> Tyres</u>
-          </caption>
+        <table id="datatime" cellspacing="5" cellpadding="5">
+          <tbody>
+            <tr>
+              <td>From Date:</td>
+              <td><input type="text" id="min" name="min"></td>
+
+              <td>To Date:</td>
+              <td><input type="text" id="max" name="max"></td>
+            </tr>
+          </tbody>
+        </table>
+        <table id="example" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
           <thead class="table-secondary">
             <tr>
               <!-- all table columns -->
               <th scope="col" class="text-center"># ID</th>
               <th scope="col" class="text-center">Date</th>
-              <th scope="col">Details</th>
+              <th scope="col" class="text-center">QTY</th>
+              <th scope="col">Pattern / Size</th>
+              <th scope="col" class="text-center">ET</th>
+              <th scope="col" class="text-center">Detail</th>
+              <th scope="col" class="text-center">Cust / Truck #</th>
+              <th scope="col" class="text-center">Price </th>
+              <th scope="col" class="text-center">Total/ Rent</th>
               <th scope="col" class="text-center">Actions</th>
             </tr>
           </thead>
@@ -67,33 +80,57 @@
                 <%= new Date(stockBook.updatedAt).toDateString() %>
               </td>
 
-              <!-- for sell stock and add stock -->
-              <!-- <a href='/stock/khata/' +  +"'"> -->
-              <td>
+              <!-- QTY column -->
+              <td class="text-center">
+                <%= stockBook.qty %>
+              </td>
+              <!-- Pattern / Size column  1 in link just for to hit the route -->
+              <td>&nbsp;
+                <a href="<%='/stock/1?sizeId=' + stockBook.sizeId + '&patternId=' + stockBook.patternId %>" style="color:black"><%=stockBook.pattern.name %>
+                  <%=stockBook.size.type %>&nbsp;</a>
+              </td>
+              <!-- entry type  column -->
+              <td class="text-center">
                 <% if (stockBook.entryType === "addStock") { %>
-                <span class="text-primary" style="font-weight: 600; margin: 0px 5px 0px 2px;">Receive</span> &#8594
+                <span class="text-primary" style="margin: 0px 5px 0px 2px;">Arrive</span>
                 <% } else if (stockBook.entryType === "sellStock") { %>
-                <span class="text-dark" style="font-weight: 600; margin: 0px 23px 0px 17px;">Sell</span> &#8594
+                <span class="text-dark" style=" margin: 0px 23px 0px 17px;">Sell</span>
                 <% }
-                %>
-                <strong style="margin: 0px 8px;"><%= stockBook.qty %></strong> Tyres <span style="margin: 0px 0px 0px 10px;">&#8594</span>
-                <a href="<%='/stock/1?sizeId=' + stockBook.sizeId + '&patternId=' + stockBook.patternId %>" style="color:black"> <strong><%=stockBook.pattern.name %></strong>&nbsp;
-                  <strong><%=stockBook.size.type %></strong>&nbsp;</a>
-                <% if (stockBook.entryType === "addStock") { %>
-                Truck Number &#8594<strong><%=stockBook.truckNumber %></strong>&nbsp;
-                Rent &#8594 <strong><%=stockBook.amount %></strong>
-                <% } %>
-                <% if (stockBook.entryType === "sellStock") { %>
+                  %>
+              </td>
+              <!-- khata / cash / truck column -->
+              <td class="text-center">
                 <% if (stockBook.customerType === "nonCash") { %>
-                Khata Customer
-                <% } else if (stockBook.entryType === "cash") { %>
-                Cash Customer
-                <% }
-              %>
-                <strong><%-stockBook.customerType === "nonCash" ? '<a href="/customer/khata/' + stockBook.customerId + '" style="color:black">' + stockBook.customer.name + '</a>' : stockBook.cashCustomer %></strong>&nbsp;
-                Price &#8594 <strong><%=stockBook.amount %></strong>
-                Total &#8594 <strong><%=Number(stockBook.amount) *
-                (Number(stockBook.qty) % 2 === 0 ? Number(stockBook.qty) / 2 : Number(stockBook.qty)) %></strong>
+                Khata
+                <% } else if (stockBook.customerType === "cash") { %>
+                Cash
+                <% } else if (stockBook.entryType === "addStock") { %>
+                Truck
+                <% }  %>
+              </td>
+              <!-- customer column -->
+              <td class="text-center">
+                <% if (stockBook.entryType === "sellStock") { %>
+                <%-stockBook.customerType === "nonCash" ? '<a href="/customer/khata/' + stockBook.customerId + '" style="color:black;">' + stockBook.customer.name + '</a>' : stockBook.cashCustomer %>
+                <% } else { %>
+                <%=stockBook.truckNumber %>
+                <% } %>
+              </td>
+              <!-- price / truck # column -->
+              <td class="text-center">
+                <% if (stockBook.entryType === "addStock") { %>
+                -
+                <% } else { %>
+                <%=stockBook.amount %>
+                <% } %>
+              </td>
+              <!-- total / rent column -->
+              <td class="text-center">
+                <% if (stockBook.entryType === "addStock") { %>
+                <%=stockBook.amount %>
+                <% } else { %>
+                <%=Number(stockBook.amount) *
+                    (Number(stockBook.qty) % 2 === 0 ? Number(stockBook.qty) / 2 : Number(stockBook.qty)) %>
                 <% } %>
               </td>
 
@@ -125,20 +162,128 @@
             <% } %>
       </div>
       </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3" style="text-align:right">Total <span class="text-primary">Arrive</span>
+            :</th>
+          <th colspan="2"></th>
+          <th style="text-align:right">Total <span class="text-dark">Sell</span>
+            :</th>
+          <th colspan="4">
+          </th>
+        </tr>
+      </tfoot>
       </table>
-    </div>
-    </div>
 
-    <!-- if we don't have any data in stockBook right now -->
-    <% } else { %>
+      <!-- if we don't have any data in stockBook right now -->
+      <% } else { %>
 
-    <!-- table action button work -->
-    <a href="/add-stock-book/?addStock=true" class="btn btn-outline-primary" style="margin: 0.5rem">Add First <strong>Stock</strong>
-      Entry</a>
-    <a href="/add-stock-book/?sellStock=true" class="btn btn-outline-warning" style="margin: 0.5rem">First Sell <strong>Stock</strong>
-      Entry</a>
-    <h1 class="centered">No Stock Book Data Found!</h1>
-    <% } %>
+      <!-- table action button work -->
+      <a href="/add-stock-book/?addStock=true" class="btn btn-outline-primary" style="margin: 0.5rem">Add First <strong>Stock</strong>
+        Entry</a>
+      <a href="/add-stock-book/?sellStock=true" class="btn btn-outline-warning" style="margin: 0.5rem">First Sell <strong>Stock</strong>
+        Entry</a>
+      <h1 class="centered">No Stock Book Data Found!</h1>
+      <% } %>
+      <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+      <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"> </script>
+      <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"> </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"> </script>
+      <script src="https://cdn.datatables.net/datetime/1.1.2/js/dataTables.dateTime.min.js"> </script>
+
+      <script>
+        var minDate, maxDate;
+
+        // Custom filtering function which will search data in column four between two values
+        $.fn.dataTable.ext.search.push(
+          function(settings, data, dataIndex) {
+            var min = minDate.val();
+            var max = maxDate.val();
+            var date = new Date(data[1]);
+
+            // set hours settings for dates
+            if (min || max) {
+              min = new Date(min);
+              min = min.setHours(0, 0, 0, 0);
+              max = new Date(max);
+              max = max.setHours(23, 59, 0, 0);
+            }
+
+            if (
+              (min === null && max === null) ||
+              (min === null && date <= max) ||
+              (min <= date && max === null) ||
+              (min <= date && date <= max)
+            ) {
+              return true;
+            }
+            return false;
+          }
+        );
+
+
+        $(document).ready(function() {
+
+
+          // Create date inputs
+          minDate = new DateTime($('#min'), {
+            format: 'MMMM Do YYYY',
+
+          });
+          maxDate = new DateTime($('#max'), {
+            format: 'MMMM Do YYYY'
+          });
+
+
+
+
+          // DataTables initialisation
+          var table = $('#example').DataTable({
+            responsive: true,
+            aLengthMenu: [
+              [10, 25, 50, 100, 200, -1],
+              [10, 25, 50, 100, 200, "All"]
+            ],
+            footerCallback: function(row, data, start, end, display) {
+              var api = this.api();
+              // Remove the formatting to get integer data for summation
+              var intVal = function(i) {
+                return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+              };
+              // Total over this page
+              var sellTotal = 0;
+              var arriveTotal = 0;
+
+
+
+
+              let [qtyData, stockData] = api.columns([2, 4], {
+                page: "current"
+              }).data().toArray();
+
+              for (let index = 0; index < qtyData.length; index++) {
+
+
+                if (stockData[index].includes("Sell")) {
+                  sellTotal += intVal(qtyData[index]);
+                } else if (stockData[index].includes("Arrive")) {
+                  arriveTotal += intVal(qtyData[index]);
+                }
+
+              }
+
+              // // Update footer
+              $(api.column(3).footer()).html(arriveTotal);
+              $(api.column(6).footer()).html(sellTotal);
+            },
+          });
+
+          // Refilter the table
+          $('#min, #max').on('change', function() {
+            table.draw();
+          });
+        });
+      </script>
 
   </main>
   <%- include('../includes/end.ejs') %>
