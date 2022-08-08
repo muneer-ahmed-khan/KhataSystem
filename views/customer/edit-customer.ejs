@@ -10,35 +10,35 @@
         margin-bottom: 20px;">Enter Customer Details:</span>
       <form class="form-control " action="/<% if (editing) { %>edit-customer<% } else { %>add-customer<% } %>" method="POST">
 
-        <label for="customerName"><% if (editing) { %>Update existing Customer Name:<% } else { %>Enter new Customer Name:<% } %></label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Bilal Sargodha" name="name" id="customerName" value="<% if (editing) { %><%= customer.name %><% } %>">
+        <label for="customerName" class="form-label"><% if (editing) { %>Update existing Customer Name:<% } else { %>Enter new Customer Name:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Bilal Sargodha" name="name" id="customerName" value="<% if (editing) { %><%= customer.name %><% } %>" required>
 
-        <label for="customerAddress"><% if (editing) { %>Update existing Customer Address:<% } else { %>Enter new Customer Address:<% } %></label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Sadiqabad Adha" name="address" id="customerAddress" value="<% if (editing) { %><%= customer.address %><% } %>">
+        <label for="customerAddress" class="form-label"><% if (editing) { %>Update existing Customer Address:<% } else { %>Enter new Customer Address:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Sadiqabad Adha" name="address" id="customerAddress" value="<% if (editing) { %><%= customer.address %><% } %>" required>
 
-        <label for="customerPhoneNumber"><% if (editing) { %>Update existing Customer Phone Number:<% } else { %>Enter new Customer Phone Number:<% } %></label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 0826613015" name="phoneNumber" id="customerPhoneNumber" value="<% if (editing) { %><%= customer.phoneNumber %><% } %>">
+        <label for="customerPhoneNumber" class="form-label"><% if (editing) { %>Update existing Customer Phone Number:<% } else { %>Enter new Customer Phone Number:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 0826613015" name="phoneNumber" id="customerPhoneNumber" value="<% if (editing) { %><%= customer.phoneNumber %><% } %>" required>
 
         <!-- amount Type field -->
-        <label for="amountType">
+        <label for="amountType" class="form-label">
           <% if (editing) { %>Update Amount Type :<% } else { %>Select Amount Type :<% } %>
           <span style="color:darkseagreen">*customer who buy and sell has <strong>BOTH</strong> as Type</span>
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="amountType" name="amountType">
-          <option selected disabled>Select Amount Type: </option>
+        <select class="form-select" style="margin: 10px 0px;" id="amountType" name="amountType" required>
+          <option selected disabled value="">Select Amount Type: </option>
           <% for (let [i, amountType] of amountTypes.entries()) { %>
           <option <% if (editing && amountType.id === customer.amountTypeId ) { %>selected='selected' :<% } else { %> <% } %> value="<%= amountType.id %>"><%= amountType.type.toUpperCase() %>
           </option>
           <% } %>
         </select>
 
-        <label for="startingBalance"><% if (editing) { %>Update existing Customer Starting Balance:<% } else { %>Enter new Customer Starting Balance:<% } %></label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="startingBalance" id="startingBalance" value="<% if (editing) { %><%= customer.startingBalance %><% } %>">
+        <label for="startingBalance" class="form-label"><% if (editing) { %>Update existing Customer Starting Balance:<% } else { %>Enter new Customer Starting Balance:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="startingBalance" id="startingBalance" value="<% if (editing) { %><%= customer.startingBalance %><% } %>" required>
 
         <!-- show balance only in edit mode -->
         <% if (editing) { %>
-        <label for="customerBalance"><% if (editing) { %>Update existing Customer Balance:<% } else { %>Enter new Customer Balance:<% } %></label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="balance" id="customerBalance" value="<% if (editing) { %><%= customer.balance %><% } %>">
+        <label for="customerBalance" class="form-label"><% if (editing) { %>Update existing Customer Balance:<% } else { %>Enter new Customer Balance:<% } %></label>
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="balance" id="customerBalance" value="<% if (editing) { %><%= customer.balance %><% } %>" required>
         <input type="hidden" value="<%= customer.id %>" name="customerId">
         <% } %>
 

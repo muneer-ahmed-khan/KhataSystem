@@ -24,12 +24,12 @@
 
 
         <!-- Customer Type Input Field -->
-        <label for="customerType">
+        <label for="customerType" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Customer Type:</b>
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)">
-          <option disabled>Select Customer Type</option>
+        <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)" required>
+          <option disabled value="">Select Customer Type</option>
           <% for (let [i, customerType] of customerTypes.entries()) { %>
           <option <% if (editing && customerType === cashBook.customerType ) { %> selected='selected' <% } else if(!editing && customerType === "nonCash") { %> selected='selected' <% } %> value="<%= customerType %>"><%= customerType.toUpperCase() %>
           </option>
@@ -38,13 +38,13 @@
 
 
         <!-- Customer Input Field -->
-        <label for="customer">
+        <label for="customer" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Customer </b> name:
         </label>
         <span id="customerField">
-          <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
-            <option selected disabled>Select Customer name</option>
+          <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer" required>
+            <option selected disabled value="">Select Customer name</option>
             <% for (let [i, customer] of customers.entries()) { %>
             <option <% if (editing && customer.id===cashBook.customerId ) { %> selected='selected' <% } else { %> <% } %> style="color: green" value="<%= customer.id %>">
               <%= customer.name %>
@@ -55,12 +55,12 @@
 
 
         <!-- Payment Type Input Field -->
-        <label for="paymentType">
+        <label for="paymentType" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Payment Type : </b>
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="paymentType" name="paymentType" onchange="paymentTypeChange(this.value)">
-          <option selected disabled>Select Payment Method</option>
+        <select class="form-select" style="margin: 10px 0px;" id="paymentType" name="paymentType" onchange="paymentTypeChange(this.value)" required>
+          <option selected disabled value="">Select Payment Method</option>
           <% for (let [i, paymentType] of paymentTypes.entries()) { %>
           <option <% if (editing && paymentType===cashBook.paymentType ) { %> selected='selected' <% } else { %> <% } %> value="<%= paymentType %>"><%= paymentType.toUpperCase() %>
           </option>
@@ -69,12 +69,12 @@
 
         <!-- Bank Account Input Field -->
         <span id="bankAccount">
-          <label for="bankAccount">
+          <label for="bankAccount" class="form-label">
             <% if (editing) { %>Update <% } else { %>Select <% } %>
             <b>Bank Account : </b>
           </label>
-          <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount">
-            <option selected disabled>Select Bank Account Name</option>
+          <select class="form-select" style="margin: 10px 0px;" id="bankAccount" name="bankAccount" required>
+            <option selected disabled value="">Select Bank Account Name</option>
             <% for (let [i, bankAccount] of bankAccounts.entries()) { %>
             <option <% if (editing && bankAccount.id===cashBook.bankAccountId ) { %> selected='selected' <% } else { %> <% } %> value="<%= bankAccount.id %>"><%= bankAccount.accountName %>
             </option>
@@ -83,11 +83,11 @@
         </span>
 
         <!-- Amount Input Field -->
-        <label for="amount"><b>
+        <label for="amount" class="form-label"><b>
             <% if (editing) { %>Update existing <%= "Amount :" %><% } else { %>Enter <%= "Amount :" %> <% }%>
           </b>
         </label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= cashBook.amount %><% } %>">
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= cashBook.amount %><% } %>" required>
 
         <!-- hidden input field for getting cashBook id in edit mode -->
         <% if (editing) { %>
