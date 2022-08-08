@@ -72,8 +72,11 @@ exports.postAddCustomer = async (req, res, next) => {
 
     // render the customer template with new details included
     console.log("Created Customer");
-    res.redirect("/customer");
+    // res.redirect("/customer");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/customer");
   } catch (reason) {
+    res.status(404).send("Error: in postAddCustomer controller with reason ");
     console.log(
       "Error: in postAddCustomer controller with reason --> ",
       reason
@@ -150,8 +153,10 @@ exports.postEditCustomer = async (req, res, next) => {
 
     // render all customer template with updated data
     console.log("UPDATED Customer!");
-    res.redirect("/customer");
+    // res.redirect("/customer");
+    res.send(req.protocol + "://" + req.get("host") + "/customer");
   } catch (reason) {
+    res.status(404).send("Error: in postEditCustomer controller with reason ");
     console.log(
       "Error: in postEditCustomer controller with reason --> ",
       reason

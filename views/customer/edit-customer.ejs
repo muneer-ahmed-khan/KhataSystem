@@ -8,7 +8,7 @@
     <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
       <span for="name" class="fs-3" style="display: flex;
         margin-bottom: 20px;">Enter Customer Details:</span>
-      <form class="form-control " action="/<% if (editing) { %>edit-customer<% } else { %>add-customer<% } %>" method="POST">
+      <form class="form-control " id="formId" action="/<% if (editing) { %>edit-customer<% } else { %>add-customer<% } %>" method="POST">
 
         <label for="customerName" class="form-label"><% if (editing) { %>Update existing Customer Name:<% } else { %>Enter new Customer Name:<% } %></label>
         <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Bilal Sargodha" name="name" id="customerName" value="<% if (editing) { %><%= customer.name %><% } %>" required>
@@ -38,18 +38,78 @@
         <!-- show balance only in edit mode -->
         <% if (editing) { %>
         <label for="customerBalance" class="form-label"><% if (editing) { %>Update existing Customer Balance:<% } else { %>Enter new Customer Balance:<% } %></label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="balance" id="customerBalance" value="<% if (editing) { %><%= customer.balance %><% } %>" required>
-        <input type="hidden" value="<%= customer.id %>" name="customerId">
+        <input style="margin: 10px 0px;" type="text" id="balance" class="form-control form-control-lg" placeholder="e.g 1000000/=" name="balance" id="customerBalance" value="<% if (editing) { %><%= customer.balance %><% } %>" required>
+        <input type="hidden" value="<%= customer.id %>" name="customerId" id="customerId">
         <% } %>
 
 
         <div>
-          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+          <button type="submit" id="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
             <% if (editing) { %>Update Customer Info<% } else { %>Add New Customer Info<% } %>
           </button>
         </div>
+        <div id="formButton">
 
+        </div>
       </form>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+    <script>
+      function startSpinner() {
+        // your code to make the spinner start
+        $("#submit").prop("disabled", true);
+        $("#submit").html(
+          `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+        );
+      }
+
+      function stopSpinner(message) {
+        // you code to make the spinner stop
+        // (i.e., return the button to its original state)
+        $("#submit").prop("disabled", true);
+        $("#submit").html(message);
+      }
+
+      $(document).ready(function() {
+        $('#formId').on('submit', function(event) {
+          // initiate spinner
+          startSpinner();
+          // ajax request to handle the form
+          $.ajax({
+              data: {
+                amountType: $('#amountType option:selected').val(),
+                balance: $('#balance').val(),
+                startingBalance: $('#startingBalance').val(),
+                customerId: $('#customerId').val(),
+                phoneNumber: $('#customerPhoneNumber').val(),
+                address: $('#customerAddress').val(),
+                name: $('#customerName').val(),
+              },
+              type: 'POST',
+              url: $('#formId').prop("action")
+            })
+            .done(function(data) {
+              stopSpinner("Done! ", true);
+              $("#formButton").html(
+                `<h5 class="text-success">Success</h5>`
+              );
+              var pageName = data;
+              document.location.href = pageName;
+            })
+            .fail(function(data) {
+              stopSpinner("Failed! ", false);
+              console.log(data.responseText);
+              $("#formButton").html(
+                `<h5 class="text-danger">failed to submit data! Please Reload the Page and Try Again </h5>`
+              );
+            })
+          // should these be at the top?
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+        });
+
+      });
+    </script>
   </main>
   <%- include('../includes/end.ejs') %>

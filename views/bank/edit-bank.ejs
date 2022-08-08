@@ -9,49 +9,77 @@
       <span for="name" class="fs-3" style="display: flex;
         margin-bottom: 20px;">Enter Bank Name:</span>
 
-
-      <form class="form-control needs-validation" action="/<% if (editing) { %>edit-bank<% } else { %>add-bank<% } %>" method="POST" novalidate>
+      <form class="form-control" id="bankForm" action="/<% if (editing) { %>edit-bank<% } else { %>add-bank<% } %>" method="POST">
 
         <label for="floatingInput" class="form-label"><% if (editing) { %>Update existing Bank:<% } else { %>Enter new Bank:<% } %></label>
         <input type="text" class="form-control form-control-lg" placeholder="for example  Meezan Bank" name="name" id="floatingInput" value="<% if (editing) { %><%= bank.name %><% } %>" required>
-        <div class="valid-feedback">
-          Looks good!
-        </div>
-        <div class="invalid-feedback">
-          Please Type Bank Name!
-        </div>
 
         <% if (editing) { %>
-        <input type="hidden" value="<%= bank.id %>" name="bankId">
+        <input type="hidden" value="<%= bank.id %>" id="bankId" name="bankId">
         <% } %>
         <div>
-          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+          <button type="submit" id="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
             <% if (editing) { %>Update Bank<% } else { %>Add New Bank<% } %>
           </button>
+        </div>
+        <div id="formButton">
+
         </div>
       </form>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
     <script>
-      (function() {
-        'use strict'
+      function startSpinner() {
+        // your code to make the spinner start
+        $("#submit").prop("disabled", true);
+        $("#submit").html(
+          `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+        );
+      }
 
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.querySelectorAll('.needs-validation')
+      function stopSpinner(message) {
+        // you code to make the spinner stop
+        // (i.e., return the button to its original state)
+        $("#submit").prop("disabled", true);
+        $("#submit").html(message);
+      }
 
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms)
-          .forEach(function(form) {
-            form.addEventListener('submit', function(event) {
-              if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-              }
+      $(document).ready(function() {
+        $('#bankForm').on('submit', function(event) {
+          // initiate spinner
+          startSpinner();
+          // ajax request to handle the form
+          $.ajax({
+              data: {
+                name: $('#floatingInput').val(),
+                bankId: $('#bankId').val(),
+              },
+              type: 'POST',
+              url: $('#bankForm').prop("action")
+            })
+            .done(function(data) {
+              stopSpinner("Done! ", true);
+              $("#formButton").html(
+                `<h5 class="text-success">Success</h5>`
+              );
+              var pageName = data;
+              document.location.href = pageName;
+            })
+            .fail(function(data) {
+              stopSpinner("Failed! ", false);
+              console.log(data.responseText);
+              $("#formButton").html(
+                `<h5 class="text-danger">failed to submit data! Please Reload the Page and Try Again </h5>`
+              );
+            })
+          // should these be at the top?
+          event.preventDefault();
+          event.stopImmediatePropagation();
 
-              form.classList.add('was-validated')
-            }, false)
-          })
-      })()
+        });
+
+      });
     </script>
   </main>
   <%- include('../includes/end.ejs') %>

@@ -42,8 +42,11 @@ exports.postAddBank = async (req, res, next) => {
 
     // render bank.ejs template with all banks after new bank is created
     console.log("Created Bank");
-    res.redirect("/bank");
+    // res.redirect("/bank");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/bank");
   } catch (reason) {
+    res.status(404).send("Error: in postAddBank controller with reason ");
     console.log("Error: in postAddBank controller with reason --> ", reason);
   }
 };
@@ -97,8 +100,10 @@ exports.postEditBank = async (req, res, next) => {
 
     // after bank update run all bank template
     console.log("UPDATED Bank!");
-    res.redirect("/bank");
+    // res.redirect("/bank");
+    res.send(req.protocol + "://" + req.get("host") + "/bank");
   } catch (reason) {
+    res.status(404).send("Error: in postAddBank controller with reason ");
     console.log("Error: in postEditBanks controller with reason --> ", reason);
   }
 };

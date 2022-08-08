@@ -190,8 +190,11 @@ exports.postAddStockBook = async (req, res, next) => {
 
     // render to stock book template on successful entry
     console.log("Created StockBook Entry Successfully");
-    res.redirect("/stock-book");
+    // res.redirect("/stock-book");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/stock-book");
   } catch (reason) {
+    res.status(404).send("Error: in postAddStockBook controller with reason ");
     console.log(
       "Error: in postAddStockBook controller with reason --> ",
       reason
@@ -586,8 +589,10 @@ exports.postEditStockBook = async (req, res, next) => {
 
     // render main stock book page
     console.log("UPDATED StockBook!");
-    res.redirect("/stock-book");
+    // res.redirect("/stock-book");
+    res.send(req.protocol + "://" + req.get("host") + "/stock-book");
   } catch (reason) {
+    res.status(404).send("Error: in postEditStockBook controller with reason ");
     console.log(
       "Error: in postEditStockBook controller with reason --> ",
       reason

@@ -209,8 +209,11 @@ exports.postAddCashBook = async (req, res, next) => {
 
     // render all cash book template
     console.log("Created Cash Book Entry Successfully");
-    res.redirect("/cash-book");
+    // res.redirect("/cash-book");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/cash-book");
   } catch (reason) {
+    res.status(404).send("Error: in postAddCashBook controller with reason ");
     console.log(
       "Error: in postAddCashBook controller with reason --> ",
       reason
@@ -326,6 +329,8 @@ exports.postEditCashBook = async (req, res, next) => {
 
   try {
     // get cash book from request params
+    console.log("check ", cashBookId);
+
     let cashBookId = req.body.cashBookId;
     const cashBook = await CashBook.findByPk(cashBookId);
 
@@ -563,8 +568,10 @@ exports.postEditCashBook = async (req, res, next) => {
 
     // show all updated information on cash book
     console.log("UPDATED Cash Book!");
-    res.redirect("/cash-book");
+    // res.redirect("/cash-book");
+    res.send(req.protocol + "://" + req.get("host") + "/cash-book");
   } catch (reason) {
+    res.status(404).send("Error: in postEditCashBook controller with reason ");
     console.log(
       "Error: in postEditCashBook controller with reason --> ",
       reason
