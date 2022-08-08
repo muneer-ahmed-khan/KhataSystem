@@ -43,8 +43,11 @@ exports.postAddSize = async (req, res, next) => {
 
     // render all size template with new size included
     console.log("Created Size");
-    res.redirect("/size");
+    // res.redirect("/size");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/size");
   } catch (reason) {
+    res.status(404).send("Error: in postAddSize controller with reason ");
     console.log("Error: in postAddSize controller with reason --> ", reason);
   }
 };
@@ -100,8 +103,10 @@ exports.postEditSize = async (req, res, next) => {
 
     // run the all size template back with updated size
     console.log("UPDATED Size!");
-    res.redirect("/size");
+    // res.redirect("/size");
+    res.send(req.protocol + "://" + req.get("host") + "/size");
   } catch (reason) {
+    res.status(404).send("Error: in postEditSize controller with reason ");
     console.log("Error: in postEditSize controller with reason --> ", reason);
   }
 };

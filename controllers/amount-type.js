@@ -46,8 +46,11 @@ exports.postAddAmountType = async (req, res, next) => {
 
     // render all types with new types
     console.log("Created AmountType");
-    res.redirect("/amount-type");
+    // res.redirect("/amount-type");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/amount-type");
   } catch (reason) {
+    res.status(404).send("Error: in postAddAmountType controller with reason ");
     console.log(
       "Error: in postAddAmountType controller with reason --> ",
       reason
@@ -108,8 +111,13 @@ exports.postEditAmountType = async (req, res, next) => {
 
     // render all amount type template with updated one as well
     console.log("UPDATED AmountType!");
-    res.redirect("/amount-type");
+    // res.redirect("/amount-type");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/amount-type");
   } catch (reason) {
+    res
+      .status(404)
+      .send("Error: in postEditAmountType controller with reason ");
     console.log(
       "Error: in postEditAmountType controller with reason --> ",
       reason

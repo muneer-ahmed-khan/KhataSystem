@@ -73,11 +73,25 @@ exports.postAddBankAccount = async (req, res, next) => {
         startingBalance: startingBalance,
         balance: startingBalance,
       });
-
+    else
+      console.log(
+        "not created",
+        bankId,
+        accountName,
+        accountNumber,
+        address,
+        phoneNumber,
+        startingBalance
+      );
     // render all bank account screen on creation
     console.log("Created BankAccount");
-    res.redirect("/bank-account");
+    // res.redirect("/bank-account");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/bank-account");
   } catch (reason) {
+    res
+      .status(404)
+      .send("Error: in postAddBankAccount controller with reason ");
     console.log(
       "Error: in postAddBankAccount controller with reason --> ",
       reason
@@ -156,8 +170,12 @@ exports.postEditBankAccount = async (req, res, next) => {
 
     // render the bank accounts screen on update
     console.log("UPDATED BankAccount!");
-    res.redirect("/bank-account");
+    // res.redirect("/bank-account");
+    res.send(req.protocol + "://" + req.get("host") + "/bank-account");
   } catch (reason) {
+    res
+      .status(404)
+      .send("Error: in postEditBankAccount controller with reason ");
     console.log(
       "Error: in postEditBankAccount controller with reason --> ",
       reason

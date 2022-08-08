@@ -43,8 +43,11 @@ exports.postAddPattern = async (req, res, next) => {
 
     // render the all patterns with updated pattern as well
     console.log("Created Pattern");
-    res.redirect("/pattern");
+    // res.redirect("/pattern");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/pattern");
   } catch (reason) {
+    res.status(404).send("Error: in postAddPattern controller with reason ");
     console.log("Error: in postAddPattern controller with reason --> ", reason);
   }
 };
@@ -99,8 +102,10 @@ exports.postEditPattern = async (req, res, next) => {
 
     // render the all pattern with the updated pattern as well
     console.log("UPDATED Pattern!");
-    res.redirect("/pattern");
+    // res.redirect("/pattern");
+    res.send(req.protocol + "://" + req.get("host") + "/pattern");
   } catch (reason) {
+    res.status(404).send("Error: in postEditPattern controller with reason ");
     console.log(
       "Error: in postEditPattern controller with reason --> ",
       reason

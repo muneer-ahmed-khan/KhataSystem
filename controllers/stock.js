@@ -75,8 +75,11 @@ exports.postAddStock = async (req, res, next) => {
 
     // render the all stock template with stock details as well
     console.log("Created Stock");
-    res.redirect("/stock");
+    // res.redirect("/stock");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/stock");
   } catch (reason) {
+    res.status(404).send("Error: in postAddStock controller with reason ");
     console.log("Error: in postAddStock controller with reason --> ", reason);
   }
 };
@@ -145,8 +148,11 @@ exports.postEditStock = async (req, res, next) => {
 
     // render the all stock template with new details as well
     console.log("UPDATED Stock!");
-    res.redirect("/stock");
+    // res.redirect("/stock");
+    // handle ajax request response here it will redirect to main page
+    res.send(req.protocol + "://" + req.get("host") + "/stock");
   } catch (reason) {
+    res.status(404).send("Error: in postEditStock controller with reason ");
     console.log("Error: in postEditStock controller with reason --> ", reason);
   }
 };

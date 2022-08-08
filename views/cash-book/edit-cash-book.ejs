@@ -14,7 +14,7 @@
       </span>
 
       <!-- edit form settings and actions -->
-      <form class="form-control " action="/<% if (editing) { %>edit-cash-book/?type=<%= entryType === 'creditAmount' ? "creditAmount" : entryType === 'debitAmount' ? "debitAmount" : '' %>
+      <form class="form-control " id="formId" action="/<% if (editing) { %>edit-cash-book/?type=<%= entryType === 'creditAmount' ? "creditAmount" : entryType === 'debitAmount' ? "debitAmount" : '' %>
             <% } else { %>add-cash-book/?type=<%= entryType === 'creditAmount' ? "creditAmount" : entryType === 'debitAmount' ? "debitAmount" : '' %>
                 <% } %>" method="POST">
 
@@ -91,23 +91,26 @@
 
         <!-- hidden input field for getting cashBook id in edit mode -->
         <% if (editing) { %>
-        <input type="hidden" value="<%= cashBook.id %>" name="cashBookId">
+        <input type="hidden" value="<%= cashBook.id %>" id="cashBookId" name="cashBookId">
         <% } %>
 
         <!-- form submit button  -->
         <div>
-          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+          <button type="submit" id="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
             <% if (editing) { %>Update CahBook Entry<% } else { %>Add New CahBook
             Entry<% } %>
           </button>
         </div>
+        <div id="formButton">
 
+        </div>
       </form>
     </div>
   </main>
   <!-- added javascript logic to control form -->
   <!-- to control the input field logic here  -->
   <!-- below first script tag is to support ejs in script tag -->
+  <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
   <script src="/js/ejs.min.js"></script>
   <script>
     let bankAccountFieldHtml = null;
@@ -189,5 +192,62 @@
       }
 
     }
+
+    function startSpinner() {
+      // your code to make the spinner start
+      $("#submit").prop("disabled", true);
+      $("#submit").html(
+        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+      );
+    }
+
+    function stopSpinner(message) {
+      // you code to make the spinner stop
+      // (i.e., return the button to its original state)
+      $("#submit").prop("disabled", true);
+      $("#submit").html(message);
+    }
+
+    $(document).ready(function() {
+      $('#formId').on('submit', function(event) {
+        // initiate spinner
+        startSpinner();
+        // ajax request to handle the form
+        $.ajax({
+            data: {
+              customer: $('#customer option:selected').val(),
+              cashCustomer: $('#cashCustomer').val(),
+              customerType: $('#customerType option:selected').val(),
+              paymentType: $('#paymentType option:selected').val(),
+              bankAccount: $('#bankAccount option:selected').val(),
+              amount: $('#amount').val(),
+              cashBookId: $('#cashBookId').val(),
+              entryType: $('#entryType').val(),
+            },
+            type: 'POST',
+            url: $('#formId').prop("action")
+          })
+          .done(function(data) {
+            stopSpinner("Done! ", true);
+            $("#formButton").html(
+              `<h5 class="text-success">Success</h5>`
+            );
+            var pageName = data;
+            document.location.href = pageName;
+          })
+          .fail(function(data) {
+            stopSpinner("Failed! ", false);
+            console.log(data.responseText);
+            $("#formButton").html(
+              `<h5 class="text-danger">failed to submit data! Please Reload the Page and Try Again </h5>`
+            );
+          })
+        // should these be at the top?
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+      });
+
+    });
   </script>
   <%- include('../includes/end.ejs') %>

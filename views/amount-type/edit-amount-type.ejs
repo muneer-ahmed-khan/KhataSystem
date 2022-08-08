@@ -9,19 +9,76 @@
       <span for="name" class="fs-3" style="display: flex;
         margin-bottom: 20px;">Enter Amount Type:</span>
 
-      <form class="form-control " action="/<% if (editing) { %>edit-amount-type<% } else { %>add-amount-type<% } %>" method="POST">
+      <form class="form-control " id="formId" action="/<% if (editing) { %>edit-amount-type<% } else { %>add-amount-type<% } %>" method="POST">
 
         <label for="floatingInput" class="form-label"><% if (editing) { %>Update existing Amount Type<% } else { %>Enter new Amount Type<% } %></label>
         <input type="text" class="form-control form-control-lg" placeholder="for example: Credit or Debit or Both" name="name" id="floatingInput" value="<% if (editing) { %><%= amount_type.type %><% } %>" required>
         <% if (editing) { %>
-        <input type="hidden" value="<%= amount_type.id %>" name="amountTypeId">
+        <input type="hidden" id="amountTypeId" value="<%= amount_type.id %>" name="amountTypeId">
         <% } %>
         <div>
-          <button type="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+          <button type="submit" id="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
             <% if (editing) { %>Update Amount Type<% } else { %>Add New Amount Type<% } %>
           </button>
         </div>
+        <div id="formButton">
+
+        </div>
       </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+    <script>
+      function startSpinner() {
+        // your code to make the spinner start
+        $("#submit").prop("disabled", true);
+        $("#submit").html(
+          `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+        );
+      }
+
+      function stopSpinner(message) {
+        // you code to make the spinner stop
+        // (i.e., return the button to its original state)
+        $("#submit").prop("disabled", true);
+        $("#submit").html(message);
+      }
+
+      $(document).ready(function() {
+        $('#formId').on('submit', function(event) {
+          // initiate spinner
+          startSpinner();
+          // ajax request to handle the form
+          $.ajax({
+              data: {
+                name: $('#floatingInput').val(),
+                amountTypeId: $('#amountTypeId').val(),
+              },
+              type: 'POST',
+              url: $('#formId').prop("action")
+            })
+            .done(function(data) {
+              stopSpinner("Done! ", true);
+              $("#formButton").html(
+                `<h5 class="text-success">Success</h5>`
+              );
+              var pageName = data;
+              document.location.href = pageName;
+            })
+            .fail(function(data) {
+              stopSpinner("Failed! ", false);
+              console.log(data.responseText);
+              $("#formButton").html(
+                `<h5 class="text-danger">failed to submit data! Please Reload the Page and Try Again </h5>`
+              );
+            })
+          // should these be at the top?
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+        });
+
+      });
+    </script>
   </main>
   <%- include('../includes/end.ejs') %>
