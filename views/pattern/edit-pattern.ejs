@@ -8,10 +8,12 @@
     <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
       <span for="name" class="fs-3" style="display: flex;
         margin-bottom: 20px;">Enter Pattern Type:</span>
+
       <form class="form-control " action="/<% if (editing) { %>edit-pattern<% } else { %>add-pattern<% } %>" method="POST">
-        <label for="floatingInput"><% if (editing) { %>Update existing Pattern<% } else { %>Enter new Pattern<% } %></label>
-        <input type="text" class="form-control form-control-lg" placeholder="for example: HO301" name="name" id="floatingInput" value="<% if (editing) { %><%= pattern.name %><% } %>">
-          
+
+        <label for="floatingInput" class="form-label"><% if (editing) { %>Update existing Pattern<% } else { %>Enter new Pattern<% } %></label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example: HO301" name="name" id="floatingInput" value="<% if (editing) { %><%= pattern.name %><% } %>" required>
+
         <% if (editing) { %>
         <input type="hidden" value="<%= pattern.id %>" name="patternId">
         <% } %>

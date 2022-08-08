@@ -22,19 +22,19 @@
         : entryType === "sellStock" ? "sellStock" :  '' %>">
 
         <!-- Qty Input Field -->
-        <label for="qty">
+        <label for="qty" class="form-label">
           <% if (editing) { %>Update existing <% } else { %>Enter <% } %>
           <b>QTY :</b>
         </label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 10,20,30" name="qty" id="qty" value="<% if (editing) { %><%= stockBook.qty %><% } %>">
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 10,20,30" name="qty" id="qty" value="<% if (editing) { %><%= stockBook.qty %><% } %>" required>
 
         <!-- Pattern Input Field -->
-        <label for="pattern">
+        <label for="pattern" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Pattern </b>name :
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern">
-          <option selected disabled>Select Pattern name</option>
+        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern" required>
+          <option selected disabled value="">Select Pattern name</option>
           <% for (let [i, pattern] of patterns.entries()) { %>
           <option <% if (editing && pattern.id===stockBook.patternId ) { %>selected='selected' <% } else {%> <% } %> value="<%= pattern.id %>"><%= pattern.name %>
           </option>
@@ -42,12 +42,12 @@
         </select>
 
         <!-- Size Input Field -->
-        <label for="size">
+        <label for="size" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Size </b>type :
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="size" name="size">
-          <option selected disabled>Select Size</option>
+        <select class="form-select" style="margin: 10px 0px;" id="size" name="size" required>
+          <option selected disabled value="">Select Size</option>
           <% for (let [i, size] of sizes.entries()) { %>
           <option <% if (editing && size.id===stockBook.sizeId ) { %>selected='selected' <% } else { %> <% } %> value="<%= size.id %>"><%= size.type %>
           </option>
@@ -57,22 +57,22 @@
         <!-- field to shown only on add stock entry -->
         <% if (entryType === "addStock") { %>
         <!-- truck Number Input Field  add truck number only in adding stock mode -->
-        <label for="truckNumber">
+        <label for="truckNumber" class="form-label">
           <% if (editing) { %>Update existing <% } else { %>Enter <% } %>
           <b>Truck </b>number :
         </label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 123-XYZ" name="truckNumber" id="truckNumber" value="<% if (editing) { %><%= stockBook.truckNumber %><% } %>">
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 123-XYZ" name="truckNumber" id="truckNumber" value="<% if (editing) { %><%= stockBook.truckNumber %><% } %>" required>
         <% } %>
 
         <!-- customer Type to shown only while sell stock mode -->
         <% if (entryType === "sellStock") { %>
         <!-- Customer Type Input Field -->
-        <label for="customerType">
+        <label for="customerType" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Customer Type:</b>
         </label>
-        <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)">
-          <option disabled>Select Customer Type</option>
+        <select class="form-select" style="margin: 10px 0px;" id="customerType" name="customerType" onchange="customerTypeChange(this.value)" required>
+          <option selected disabled value="">Select Customer Type</option>
           <% for (let [i, customerType] of customerTypes.entries()) { %>
           <option <% if (editing && customerType === stockBook.customerType ) { %> selected='selected' <% } else if(!editing && customerType === "nonCash") { %> selected='selected' <% } %> value="<%= customerType %>"><%= customerType.toUpperCase() %>
           </option>
@@ -80,13 +80,13 @@
         </select>
 
         <!-- Customer Input Field -->
-        <label for="customer">
+        <label for="customer" class="form-label">
           <% if (editing) { %>Update <% } else { %>Select <% } %>
           <b>Customer </b> name:
         </label>
         <span id="customerField">
-          <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer">
-            <option selected disabled>Select Customer name</option>
+          <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer" required>
+            <option selected disabled value="">Select Customer name</option>
             <% for (let [i, customer] of customers.entries()) { %>
             <option <% if (editing && customer.id===stockBook.customerId ) { %> selected='selected' <% } else { %> <% } %> style="color: green" value="<%= customer.id %>">
               <%= customer.name %>
@@ -97,11 +97,11 @@
         <% } %>
 
         <!-- Amount Input Field -->
-        <label for="amount"><b>
+        <label for="amount" class="form-label"><b>
             <% if (editing) { %>Update existing <%= entryType === 'addStock' ? "Truck Rent :" : entryType === 'sellStock' ? "Price:" : "" %><% } else { %>Enter <%= entryType === 'addStock' ? "Truck Rent :" : entryType === 'sellStock' ? "Price:" : "" %> <% }%>
           </b>
         </label>
-        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= stockBook.amount %><% } %>">
+        <input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g 325000/=" name="amount" id="amount" value="<% if (editing) { %><%= stockBook.amount %><% } %>" required>
 
         <!-- hidden input field for getting stockBook id in edit mode -->
         <% if (editing) { %>

@@ -9,8 +9,9 @@
       <span for="name" class="fs-3" style="display: flex;
         margin-bottom: 20px;">Enter Size Type:</span>
       <form class="form-control " action="/<% if (editing) { %>edit-size<% } else { %>add-size<% } %>" method="POST">
-        <label for="floatingInput"><% if (editing) { %>Update existing  Size<% } else { %>Enter new Size<% } %></label>
-        <input type="text" class="form-control form-control-lg" placeholder="for example:  1100R20" name="name" id="floatingInput" value="<% if (editing) { %><%= size.type %><% } %>">
+
+        <label for="floatingInput" class="form-label"><% if (editing) { %>Update existing Size<% } else { %>Enter new Size<% } %></label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example:  1100R20" name="name" id="floatingInput" value="<% if (editing) { %><%= size.type %><% } %>" required>
         <% if (editing) { %>
         <input type="hidden" value="<%= size.id %>" name="sizeId">
         <% } %>

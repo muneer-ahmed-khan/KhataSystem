@@ -12,30 +12,30 @@
       <form class="form-control " action="/<% if (editing) { %>edit-stock<% } else { %>add-stock<% } %>" method="POST">
 
         <!-- size dropdown -->
-        <label for="size"><% if (editing) { %>Update Size Info :<% } else { %>Select Size:<% } %></label>
-        <select class="form-select" style="margin: 10px 0px;" id="size" name="size">
-          <option selected disabled>Select Size</option>
+        <label class="form-label" for="size"><% if (editing) { %>Update Size Info :<% } else { %>Select Size:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="size" name="size" required>
+          <option selected disabled value="">Select Size</option>
           <% for (let [i, size] of sizes.entries()) { %>
           <option <% if (editing && size.id === stock.sizeId ) { %>selected='selected' :<% } else { %><% } %> value="<%= size.id %>"><%= size.type %> </option>
           <% } %>
         </select>
 
         <!-- pattern dropdown -->
-        <label for="pattern"><% if (editing) { %>Update Pattern Info :<% } else { %>Select Pattern:<% } %></label>
-        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern">
-          <option selected disabled>Select Pattern</option>
+        <label class="form-label" for="pattern"><% if (editing) { %>Update Pattern Info :<% } else { %>Select Pattern:<% } %></label>
+        <select class="form-select" style="margin: 10px 0px;" id="pattern" name="pattern" required>
+          <option selected disabled value="">Select Pattern</option>
           <% for (let [i, pattern] of patterns.entries()) { %>
           <option <% if (editing && pattern.id === stock.patternId ) { %>selected='selected' :<% } else { %><% } %> value="<%= pattern.id %>"><%= pattern.name %> </option>
           <% } %>
         </select>
 
         <!-- starting stock -->
-        <label for="floatingInput" class="lh-lg"><% if (editing) { %>Update Starting Stock:<% } else { %>Enter Starting Stock:<% } %></label>
-        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="startingStock" id="floatingInput" value="<% if (editing) { %><%= stock.startingStock %><% } %>">
+        <label class="form-label" for="floatingInput" class="lh-lg"><% if (editing) { %>Update Starting Stock:<% } else { %>Enter Starting Stock:<% } %></label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="startingStock" id="floatingInput" value="<% if (editing) { %><%= stock.startingStock %><% } %>" required>
         <!-- total stock -->
         <% if (editing) { %>
-        <label for="floatingInput">Update Total Stock:</label>
-        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="totalStock" id="floatingInput" value="<% if (editing) { %><%= stock.total %><% } %>">
+        <label class="form-label" for="floatingInput">Update Total Stock:</label>
+        <input type="text" class="form-control form-control-lg" placeholder="for example:  10,20,60" name="totalStock" id="floatingInput" value="<% if (editing) { %><%= stock.total %><% } %>" required>
         <!-- hidden field for stock id  -->
         <input type="hidden" value="<%= stock.id %>" name="stockId">
         <% } %>
