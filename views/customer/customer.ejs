@@ -2,10 +2,9 @@
 
 <body>
   <%- include('../includes/navigation.ejs') %>
-  <%- include('../includes/modal.ejs') %>
 
   <main class="container-fluid">
-    <% if (customers.length > 0) { %>
+    <% if (customers.length> 0) { %>
     <div class="table-wrapper">
       <div class="table-title">
         <div class="row" style="    display: flex;
@@ -31,323 +30,342 @@
       </div>
 
 
-      <!-- only credit customers -->
-      <div class="table-sub-title">
-        <h6> <strong class="text-success">Credit </strong>Customers Accounts</h6>
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-general-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-general" aria-selected="true">General Customers</button>
+          <button class="nav-link" id="nav-credit-tab" data-bs-toggle="tab" data-bs-target="#nav-credit" type="button" role="tab" aria-controls="nav-credit" aria-selected="false">Credit Customers</button>
+          <button class="nav-link" id="nav-debit-tab" data-bs-toggle="tab" data-bs-target="#nav-debit" type="button" role="tab" aria-controls="nav-debit" aria-selected="false">Debit Customers</button>
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+
+        <!-- General customers here -->
+        <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
+          <div class="table-responsive-sm">
+            <div class="table-sub-title">
+              <h6> <strong class="text-primary">General </strong>Customers Accounts</h6>
+            </div>
+            <table id="example3" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
+              <thead class="table-secondary">
+                <tr>
+                  <th scope="col" class="text-center"># ID</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Phone Number</th>
+                  <th scope="col">Amount Type</th>
+                  <th scope="col">Starting Balance</th>
+                  <th scope="col">Balance</th>
+                  <th scope="col">Actions</th>
+                  <th scope="col">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% var bothId = 1 %>
+                <% for (let [i, customer] of customers.entries()) { %>
+                <% if (customer.amountType.type === "both") { %>
+                <tr>
+                  <th scope="row" class="text-center">
+                    <%= bothId++ %>
+                  </th>
+                  <td style="padding: 5px;"><%= customer.name %></td>
+                  <td style="padding: 5px;"><%= customer.address %></td>
+                  <td style="padding: 5px;"><%= customer.phoneNumber %></td>
+                  <td style="padding: 5px;"><%= customer.amountType.type.toUpperCase() %></td>
+                  <td style="padding: 5px;"><%= customer.startingBalance %></td>
+                  <td style="padding: 5px;"><%= customer.balance %></td>
+                  <td>
+                    <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
+                      <!-- edit button -->
+                      <button type="submit" class="btn btn-link modalButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                          <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                          <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                        </svg></button>
+                      <input type="hidden" name="edit" value="true" />
+                    </form>
+
+                    <form action="/delete-customer" method="post">
+                      <!-- delete button -->
+                      <button class="btn btn-link modalButton" style="color: red;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                        </svg></button>
+                      <input type="hidden" value="<%= customer.id %>" name="customerId">
+                    </form>
+                  </td>
+                  <td style="padding-left: 5px;"><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
+
+                </tr>
+                <% } %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- only credit customers -->
+        <div class="tab-pane fade " id="nav-credit" role="tabpanel" aria-labelledby="nav-credit-tab">
+          <div class="table-responsive-sm">
+            <div class="table-sub-title">
+              <h6> <strong class="text-success">Credit </strong>Customers Accounts</h6>
+            </div>
+            <table id="example1" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
+              <thead class="table-secondary">
+                <tr>
+                  <th scope="col" class="text-center"># ID</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Phone Number</th>
+                  <th scope="col">Amount Type</th>
+                  <th scope="col">Starting Balance</th>
+                  <th scope="col">Balance</th>
+                  <th scope="col">Actions</th>
+                  <th scope="col">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% var creditId = 1 %>
+                <% for (let [i, customer] of customers.entries()) { %>
+                <% if (customer.amountType.type === "credit") { %>
+                <tr>
+                  <th scope="row" class="text-center">
+                    <%= creditId++ %>
+                  </th>
+                  <td style="padding: 5px;"><%= customer.name %></td>
+                  <td style="padding: 5px;"><%= customer.address %></td>
+                  <td style="padding: 5px;"><%= customer.phoneNumber %></td>
+                  <td style="padding: 5px;"><%= customer.amountType.type.toUpperCase() %></td>
+                  <td style="padding: 5px;"><%= customer.startingBalance %></td>
+                  <td style="padding: 5px;"><%= customer.balance %></td>
+                  <td>
+                    <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
+                      <!-- edit button -->
+                      <button type="submit" class="btn btn-link modalButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                          <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                          <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                        </svg></button>
+                      <input type="hidden" name="edit" value="true" />
+                    </form>
+
+                    <form action="/delete-customer" method="post">
+                      <!-- delete button -->
+                      <button class="btn btn-link modalButton" style="color: red;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                        </svg></button>
+                      <input type="hidden" value="<%= customer.id %>" name="customerId">
+                    </form>
+                  </td>
+                  <td style="padding: 5px;"><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
+
+                </tr>
+                <% } %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- only debit customers -->
+        <div class="tab-pane fade" id="nav-debit" role="tabpanel" aria-labelledby="nav-debit-tab">
+
+          <div class="table-responsive-sm">
+            <div class="table-sub-title">
+              <h6> <strong class="text-danger">Debit </strong>Customers Accounts</h6>
+            </div>
+            <table id="example2" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
+              <thead class="table-secondary">
+                <tr>
+                  <th scope="col" class="text-center"># ID</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Phone Number</th>
+                  <th scope="col">Amount Type</th>
+                  <th scope="col">Starting Balance</th>
+                  <th scope="col">Balance</th>
+                  <th scope="col">Actions</th>
+                  <th scope="col">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% var debitId = 1 %>
+                <% for (let [i, customer] of customers.entries()) { %>
+                <% if (customer.amountType.type === "debit") { %>
+                <tr>
+                  <th scope="row" class="text-center">
+                    <%= debitId++ %>
+                  </th>
+                  <td style="padding: 5px;"><%= customer.name %></td>
+                  <td style="padding: 5px;"><%= customer.address %></td>
+                  <td style="padding: 5px;"><%= customer.phoneNumber %></td>
+                  <td style="padding: 5px;"><%= customer.amountType.type.toUpperCase() %></td>
+                  <td style="padding: 5px;"><%= customer.startingBalance %></td>
+                  <td style="padding: 5px;"><%= customer.balance %></td>
+                  <td>
+                    <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
+                      <!-- edit button -->
+                      <button type="submit" class="btn btn-link modalButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                          <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                          <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                        </svg></button>
+                      <input type="hidden" name="edit" value="true" />
+                    </form>
+
+                    <form action="/delete-customer" method="post">
+                      <!-- delete button -->
+                      <button class="btn btn-link modalButton" style="color: red;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                        </svg></button>
+                      <input type="hidden" value="<%= customer.id %>" name="customerId">
+                    </form>
+                  </td>
+                  <td style="padding: 5px;"><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
+
+                </tr>
+                <% } %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
       </div>
-      <table id="example1" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
-        <thead class="table-secondary">
-          <tr>
-            <th scope="col" class="text-center"># ID</th>
-            <th scope="col">Name</th>
-            <th scope="col">Address</th>
-            <th scope="col">Phone Number</th>
-            <th scope="col">Amount Type</th>
-            <th scope="col">Starting Balance</th>
-            <th scope="col">Balance</th>
-            <th scope="col">Actions</th>
-            <th scope="col">Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% var creditId = 1 %>
-          <% for (let [i, customer] of customers.entries()) { %>
-          <% if (customer.amountType.type === "credit") { %>
-          <tr>
-            <th scope="row" class="text-center">
-              <%= creditId++ %>
-            </th>
-            <td style="padding: 5px;"><%= customer.name %></td>
-            <td style="padding: 5px;"><%= customer.address %></td>
-            <td style="padding: 5px;"><%= customer.phoneNumber %></td>
-            <td style="padding: 5px;"><%= customer.amountType.type.toUpperCase() %></td>
-            <td style="padding: 5px;"><%= customer.startingBalance %></td>
-            <td style="padding: 5px;"><%= customer.balance %></td>
-            <td>
-              <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
-                <!-- edit button -->
-                <button type="submit" class="btn btn-link modalButton">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                  </svg></button>
-                <input type="hidden" name="edit" value="true" />
-              </form>
+      <% } else { %>
+      <!-- table action button work -->
+      <a href="/add-customer" class="btn btn-outline-success" style="margin: 0.5rem">Add First Customer</a>
+      <h1 class="centered">No Customers Data Found!</h1>
+      <% } %>
 
-              <form action="/delete-customer" method="post">
-                <!-- delete button -->
-                <button class="btn btn-link modalButton" style="color: red;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                  </svg></button>
-                <input type="hidden" value="<%= customer.id %>" name="customerId">
-              </form>
-            </td>
-            <td style="padding: 5px;"><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
+      <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+      <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"> </script>
+      <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"> </script>
 
-          </tr>
-          <% } %>
-          <% } %>
-    </div>
-    </tbody>
-    </table>
-
-    <!-- only debit customers -->
-    <div class="table-sub-title">
-      <h6> <strong class="text-danger">Debit </strong>Customers Accounts</h6>
-    </div>
-    <table id="example2" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
-      <thead class="table-secondary">
-        <tr>
-          <th scope="col" class="text-center"># ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Address</th>
-          <th scope="col">Phone Number</th>
-          <th scope="col">Amount Type</th>
-          <th scope="col">Starting Balance</th>
-          <th scope="col">Balance</th>
-          <th scope="col">Actions</th>
-          <th scope="col">Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% var debitId = 1 %>
-        <% for (let [i, customer] of customers.entries()) { %>
-        <% if (customer.amountType.type === "debit") { %>
-        <tr>
-          <th scope="row" class="text-center">
-            <%= debitId++ %>
-          </th>
-          <td style="padding: 5px;"><%= customer.name %></td>
-          <td style="padding: 5px;"><%= customer.address %></td>
-          <td style="padding: 5px;"><%= customer.phoneNumber %></td>
-          <td style="padding: 5px;"><%= customer.amountType.type.toUpperCase() %></td>
-          <td style="padding: 5px;"><%= customer.startingBalance %></td>
-          <td style="padding: 5px;"><%= customer.balance %></td>
-          <td>
-            <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
-              <!-- edit button -->
-              <button type="submit" class="btn btn-link modalButton">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                </svg></button>
-              <input type="hidden" name="edit" value="true" />
-            </form>
-
-            <form action="/delete-customer" method="post">
-              <!-- delete button -->
-              <button class="btn btn-link modalButton" style="color: red;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                </svg></button>
-              <input type="hidden" value="<%= customer.id %>" name="customerId">
-            </form>
-          </td>
-          <td style="padding: 5px;"><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
-
-        </tr>
-        <% } %>
-        <% } %>
-        </div>
-      </tbody>
-    </table>
-
-    <!-- General customers here -->
-    <div class="table-sub-title">
-      <h6> <strong class="text-primary">General </strong>Customers Accounts</h6>
-    </div>
-    <table id="example3" class="table table-sm table-hover align-middle text-nowrap border table-bordered border-dark">
-      <thead class="table-secondary">
-        <tr>
-          <th scope="col" class="text-center"># ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Address</th>
-          <th scope="col">Phone Number</th>
-          <th scope="col">Amount Type</th>
-          <th scope="col">Starting Balance</th>
-          <th scope="col">Balance</th>
-          <th scope="col">Actions</th>
-          <th scope="col">Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% var bothId = 1 %>
-        <% for (let [i, customer] of customers.entries()) { %>
-        <% if (customer.amountType.type === "both") { %>
-        <tr>
-          <th scope="row" class="text-center">
-            <%= bothId++ %>
-          </th>
-          <td style="padding: 5px;"><%= customer.name %></td>
-          <td style="padding: 5px;"><%= customer.address %></td>
-          <td style="padding: 5px;"><%= customer.phoneNumber %></td>
-          <td style="padding: 5px;"><%= customer.amountType.type.toUpperCase() %></td>
-          <td style="padding: 5px;"><%= customer.startingBalance %></td>
-          <td style="padding: 5px;"><%= customer.balance %></td>
-          <td>
-            <form action="/edit-customer/<%= customer.id %>/?edit=true" method="get">
-              <!-- edit button -->
-              <button type="submit" class="btn btn-link modalButton">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                </svg></button>
-              <input type="hidden" name="edit" value="true" />
-            </form>
-
-            <form action="/delete-customer" method="post">
-              <!-- delete button -->
-              <button class="btn btn-link modalButton" style="color: red;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                </svg></button>
-              <input type="hidden" value="<%= customer.id %>" name="customerId">
-            </form>
-          </td>
-          <td style="padding-left: 5px;"><a href="/customer/khata/<%= customer.id %>">Show Khata</a></td>
-
-        </tr>
-        <% } %>
-        <% } %>
-        </div>
-      </tbody>
-    </table>
-    </div>
-    <% } else { %>
-    <!-- table action button work -->
-    <a href="/add-customer" class="btn btn-outline-success" style="margin: 0.5rem">Add First Customer</a>
-    <h1 class="centered">No Customers Data Found!</h1>
-    <% } %>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"> </script>
-    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"> </script>
-    <!--JavaScript Code(to Show Modal on Page Load) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js">
-    </script>
-    <script>
-      window.onload = function() { // when the page has loaded
-        var bt = document.querySelectorAll(".modalButton"); // get all buttons with the class
-        for (var i = 0; i < bt.length; i++) { // newer browsers can use forEach
-          bt[i].onclick = function() { // assign anonymous handler
-            $("#myModal").modal("toggle");
+      <script>
+        window.onload = function() { // when the page has loaded
+          var bt = document.querySelectorAll(".modalButton"); // get all buttons with the class
+          for (var i = 0; i < bt.length; i++) { // newer browsers can use forEach
+            bt[i].onclick = function() { // assign anonymous handler
+              $("#myModal").modal("toggle");
+            }
           }
         }
-      }
 
-      $('#example1').DataTable({
-        "columns": [{
-            "data": "id"
-          },
-          {
-            "data": "name"
-          },
-          {
-            "data": "address"
-          },
-          {
-            "data": "phoneNumber"
-          },
-          {
-            "data": "amountType"
-          },
-          {
-            "data": "startingBalance",
-            render: $.fn.dataTable.render.number(',', '.')
+        $('#example1').DataTable({
+          "columns": [{
+              "data": "id"
+            },
+            {
+              "data": "name"
+            },
+            {
+              "data": "address"
+            },
+            {
+              "data": "phoneNumber"
+            },
+            {
+              "data": "amountType"
+            },
+            {
+              "data": "startingBalance",
+              render: $.fn.dataTable.render.number(',', '.')
 
-          },
-          {
-            "data": "balance",
-            render: $.fn.dataTable.render.number(',', '.')
+            },
+            {
+              "data": "balance",
+              render: $.fn.dataTable.render.number(',', '.')
 
-          },
-          {
-            "data": "actions",
-          },
-          {
-            "data": "details"
-          }
-        ],
-      });
+            },
+            {
+              "data": "actions",
+            },
+            {
+              "data": "details"
+            }
+          ],
+        });
 
-      $('#example2').DataTable({
-        "columns": [{
-            "data": "id"
-          },
-          {
-            "data": "name"
-          },
-          {
-            "data": "address"
-          },
-          {
-            "data": "phoneNumber"
-          },
-          {
-            "data": "amountType"
-          },
-          {
-            "data": "startingBalance",
-            render: $.fn.dataTable.render.number(',', '.')
+        $('#example2').DataTable({
+          "columns": [{
+              "data": "id"
+            },
+            {
+              "data": "name"
+            },
+            {
+              "data": "address"
+            },
+            {
+              "data": "phoneNumber"
+            },
+            {
+              "data": "amountType"
+            },
+            {
+              "data": "startingBalance",
+              render: $.fn.dataTable.render.number(',', '.')
 
-          },
-          {
-            "data": "balance",
-            render: $.fn.dataTable.render.number(',', '.')
+            },
+            {
+              "data": "balance",
+              render: $.fn.dataTable.render.number(',', '.')
 
-          },
-          {
-            "data": "actions",
-          },
-          {
-            "data": "details"
-          }
-        ],
-      });
+            },
+            {
+              "data": "actions",
+            },
+            {
+              "data": "details"
+            }
+          ],
+        });
 
-      $('#example3').DataTable({
-        aLengthMenu: [
-          [20, 100, 200, -1],
-          [20, 100, 200, "All"]
-        ],
-        "columns": [{
-            "data": "id"
-          },
-          {
-            "data": "name"
-          },
-          {
-            "data": "address"
-          },
-          {
-            "data": "phoneNumber"
-          },
-          {
-            "data": "amountType"
-          },
-          {
-            "data": "startingBalance",
-            render: $.fn.dataTable.render.number(',', '.')
+        $('#example3').DataTable({
+          aLengthMenu: [
+            [20, 100, 200, -1],
+            [20, 100, 200, "All"]
+          ],
+          "columns": [{
+              "data": "id"
+            },
+            {
+              "data": "name"
+            },
+            {
+              "data": "address"
+            },
+            {
+              "data": "phoneNumber"
+            },
+            {
+              "data": "amountType"
+            },
+            {
+              "data": "startingBalance",
+              render: $.fn.dataTable.render.number(',', '.')
 
-          },
-          {
-            "data": "balance",
-            render: $.fn.dataTable.render.number(',', '.')
+            },
+            {
+              "data": "balance",
+              render: $.fn.dataTable.render.number(',', '.')
 
-          },
-          {
-            "data": "actions",
-          },
-          {
-            "data": "details"
-          }
-        ],
-      });
-    </script>
+            },
+            {
+              "data": "actions",
+            },
+            {
+              "data": "details"
+            }
+          ],
+        });
+      </script>
   </main>
   <%- include('../includes/end.ejs') %>
 </body>
