@@ -22,21 +22,6 @@ const cashBookRoutes = require("./routes/cash-book");
 // general error controller
 const errorController = require("./controllers/error");
 
-// new models import
-
-// console.log("chjeck ", BankAccounts.findByPk(1));
-// const Pattern = require("./models/old models/pattern1");
-// const Customer = require("./models/old models/customer");
-// const Roznamcha = require("./models/old models/roznamcha");
-// const AmountType = require("./models/old models/amount-type1");
-// const Stock = require("./models/old models/stock1");
-
-// database object
-// const sequelize = require("./util/database");
-// const test = BankAccount(sequelize, Sequelize.DataTypes);
-// console.log(test.associate());
-// new controllers
-
 // setting up express server
 const app = express();
 
@@ -70,63 +55,6 @@ app.use(cashBookRoutes);
 // app.use(whatsapp);
 
 app.use(errorController.get404);
-
-// create database relationships
-// // Bank --> BankAccount
-// BankAccount.belongsTo(Bank);
-// Bank.hasMany(BankAccount);
-
-// // Roznamcha --> EntryTypes --> Customer --> BankAccount --> Size --> Pattern
-// // Roznamcha.belongsTo(EntryType);
-// // EntryType.hasMany(Roznamcha);
-// Roznamcha.belongsTo(Customer);
-// Customer.hasMany(Roznamcha);
-// Roznamcha.belongsTo(BankAccount);
-// BankAccount.hasMany(Roznamcha);
-// Roznamcha.belongsTo(Size);
-// Size.hasMany(Roznamcha);
-// Roznamcha.belongsTo(Pattern);
-// Pattern.hasMany(Roznamcha);
-
-// // Stock --> Size
-// Stock.belongsTo(Size);
-// Size.hasMany(Stock);
-
-// // Stock --> Pattern
-// Stock.belongsTo(Pattern);
-// Pattern.hasMany(Stock);
-
-// // Customer --> AmountType
-// Customer.belongsTo(AmountType);
-// AmountType.hasMany(Customer);
-
-// import whatsapp file settings
-// require("./services/whatsapp");
-
-// authenticate the connection
-// sequelize
-//   .authenticate()
-//   .then(() => {
-//     console.log("Authentication has been done completely  successfully.");
-//   })
-//   .catch((error) => {
-//     console.error("Unable to connect to the database:", error);
-//   });
-
-// connect to database now
-// sequelize
-// .sync({
-// force: true,
-// }) // use for first time while creating schema in database
-// .sync()
-// .then(() => {
-//   console.log("Database Connected now");
-//   console.log("listening on port ", process.env.PORT);
-//   app.listen(process.env.PORT);
-// })
-// .catch((err) => {
-//   console.log(err);
-// });
 
 console.log("Database Connected now");
 console.log("listening on port ", process.env.PORT);
