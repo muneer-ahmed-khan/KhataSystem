@@ -1,6 +1,5 @@
 // third party imports
 const path = require("path");
-const Sequelize = require("sequelize");
 const express = require("express");
 const bodyParser = require("body-parser");
 
@@ -29,6 +28,7 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
+app.use(bodyParser.json());
 // request body parser and static folder settings
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -53,6 +53,7 @@ app.use(customerRoutes);
 app.use(stockBookRoutes);
 app.use(cashBookRoutes);
 // app.use(whatsapp);
+// require("./services/whatsapp");
 
 app.use(errorController.get404);
 
