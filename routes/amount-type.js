@@ -24,29 +24,73 @@ router.post("/edit-amount-type", amountTypeController.postEditAmountType);
 // delete amount-type
 router.post("/delete-amount-type", amountTypeController.postDeleteAmountType);
 
+let currentContext = [];
 let lastContext = [];
 let lastResponse = null;
+let lastIntent = [];
+let currentIntent = null;
+let eventName = null;
 
 router.post("/test", async (req, res) => {
   console.log("check req.body ", req.body);
 
   // if there is 0 then go to main menu
-  if (!lastContext.length && !isNaN(req.body.msg)) {
-    lastContext = ["menu"];
+  if (!currentContext.length && !isNaN(req.body.msg)) {
+    currentContext = ["menu"];
     req.body.msg = "Hello";
+    lastIntent = [];
+  }
+  // if user want to go back one step
+  if (req.body.msg === "#") {
+    if (
+      lastIntent &&
+      lastIntent.length &&
+      lastIntent[lastIntent.length - 1] === CONSTANTS.DIALOGFLOW.WELCOME_INTENT
+    ) {
+      eventName = "welcome";
+      currentContext = ["menu"];
+      lastIntent = [];
+      currentIntent = null;
+    } else {
+      eventName = lastIntent.pop();
+      currentContext = lastContext;
+      // req.body.msg = "";
+    }
   }
   // handle the use case when user from any screen can access the main menu
   else if (req.body.msg === 0) {
-    lastContext = ["menu"];
+    currentContext = ["menu"];
     req.body.msg = "Hello";
+    lastIntent = [];
   }
 
-  const result = await dialogflow.sendQuery(req.body.msg, lastContext);
+  if (!eventName) {
+    lastIntent.push(currentIntent);
+  }
+
+  // save the current intent to last intent name
+  // lastIntent = currentIntent;
+
+  // save the current context to last context
+  // lastContext = currentContext;
+
+  const result = await dialogflow.sendQuery(
+    req.body.msg,
+    currentContext,
+    eventName
+  );
 
   // if we fall to fallback in the process then need to give user a chance
   if (result.intent !== CONSTANTS.DIALOGFLOW.FALLBACK_INTENT) {
     // if it was not fall back intent then remove old input context
-    lastContext = [];
+    lastContext = currentContext;
+    currentContext = [];
+
+    // save the last intent name
+    currentIntent = result.intent;
+    // lastIntent.push(result.intent);
+    // console.log("response current intent ==> ", result.intent);
+    // console.log("response last intent ==> ", lastIntent);
 
     // save all context output contexts names here except the fallback contexts
     for (let index = 0; index < result.context.length; index++) {
@@ -58,7 +102,7 @@ router.post("/test", async (req, res) => {
           result.context[index].name.split("/").length - 1
         ] !== "defaultfallbackintent-followup"
       )
-        lastContext.push(
+        currentContext.push(
           result.context[index].name.split("/")[
             result.context[index].name.split("/").length - 1
           ]
@@ -72,8 +116,13 @@ router.post("/test", async (req, res) => {
       lastResponse
     );
   }
+  // empty back the eventName on response back
+  eventName = null;
 
-  console.log("check result ---> ", result, " --> last context ", lastContext);
+  console.log("response current context ==> ", currentContext);
+  console.log("response last context ==> ", lastContext);
+
+  console.log("check result ---> ", result);
   // handle the Welcome intent here
   if (result.intent === CONSTANTS.DIALOGFLOW.WELCOME_INTENT) {
     // show welcome message

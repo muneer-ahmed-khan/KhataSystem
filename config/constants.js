@@ -69,11 +69,13 @@ Press 5️⃣  for *Banks Khata*`,
 Press 2️⃣  for *Sell* from Stock Book
 Press 3️⃣  for *View* Stock Book
 
+Press #️⃣  for *Back*
 Press 0️⃣  for *Main Menu*`,
     CASH_BOOK: `Press 1️⃣  for *Credit* to Cash Book
 Press 2️⃣  for *Debit* from Cash Book
 Press 3️⃣  for *View* Cash Book
 
+Press #️⃣  for *Back*
 Press 0️⃣  for *Main Menu*`,
     VIEW_BOOK: template`Press 1️⃣  for View *Today* ${0} Book
 Press 2️⃣  for View *Yesterday* ${0} Book
@@ -81,6 +83,7 @@ Press 3️⃣  for View *Last Week* ${0} Book
 Press 4️⃣  for View *Last Month* ${0} Book
 Press 5️⃣  for Search By Date* ${0} Book
 
+Press #️⃣  for *Back*
 Press 0️⃣ for *Main Menu*`,
   },
 };

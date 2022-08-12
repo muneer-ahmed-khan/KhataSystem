@@ -15,8 +15,11 @@ const sessionClient = new dialogflow.SessionsClient({
  * Send a query to the dialogflow agent, and return the query result.
  * @param {string} query The project to be used
  */
-exports.sendQuery = (query, InputContext) => {
+exports.sendQuery = (query, InputContext, eventName) => {
   return new Promise(async (resolve, reject) => {
+    console.log("dialogflow params ==> query ", query);
+    console.log("dialogflow params ==> inputContext ", InputContext);
+    console.log("dialogflow params ==> eventName ", eventName);
     try {
       const sessionPath = sessionClient.projectAgentSessionPath(
         projectId,
@@ -26,15 +29,18 @@ exports.sendQuery = (query, InputContext) => {
       // The text query request.
       const request = {
         session: sessionPath,
-        queryInput: {
-          text: {
-            // The query to send to the dialogflow agent
-            text: query,
-            // The language used by the client (en-US)
-            languageCode: "en-US",
-          },
-        },
+        queryInput: {},
       };
+
+      // if no eventName is there then please add text
+      if (!eventName) {
+        request.queryInput.text = {
+          // The query to send to the dialogflow agent
+          text: query,
+          // The language used by the client (en-US)
+          languageCode: "en-US",
+        };
+      }
 
       let contexts = [];
       // set here the input contexts for dialogflow requests
@@ -49,7 +55,14 @@ exports.sendQuery = (query, InputContext) => {
           contexts: contexts,
         };
 
-      console.log("check dialogflow request ==> ", query, InputContext);
+      if (eventName) {
+        request.queryInput.event = {
+          name: eventName,
+          languageCode: "en-US",
+        };
+      }
+
+      console.log("\n check dialogflow request ==> ", request);
 
       // Send request and log result
       const responses = await sessionClient.detectIntent(request);
