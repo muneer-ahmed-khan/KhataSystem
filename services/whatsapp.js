@@ -9,6 +9,7 @@ const {
   LegacySessionAuth,
   MessageMedia,
 } = require("whatsapp-web.js");
+
 // import environment variables
 require("dotenv").config();
 

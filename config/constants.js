@@ -77,13 +77,12 @@ Press 3️⃣  for *View* Cash Book
 
 Press #️⃣  for *Back*
 Press 0️⃣  for *Main Menu*`,
-    VIEW_BOOK: template`Press 1️⃣  for View *Today* ${0} Book
-Press 2️⃣  for View *Yesterday* ${0} Book
-Press 3️⃣  for View *Last Week* ${0} Book
-Press 4️⃣  for View *Last Month* ${0} Book
+    VIEW_BOOK: template`Press 1️⃣  for *Today* ${0} Book
+Press 2️⃣  for *Yesterday* ${0} Book
+Press 3️⃣  for *Last Week* ${0} Book
+Press 4️⃣  for *Last Month* ${0} Book
 Press 5️⃣  for Search By Date* ${0} Book
 
-Press #️⃣  for *Back*
 Press 0️⃣ for *Main Menu*`,
   },
 };

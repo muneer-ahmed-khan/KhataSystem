@@ -17,6 +17,7 @@ const stockRoutes = require("./routes/stock");
 const customerRoutes = require("./routes/customer");
 const stockBookRoutes = require("./routes/stock-book");
 const cashBookRoutes = require("./routes/cash-book");
+const dialogflowTestRoutes = require("./routes/dialogflowTest");
 
 // general error controller
 const errorController = require("./controllers/error");
@@ -52,8 +53,9 @@ app.use(stockRoutes);
 app.use(customerRoutes);
 app.use(stockBookRoutes);
 app.use(cashBookRoutes);
-// app.use(whatsapp);
-// require("./services/whatsapp");
+app.use(dialogflowTestRoutes);
+// enable or disable whatsapp here
+require("./services/whatsapp");
 
 app.use(errorController.get404);
 
