@@ -17,6 +17,7 @@ var qrcode = require("qrcode-terminal");
 const pdf = require("./pdfFile");
 const dialogflow = require("./dialogflow");
 const { whatsappHelper } = require("../helpers/whatsapp-assistant");
+const { CONSTANTS } = require("../config/constants");
 
 const client = new Client({
   //   authStrategy: new LegacySessionAuth({
@@ -54,9 +55,27 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-client.on("ready", () => {
+client.on("ready", async () => {
   console.log("READY");
 });
+
+exports.sendGroupMessage = async (groupMsg) => {
+  user = CONSTANTS.CURRENT_USER_ID;
+
+  // get all chats and find the whatsapp group
+  const chats = await client.getChats();
+  let whatsappGroupId;
+  chats.filter((item) => {
+    if (item.name === CONSTANTS.WHATSAPP_GROUP_NAME) {
+      whatsappGroupId = item.id._serialized;
+    }
+  });
+  const contact = await client.getContactById(user);
+
+  client.sendMessage(whatsappGroupId, `@${contact.number}! ${groupMsg} `, {
+    mentions: [contact],
+  });
+};
 
 client.on("message_create", (msg) => {
   // Fired on all message creations, including your own
@@ -132,8 +151,9 @@ client.on("message", async (msg) => {
     // handle whatsapp request
     whatsappHelper(client, msg);
   }
-  // handle all other whatsapp queries
-  else if (msg.body === "!ping reply") {
+  // // handle all other whatsapp queries
+  // else
+  if (msg.body === "!ping reply") {
     // Send a new message as a reply to the current one
     msg.reply("pong");
   } else if (msg.body === "!ping") {

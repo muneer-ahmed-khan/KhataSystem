@@ -21,6 +21,12 @@ exports.CONSTANTS = {
     SEARCH_BY_LAST_MONTH: "_view_month",
     SEARCH_BY_DATE: "_view_search",
   },
+  WHATSAPP_FORMS_URLS: {
+    ADD_TO_STOCK_BOOK: "/add-stock-book/?addStock=true&whatsapp=true",
+    SELL_FROM_STOCK_BOOK: "/add-stock-book/?sellStock=true&whatsapp=true",
+  },
+  WHATSAPP_GROUP_NAME: "Khata App Group",
+  CURRENT_USER_ID: null,
   ROZNAMCHA: {
     QUERIES: {
       TODAY: "today",
@@ -41,6 +47,7 @@ exports.CONSTANTS = {
       SELL_STOCK: "sellStock",
       CREDIT_AMOUNT: "creditAmount",
       DEBIT_AMOUNT: "debitAmount",
+      WHATSAPP_FORM: "whatsapp",
     },
     CUSTOMER_TYPE: {
       NON_CASH: "nonCash",
@@ -84,5 +91,48 @@ Press 4️⃣  for *Last Month* ${0} Book
 Press 5️⃣  for Search By Date* ${0} Book
 
 Press 0️⃣ for *Main Menu*`,
+    SEND_LINK: template`Link: ${0}
+
+Press #️⃣  for *Back*
+Press 0️⃣  for *Main Menu*`,
+    ADD_STOCK_BOOK_RES: template` Added *New* Stock.
+
+*New Stock Details*
+Receive - *${0}* Tyres
+Pattern - *${1}*
+Size - *${2}*
+Truck Number - *${3}*
+Truck Rent - *${4}*
+
+*${1} ${2}* Stock Update
+*${5}* ⬆️ *${6}*`,
+    SELL_STOCK_BOOK_CASH_RES: template` *Sell* Stock.
+
+*Sell Stock Details*
+Sell - *${0}* Tyres
+Pattern - *${1}*
+Size - *${2}*
+Customer - *${3}*
+Price - *${4}*
+Total - *${5}*
+
+*${1} ${2}* Stock Update
+*${6}* ⬇️ *${7}*`,
+    SELL_STOCK_BOOK_NON_CASH_RES: template` *Sell* Stock.
+
+*Sell Stock Details*
+Sell - *${0}* Tyres
+Pattern - *${1}*
+Size - *${2}*
+Customer - *${3}*
+Price - *${4}*
+Total - *${5}*
+
+*${1} ${2}* Stock Update
+*${6}* ⬇️ *${7}*
+
+*${3} Khata* Balance Update
+*${8}* ⬇️ *${9}*
+`,
   },
 };

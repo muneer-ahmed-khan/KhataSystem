@@ -4,7 +4,7 @@
   <!-- control navigation of page here  -->
   <%- include('../includes/navigation.ejs') %>
   <main class="row vertical-center">
-    <div class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+    <div id="whatsapp" class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
 
       <!-- page title for edit pages -->
       <span for="name" class="fs-3" style="display: flex;margin-bottom: 20px;">
@@ -128,6 +128,7 @@
   <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
   <script src="/js/ejs.min.js"></script>
   <script>
+    let checkWhatsapp = ('<%- whatsapp %>' === 'true');
     let nonCashCustomerFieldHtml = null;
     let cashCustomerFieldHtml = `<input style="margin: 10px 0px;" type="text" class="form-control form-control-lg" placeholder="e.g Malik Amjad" name="cashCustomer" id="cashCustomer" value="">`;
 
@@ -192,6 +193,8 @@
     }
 
     $(document).ready(function() {
+
+      console.log("check whatsapp ", $('#customerType option:selected').text());
       $('#formId').on('submit', function(event) {
         // initiate spinner
         startSpinner();
@@ -208,25 +211,56 @@
               pattern: $('#pattern option:selected').val(),
               qty: $('#qty').val(),
               entryType: $('#entryType').val(),
+              whatsapp: checkWhatsapp,
+              patternValue: $('#pattern option:selected').text(),
+              sizeValue: $('#size option:selected').text(),
+              customerTypeValue: $('#customerType option:selected').text(),
+              customerValue: $('#customer option:selected').text() ?? null,
             },
             type: 'POST',
             url: $('#formId').prop("action")
           })
           .done(function(data) {
             stopSpinner("Done! ", true);
-            $("#formButton").html(
-              `<h5 class="text-success">Success</h5>`
-            );
-            var pageName = data;
-            document.location.href = pageName;
+            console.log("check whatsapp again ", checkWhatsapp);
+            if (checkWhatsapp) {
+              var i = 5;
+              var interval = setInterval(function() {
+                $("#whatsapp").html(
+                  `<h3 class="text-success">Success</h3>
+                <h5 class="text-success">Go Back to Whatsapp.</h5>
+                <h6 class="text-dark">the browser tab will close automatically in ${i} seconds</h6>`
+                );
+                i--;
+              }, 1000);
+              setTimeout(() => {
+                clearInterval(interval);
+                window.top.close();
+              }, 7000)
+            } else {
+              $("#formButton").html(
+                `<h5 class="text-success">Success</h5>`
+              );
+
+              var pageName = data;
+              document.location.href = pageName;
+            }
           })
           .fail(function(data) {
             stopSpinner("Failed! ", false);
             console.log(data.responseText);
-            $("#formButton").html(
-              `<h5 class="text-danger">failed to submit data! Please Reload the Page and Try Again </h5>`
-            );
-          })
+            if (checkWhatsapp) {
+              $("#whatsapp").html(
+                `<h3 class="text-danger">Failed</h3>
+                <h5 class="text-primary">Go Back to Whatsapp. and try again with a new link</h5>`
+              );
+            } else {
+              $("#formButton").html(
+                `<h5 class="text-danger">failed to submit data! Please Reload the Page and Try Again </h5>`
+              );
+            }
+          });
+
         // should these be at the top?
         event.preventDefault();
         event.stopImmediatePropagation();

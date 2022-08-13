@@ -9,6 +9,7 @@ const {
   Sequelize,
 } = require("../models");
 const { CONSTANTS } = require("../config/constants");
+const { sendGroupMessage } = require("../services/whatsapp");
 
 // get all stock book records
 exports.getStockBook = async (req, res, next) => {
@@ -41,6 +42,12 @@ exports.addStockBook = async (req, res, next) => {
     CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK in req.query
       ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
       : CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK;
+
+  // get whatsapp from request params if it is there
+  let whatsappForm =
+    CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.WHATSAPP_FORM in req.query
+      ? true
+      : false;
 
   // declare global function variables
   let sizes,
@@ -87,6 +94,7 @@ exports.addStockBook = async (req, res, next) => {
       patterns: patterns,
       sizes: sizes,
       entryType: entryType,
+      whatsapp: whatsappForm,
     });
   } catch (reason) {
     console.log("Error: in addStockBook controller with reason --> ", reason);
@@ -103,15 +111,27 @@ exports.postAddStockBook = async (req, res, next) => {
     amount,
     customerType,
     cashCustomer,
+    whatsapp,
+    patternValue,
+    sizeValue,
+    customerValue,
+    customerTypeValue,
+    UpdateCustomerBalance,
     customerId = null;
   // get entryType from request params
   const entryType = req.body.entryType.trim();
 
   // get new data from request params
-  sizeId = req.body.size;
-  patternId = req.body.pattern;
-  qty = req.body.qty;
-  amount = req.body.amount;
+  sizeId = Number(req.body.size.trim());
+  patternId = Number(req.body.pattern.trim());
+  qty = Number(req.body.qty.trim());
+  amount = Number(req.body.amount.trim());
+  // check to see if it the whatsapp then get ready all parameters for whatsapp use
+  whatsapp = req.body.whatsapp === "true";
+  patternValue = req.body.patternValue.trim();
+  sizeValue = req.body.sizeValue.trim();
+  customerValue = req.body.customerValue.trim();
+  customerTypeValue = req.body.customerTypeValue.trim().toLowerCase();
 
   // truck number only for add stock entry
   if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK)
@@ -164,7 +184,7 @@ exports.postAddStockBook = async (req, res, next) => {
       customerType === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
     ) {
       // find customer by id in db
-      const UpdateCustomerBalance = await Customer.findByPk(customerId);
+      UpdateCustomerBalance = await Customer.findByPk(customerId);
 
       // add the amount of new stock to customer over all balance
       UpdateCustomerBalance.balance =
@@ -174,7 +194,7 @@ exports.postAddStockBook = async (req, res, next) => {
       // save the info in db
       await UpdateCustomerBalance.save();
     }
-
+    console.log("check ", customerType, customerId, cashCustomer);
     // save the new details to stock book in db
     await StockBook.create({
       entryType: entryType,
@@ -184,12 +204,63 @@ exports.postAddStockBook = async (req, res, next) => {
       amount: amount,
       sizeId: sizeId,
       patternId: patternId,
-      customerId: customerId,
+      customerId: customerId ? customerId : null,
       cashCustomer: cashCustomer,
     });
 
     // render to stock book template on successful entry
     console.log("Created StockBook Entry Successfully");
+
+    // if whatsapp is true then send the ack to whatsapp group and user
+    if (whatsapp) {
+      // send stock update group message in three way
+      // if somebody add stock
+      // if somebody sell stock for cash Customer
+      // if somebody sell stock for nonCash Customer
+      sendGroupMessage(
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
+          ? CONSTANTS.MESSAGES_TEMPLATES.ADD_STOCK_BOOK_RES(
+              qty,
+              patternValue,
+              sizeValue,
+              truckNumber,
+              amount,
+              created ? 0 : createOrUpdateStock.total - qty,
+              created ? qty : createOrUpdateStock.total
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
+            customerTypeValue === CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH
+          ? CONSTANTS.MESSAGES_TEMPLATES.SELL_STOCK_BOOK_CASH_RES(
+              qty,
+              patternValue,
+              sizeValue,
+              cashCustomer,
+              amount,
+              Number(amount) *
+                (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty)),
+              Number(createOrUpdateStock.total) + Number(qty),
+              Number(createOrUpdateStock.total)
+            )
+          : CONSTANTS.MESSAGES_TEMPLATES.SELL_STOCK_BOOK_NON_CASH_RES(
+              qty,
+              patternValue,
+              sizeValue,
+              customerValue,
+              amount,
+              Number(amount) *
+                (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty)),
+              Number(createOrUpdateStock.total) + Number(qty),
+              Number(createOrUpdateStock.total),
+              UpdateCustomerBalance
+                ? UpdateCustomerBalance.balance +
+                    Number(amount) *
+                      (Number(qty) % 2 === 0 ? Number(qty) / 2 : Number(qty))
+                : "",
+              UpdateCustomerBalance ? UpdateCustomerBalance.balance : ""
+            )
+      );
+    }
+
     // res.redirect("/stock-book");
     // handle ajax request response here it will redirect to main page
     res.send(req.protocol + "://" + req.get("host") + "/stock-book");

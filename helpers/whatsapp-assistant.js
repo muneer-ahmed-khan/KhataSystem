@@ -4,6 +4,8 @@ const { CONSTANTS } = require("../config/constants");
 const { findQuery } = require("./roznamcha-dialogflow-assistant");
 const { MessageMedia } = require("whatsapp-web.js");
 const moment = require("moment");
+// import environment variables
+require("dotenv").config();
 
 // create global variables
 let currentContext = [];
@@ -39,6 +41,7 @@ exports.whatsappHelper = async (client, msg) => {
   // first mute for me these messages and make them as seen
   await chat.mute();
   await chat.sendSeen();
+  await chat.sendStateTyping();
 
   // operation to be done before sending query to dialogflow
   // start main menu at start with any number
@@ -119,6 +122,9 @@ exports.whatsappHelper = async (client, msg) => {
   console.log("response last context ==> ", lastContext);
   console.log("check result ---> ", result);
 
+  // stop recording for whatsapp
+  await chat.clearState();
+
   // handle the Welcome intent here
   if (result.intent === CONSTANTS.DIALOGFLOW.WELCOME_INTENT) {
     // show welcome message
@@ -137,17 +143,37 @@ exports.whatsappHelper = async (client, msg) => {
     }
     // handle if user want to add entry to stock book
     else if (result.intent === CONSTANTS.DIALOGFLOW.ADD_TO_STOCK_BOOK) {
-      // show all stock book options
+      // show add to stock book form to user
       lastResponse = result.response;
-      console.log(lastResponse);
+      // save the current user id for group ack
+      CONSTANTS.CURRENT_USER_ID = msg.from;
+      console.log(lastResponse, CONSTANTS.CURRENT_USER_ID);
+
+      // send user the form link to filled
       chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.ADD_TO_STOCK_BOOK
+        )
+      );
     }
     // handle if user want to add sell entry to stock book
     else if (result.intent === CONSTANTS.DIALOGFLOW.SELL_FROM_STOCK_BOOK) {
       // show all stock book options
       lastResponse = result.response;
+      // save the current user id for group ack
+      CONSTANTS.CURRENT_USER_ID = msg.from;
       console.log(lastResponse);
+
+      // send user the form link to filled
       chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.SELL_FROM_STOCK_BOOK
+        )
+      );
     }
     // handle if user want to add view stock book
     else if (result.intent === CONSTANTS.DIALOGFLOW.VIEW_STOCK_BOOK) {
