@@ -59,6 +59,26 @@ client.on("ready", async () => {
   console.log("READY");
 });
 
+exports.dateSearchResponse = async (user, data, message) => {
+  // send user search by date query form
+  if (data) {
+    client.sendMessage(user, message);
+    const media = MessageMedia.fromFilePath(
+      `${
+        CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+      }${new moment().format(
+        CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+      )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+    );
+    await client.sendMessage(user, media);
+    client.sendMessage(user, CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+  } else {
+    client.sendMessage(user, message);
+    client.sendMessage(user, CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+  }
+};
+
+// send ack message to whatsapp group
 exports.sendGroupMessage = async (groupMsg) => {
   user = CONSTANTS.CURRENT_USER_ID;
 

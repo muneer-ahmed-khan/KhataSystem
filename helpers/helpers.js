@@ -37,3 +37,8 @@ exports.template = (strings, ...keys) => {
     return result.join("");
   };
 };
+
+// convert number into thousand separator
+exports.thousandSeparator = (x) => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};

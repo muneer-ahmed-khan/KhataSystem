@@ -24,6 +24,7 @@ exports.CONSTANTS = {
   WHATSAPP_FORMS_URLS: {
     ADD_TO_STOCK_BOOK: "/add-stock-book/?addStock=true&whatsapp=true",
     SELL_FROM_STOCK_BOOK: "/add-stock-book/?sellStock=true&whatsapp=true",
+    SEARCH_STOCK_BOOK: "/search-stock-book/?whatsapp=true&user=",
   },
   WHATSAPP_GROUP_NAME: "Khata App Group",
   CURRENT_USER_ID: null,
@@ -36,7 +37,7 @@ exports.CONSTANTS = {
       TOTAL: "total",
     },
     FILE_SETTINGS: {
-      FILE_PATH: "./pdf/roznamcha_",
+      STOCK_BOOK_FILE_PATH: "./pdf/stock_book_",
       FILE_DATE_FORMAT: "DD-MMM-YYYY",
       FILE_FORMAT: ".pdf",
     },
@@ -72,6 +73,8 @@ Press 2️⃣  for *Cash Book*
 Press 3️⃣  for *Customers Khata*
 Press 4️⃣  for *Stock Khata*
 Press 5️⃣  for *Banks Khata*`,
+    BACK_MENU: `Press #️⃣  for *Back*
+Press 0️⃣  for *Main Menu*`,
     STOCK_BOOK: `Press 1️⃣  for *Add* to Stock Book
 Press 2️⃣  for *Sell* from Stock Book
 Press 3️⃣  for *View* Stock Book
@@ -88,8 +91,9 @@ Press 0️⃣  for *Main Menu*`,
 Press 2️⃣  for *Yesterday* ${0} Book
 Press 3️⃣  for *Last Week* ${0} Book
 Press 4️⃣  for *Last Month* ${0} Book
-Press 5️⃣  for Search By Date* ${0} Book
+Press 5️⃣  for *Search By Date* ${0} Book
 
+Press #️⃣  for *Back*
 Press 0️⃣ for *Main Menu*`,
     SEND_LINK: template`Link: ${0}
 

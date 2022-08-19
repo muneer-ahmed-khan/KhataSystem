@@ -9,7 +9,12 @@ const {
   Sequelize,
 } = require("../models");
 const { CONSTANTS } = require("../config/constants");
-const { sendGroupMessage } = require("../services/whatsapp");
+const {
+  sendGroupMessage,
+  dateSearchResponse,
+} = require("../services/whatsapp");
+const moment = require("moment");
+const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
 
 // get all stock book records
 exports.getStockBook = async (req, res, next) => {
@@ -32,6 +37,79 @@ exports.getStockBook = async (req, res, next) => {
     });
   } catch (reason) {
     console.log("Error: in getStockBook controller with reason --> ", reason);
+  }
+};
+
+// get all stock book records search by date
+exports.SearchStockBook = async (req, res, next) => {
+  try {
+    let whatsapp = req.query.whatsapp;
+    let user = req.query.user;
+    // render the search by date stock book template
+    res.render("stock-book/search-stock-book.ejs", {
+      pageTitle: "Search Stock Book",
+      path: "/stock-book",
+      whatsapp,
+      user,
+    });
+  } catch (reason) {
+    console.log(
+      "Error: in SearchStockBook controller with reason --> ",
+      reason
+    );
+  }
+};
+
+// get all stock book records search by date
+exports.PostSearchStockBook = async (req, res, next) => {
+  try {
+    if (req && req.body && req.body.fromDate && req.body.toDate) {
+      // get req params to query stock book for
+      let fromDate = req.body.fromDate;
+      let toDate = req.body.toDate;
+      let user = req.body.user;
+
+      // get all stock book records from db
+      let stockBooks = await StockBook.findAll({
+        include: [
+          { model: Customer, as: "customer" },
+          { model: Pattern, as: "pattern" },
+          { model: Size, as: "size" },
+        ],
+        order: [["id", "DESC"]],
+        where: {
+          updatedAt: {
+            [Sequelize.Op.gt]: moment(fromDate).startOf("day"), // today day start
+            [Sequelize.Op.lt]: moment(toDate).endOf("day"), // up to now
+          },
+        },
+      });
+
+      // create pdf with generated query
+      let response = await generateStockBook(null, {
+        data: stockBooks,
+        fromDate: moment(fromDate),
+        toDate: moment(toDate),
+      });
+
+      console.log("check bro ", response);
+      if (response.data) {
+        dateSearchResponse(user, response.data, response.message);
+      } else {
+        dateSearchResponse(user, response.data, response.message);
+      }
+    } else {
+      console.log("missing something in request body");
+    }
+
+    res.sendStatus(200);
+
+    // render the search by date stock book template
+  } catch (reason) {
+    console.log(
+      "Error: in SearchStockBook controller with reason --> ",
+      reason
+    );
   }
 };
 

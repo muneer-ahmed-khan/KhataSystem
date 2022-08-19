@@ -2,6 +2,7 @@ const pdf = require("../services/pdfFile");
 const dialogflow = require("../services/dialogflow");
 const { CONSTANTS } = require("../config/constants");
 const { findQuery } = require("./roznamcha-dialogflow-assistant");
+const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
 const { MessageMedia } = require("whatsapp-web.js");
 const moment = require("moment");
 // import environment variables
@@ -187,20 +188,49 @@ exports.whatsappHelper = async (client, msg) => {
       result.intent ===
       CONSTANTS.DIALOGFLOW.STOCK_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_TODAY
     ) {
+      const getStockBook = await generateStockBook(result.response);
       // show to user today stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getStockBook.message);
+      if (getStockBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        // console.log("check ", media);
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to view yesterday stock book
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.STOCK_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_YESTERDAY
     ) {
+      const getStockBook = await generateStockBook(result.response);
       // show to user yesterday stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getStockBook.message);
+      if (getStockBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to view last week stock book
     else if (
@@ -210,7 +240,21 @@ exports.whatsappHelper = async (client, msg) => {
       // show to user last week stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      const getStockBook = await generateStockBook(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getStockBook.message);
+      if (getStockBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to view last month stock book
     else if (
@@ -218,21 +262,48 @@ exports.whatsappHelper = async (client, msg) => {
       CONSTANTS.DIALOGFLOW.STOCK_BOOK +
         CONSTANTS.DIALOGFLOW.SEARCH_BY_LAST_MONTH
     ) {
-      // show to user last month stock book
+      // show to user last week stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      const getStockBook = await generateStockBook(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getStockBook.message);
+      if (getStockBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to search stock book by date
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.STOCK_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      // show to user search by date form
+      // show user the search by date form
       lastResponse = result.response;
+      // save the current user id for group ack
+      // CONSTANTS.CURRENT_USER_ID = msg.from;
       console.log(lastResponse);
+
+      // send user the form link to filled
       chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_STOCK_BOOK +
+            msg.from
+        )
+      );
     }
+
+    // <============ Stock Book Queries Ended here =====================>
 
     // handle all cash book related intents here
     // handle if we select cash book from main menu

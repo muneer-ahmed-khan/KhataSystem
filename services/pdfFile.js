@@ -34,7 +34,9 @@ exports.createPDF = (docDefinition) => {
       let pdfDoc = printer.createPdfKitDocument(docDefinition, options);
       pdfDoc.pipe(
         (waitUntilPDFisReady = fs.createWriteStream(
-          `${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_PATH}${new moment().format(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          }${new moment().format(
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
           )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
         ))
