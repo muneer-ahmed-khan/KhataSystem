@@ -15,6 +15,7 @@ exports.CONSTANTS = {
     CUSTOMERS_KHATA: "khata_customer",
     BANK_KHATA: "khata_bank",
     STOCK_KHATA: "khata_stock",
+    ALL_KHATA: "_view_all",
     SEARCH_BY_TODAY: "_view_today",
     SEARCH_BY_YESTERDAY: "_view_yesterday",
     SEARCH_BY_LAST_WEEK: "_view_week",
@@ -106,35 +107,35 @@ Press 0️⃣  for *Main Menu*`,
     ADD_STOCK_BOOK_RES: template` Added *New* Stock.
 
 *New Stock Details*
-Receive - *${0}* Tyres
-Pattern - *${1}*
-Size - *${2}*
-Truck Number - *${3}*
-Truck Rent - *${4}*=/
+Receive ➡️ *${0}* Tyres
+Pattern ➡️ *${1}*
+Size ➡️ *${2}*
+Truck Number ➡️ *${3}*
+Truck Rent ➡️ *${4}*=/
 
 *${1} ${2}* Stock Update
 *${5}* ⬆️ *${6}*`,
     SELL_STOCK_BOOK_CASH_RES: template` *Sell* Stock.
 
 *Sell Stock Details*
-Sell - *${0}* Tyres
-Pattern - *${1}*
-Size - *${2}*
-Customer - *${3}*
-Price - *${4}*=/
-Total - *${5}*=/
+Sell ➡️ *${0}* Tyres
+Pattern ➡️ *${1}*
+Size ➡️ *${2}*
+Customer ➡️ *${3}*
+Price ➡️ *${4}*=/
+Total ➡️ *${5}*=/
 
 *${1} ${2}* Stock Update
 *${6}* ⬇️ *${7}*`,
     SELL_STOCK_BOOK_NON_CASH_RES: template` *Sell* Stock.
 
 *Sell Stock Details*
-Sell - *${0}* Tyres
-Pattern - *${1}*
-Size - *${2}*
-Customer - *${3}*
-Price - *${4}*=/
-Total - *${5}*=/
+Sell ➡️ *${0}* Tyres
+Pattern ➡️ *${1}*
+Size ➡️ *${2}*
+Customer ➡️ *${3}*
+Price ➡️ *${4}*=/
+Total ➡️ *${5}*=/
 
 *${1} ${2}* Stock Update
 *${6}* ⬇️ *${7}*
@@ -145,10 +146,10 @@ Total - *${5}*=/
     CREDIT_TO_CASH_BOOK_NON_CASH_BANK_RES: template` Added *Credit* Update!
 
 *Credit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Bank Account - *${2}*
-Amount - *${3}*=/
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Bank Account ➡️ *${2}*
+Amount ➡️ *${3}*=/
 
 *${0}* Khata Update.
 *${4}* ⬆️ *${5}*
@@ -158,36 +159,36 @@ Amount - *${3}*=/
     CREDIT_TO_CASH_BOOK_NON_CASH_NON_BANK_RES: template` Added *Credit* Update!
 
 *Credit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Amount - *${2}*=/
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Amount ➡️ *${2}*=/
 
 *${0} Khata* Update.
 *${3}* ⬆️ *${4}*`,
     CREDIT_TO_CASH_BOOK_CASH_BANK_RES: template` Added *Credit* Update!
 
 *Credit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Bank Account - *${2}*
-Amount - *${3}*=/
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Bank Account ➡️ *${2}*
+Amount ➡️ *${3}*=/
 
 *${2}* Khata Update.
 *${4}* ⬆️ *${5}*`,
     CREDIT_TO_CASH_BOOK_CASH_NON_BANK_RES: template` Added *Credit* Update!
 
 *Credit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Amount - *${2}*=/`,
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Amount ➡️ *${2}*=/`,
 
     DEBIT_FROM_CASH_BOOK_NON_CASH_BANK_RES: template` Added *DEBIT* Update!
 
 *Debit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Bank Account - *${2}*
-Amount - *${3}*=/
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Bank Account ➡️ *${2}*
+Amount ➡️ *${3}*=/
 
 *${0}* Khata Update.
 *${4}* ⬆️ *${5}*
@@ -197,27 +198,38 @@ Amount - *${3}*=/
     DEBIT_FROM_CASH_BOOK_NON_CASH_NON_BANK_RES: template` Added *DEBIT* Update!
 
 *Debit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Amount - *${2}*=/
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Amount ➡️ *${2}*=/
 
 *${0}* Khata Update.
 *${3}* ⬆️ *${4}*`,
     DEBIT_FROM_CASH_BOOK_CASH_BANK_RES: template` Added *DEBIT* Update!
 
 *Debit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Bank Account - *${2}*
-Amount - *${3}*=/
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Bank Account ➡️ *${2}*
+Amount ➡️ *${3}*=/
 
 *${2}* Khata Update.
 *${4}* ⬇️ *${5}*`,
     DEBIT_FROM_CASH_BOOK_CASH_NON_BANK_RES: template` Added *DEBIT* Update!
 
 *Debit Amount* Details.
-Customer - *${0}*
-Pay Type - *${1}*
-Amount - *${2}*=/`,
+Customer ➡️ *${0}*
+Pay Type ➡️ *${1}*
+Amount ➡️ *${2}*=/`,
+    VIEW_KHATA: template`Press 1️⃣  for *All* ${0}
+Press 2️⃣  for Search *${1}* by Khata/Date 
+
+Press #️⃣  for *Back*
+Press 0️⃣ for *Main Menu*`,
+    ALL_KHATA: template`All ${0} Details.
+
+${1}
+
+Press #️⃣  for *Back*
+Press 0️⃣ for *Main Menu*`,
   },
 };

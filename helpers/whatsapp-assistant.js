@@ -4,6 +4,9 @@ const { CONSTANTS } = require("../config/constants");
 const { findQuery } = require("./roznamcha-dialogflow-assistant");
 const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
 const { generateCashBook } = require("../meta/cash-book-whatsapp-queries");
+const { allCustomers } = require("../meta/customers-whatsapp-queries");
+const { allStocks } = require("../meta/stock-whatsapp-queries");
+const { allBankAccounts } = require("../meta/bank-whatsapp-queries");
 const { MessageMedia } = require("whatsapp-web.js");
 const moment = require("moment");
 // import environment variables
@@ -482,86 +485,114 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if we select customer khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA) {
       // view customer khata details
-      lastResponse = result.response;
+      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
+        "Customers Bal.",
+        "Customer"
+      );
       console.log(lastResponse);
       chat.sendMessage(lastResponse);
     }
+    // handle if user want to view today CASH book
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.ALL_KHATA
+    ) {
+      const getAllCustomers = await allCustomers();
+
+      // show to user today stock book
+      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
+        "*Customers* Balance",
+        getAllCustomers
+      );
+      console.log(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(lastResponse);
+    }
+    // handle if user want to view today CASH book
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
+    ) {
+      const getCashBook = await generateCashBook(result.response);
+      // show to user today stock book
+      lastResponse = result.response;
+      console.log(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getCashBook.message);
+      if (getCashBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        // console.log("check ", media);
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
+    }
+
+    // <============ Customer Khata Queries Ended here =====================>
+
     // handle if we select bank khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.BANK_KHATA) {
       // view bank khata details
-      lastResponse = result.response;
+      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
+        "Banks Acc Bal.",
+        "Bank"
+      );
       console.log(lastResponse);
       chat.sendMessage(lastResponse);
     }
+    // handle if user want to view today CASH book
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.BANK_KHATA + CONSTANTS.DIALOGFLOW.ALL_KHATA
+    ) {
+      const getAllBankAccounts = await allBankAccounts();
+
+      // show to user today stock book
+      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
+        "*Bank Acc.* Balance",
+        getAllBankAccounts
+      );
+      console.log(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(lastResponse);
+    }
+
+    // <============ Bank Khata Queries Ended here =====================>
+
     // handle if we select stock khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.STOCK_KHATA) {
       // view stock khata details
-      lastResponse = result.response;
+      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
+        "Stock QTY.",
+        "Stock"
+      );
       console.log(lastResponse);
       chat.sendMessage(lastResponse);
     }
+    // handle if user want to view today CASH book
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.STOCK_KHATA + CONSTANTS.DIALOGFLOW.ALL_KHATA
+    ) {
+      const getAllStocks = await allStocks();
 
-    // generate pdf for checking today roznamcha
-    else if (result.intent === CONSTANTS.ROZNAMCHA.QUERIES.TODAY) {
-      const getRoznamcha = await findQuery(result.response);
-      // if there is data found then data is true
-      if (getRoznamcha.data) {
-        // get file path to generate as pdf
-        const media = MessageMedia.fromFilePath(
-          `${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_PATH}${new moment().format(
-            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
-          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
-        );
+      // show to user today stock book
+      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
+        "*Stock* QTY",
+        getAllStocks
+      );
+      console.log(lastResponse);
 
-        // these updates should be received by user in response
-        chat.sendMessage(getRoznamcha.message);
-        chat.sendMessage(media);
-      }
-      // if no date available for this query
-      else if (getRoznamcha.data === false) {
-        chat.sendMessage(getRoznamcha.message);
-      } else {
-        chat.sendMessage("can't generate today roznamcha");
-      }
-    }
-
-    // generate pdf for checking monthly roznamcha
-    else if (result.intent === CONSTANTS.ROZNAMCHA.QUERIES.MONTH) {
-      const getRoznamcha = await findQuery(result.response);
-
-      if (getRoznamcha.data) {
-        const media = MessageMedia.fromFilePath(
-          `${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_PATH}${new moment().format(
-            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
-          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
-        );
-
-        chat.sendMessage(getRoznamcha.message);
-        chat.sendMessage(media);
-      } else if (getRoznamcha.data === false) {
-        chat.sendMessage(getRoznamcha.message);
-      } else {
-        chat.sendMessage("can't generate last month roznamcha");
-      }
-    }
-    // generate pdf for checking total roznamcha
-    else if (result.intent === CONSTANTS.ROZNAMCHA.QUERIES.TOTAL) {
-      const getRoznamcha = await findQuery(result.response);
-
-      if (getRoznamcha.data) {
-        const media = MessageMedia.fromFilePath(
-          `${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_PATH}${new moment().format(
-            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
-          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
-        );
-
-        chat.sendMessage(getRoznamcha.message);
-        chat.sendMessage(media);
-      } else if (getRoznamcha.data === false) {
-        chat.sendMessage(getRoznamcha.message);
-      } else {
-        chat.sendMessage("can't generate total roznamcha");
-      }
+      // generate today stock book pdf for user
+      chat.sendMessage(lastResponse);
     }
 
     // everything else is dialogflow result by default

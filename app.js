@@ -7,6 +7,14 @@ const bodyParser = require("body-parser");
 // import environment variables
 require("dotenv").config();
 
+// const { allBankAccounts } = require("./meta/bank-whatsapp-queries");
+
+// async function test() {
+//   await allBankAccounts();
+// }
+
+// test();
+
 // import all routers files
 const bankRoutes = require("./routes/bank");
 const sizeRoutes = require("./routes/size");
