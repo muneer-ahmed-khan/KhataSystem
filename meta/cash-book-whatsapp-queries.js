@@ -1,19 +1,19 @@
 const moment = require("moment");
 const Sequelize = require("sequelize");
-const { StockBook, Customer, Size, Pattern } = require("../models");
+const { CashBook, Customer, BankAccount } = require("../models");
 const { CONSTANTS } = require("../config/constants");
 const { createPDF } = require("../services/pdfFile");
 const { thousandSeparator } = require("../helpers/helpers");
 
 // handle all valid queries here
-exports.generateStockBook = (query, data) => {
+exports.generateCashBook = (query, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let stockBooks;
-      console.log();
+      let cashBooks;
+      console.log("check query ", query);
       // search stock book by different time date queries
-      if (data && !data.data)
-        stockBooks = await StockBook.findAll({
+      if (!data)
+        cashBooks = await CashBook.findAll({
           where:
             query === CONSTANTS.ROZNAMCHA.QUERIES.TODAY
               ? {
@@ -62,35 +62,33 @@ exports.generateStockBook = (query, data) => {
               : {},
           include: [
             { model: Customer, as: "customer" },
-            { model: Pattern, as: "pattern" },
-            { model: Size, as: "size" },
+            { model: BankAccount, as: "bankAccount" },
           ],
           order: [["id", "DESC"]],
         });
-      else stockBooks = data.data;
+      else cashBooks = data.data;
       // create pdf file table columns and data
-      let stockBookData = [];
-      stockBookData.push([
+      let cashBookData = [];
+      cashBookData.push([
         { text: "#ID", style: "tableHeaderColumns" },
         { text: "Date", style: "tableHeaderColumns" },
-        { text: "Qty", style: "tableHeaderColumns" },
-        { text: "Pattern/Size", style: "tableHeaderColumnsLeft" },
+        { text: "DT", style: "tableHeaderColumns" },
+        { text: "Customer", style: "tableHeaderColumnsLeft" },
         { text: "ET", style: "tableHeaderColumns" },
-        { text: "Details", style: "tableHeaderColumns" },
-        { text: "Cust / Truck #", style: "tableHeaderColumnsLeft" },
-        { text: "Price", style: "tableHeaderColumns" },
-        { text: "Total / Rent", style: "tableHeaderColumnsLeft" },
+        { text: "Pay Type", style: "tableHeaderColumns" },
+        { text: "Bank Account", style: "tableHeaderColumnsLeft" },
+        { text: "Amount", style: "tableHeaderColumnsLeft" },
       ]);
 
       // check if we have records in stock book so far
-      // console.log("check stock book length first ", stockBooks);
-      if (stockBooks.length) {
+      // console.log("check stock book length first ", cashBooks);
+      if (cashBooks.length) {
         let fromDate, toDate;
-        if (data && !data.data) {
+        if (!data) {
           // Get From date
           toDate = new Date(
             Math.max(
-              ...stockBooks.map((element) => {
+              ...cashBooks.map((element) => {
                 return new Date(element.updatedAt);
               })
             )
@@ -99,7 +97,7 @@ exports.generateStockBook = (query, data) => {
           // Get To date
           fromDate = new Date(
             Math.min(
-              ...stockBooks.map((element) => {
+              ...cashBooks.map((element) => {
                 return new Date(element.updatedAt);
               })
             )
@@ -112,91 +110,60 @@ exports.generateStockBook = (query, data) => {
           fromDate = data.fromDate;
         }
 
-        let totalArrive = 0,
-          totalSell = 0;
+        let totalCredit = 0,
+          totalDebit = 0;
 
-        stockBooks.map((ele) => {
-          if (ele.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK)
-            totalArrive += Number(ele.qty);
-          else totalSell += Number(ele.qty);
+        cashBooks.map((ele) => {
+          if (
+            ele.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
+          )
+            totalCredit += Number(ele.amount);
+          else totalDebit += Number(ele.amount);
         });
 
-        for (let index = 0; index < stockBooks.length; index++) {
-          stockBookData.push([
+        for (let index = 0; index < cashBooks.length; index++) {
+          cashBookData.push([
             { text: index + 1, style: "tableCell" },
             {
-              text: new moment(stockBooks[index].updatedAt).format(
-                "DD-MM-YYYY"
-              ),
+              text: new moment(cashBooks[index].updatedAt).format("DD-MM-YYYY"),
               style: "tableCell",
             },
-            { text: stockBooks[index].qty, style: "tableCell" },
             {
               text:
-                stockBooks[index].pattern.name +
-                "/" +
-                stockBooks[index].size.type,
+                cashBooks[index].customerType === "nonCash" ? "Khata" : "Cash",
+              style: "tableCell",
+            },
+            {
+              text:
+                cashBooks[index].customerType === "nonCash"
+                  ? cashBooks[index].customer.name
+                  : cashBooks[index].cashCustomer,
               style: "tableCellLeft",
             },
             {
               text:
-                stockBooks[index].entryType === "addStock" ? "Arrive" : "Sell",
+                cashBooks[index].entryType === "creditAmount"
+                  ? "Credit"
+                  : "Debit",
               style:
-                stockBooks[index].entryType === "addStock"
-                  ? "tableCellArrive"
-                  : "tableCell",
+                cashBooks[index].entryType === "creditAmount"
+                  ? "tableCellCredit"
+                  : "tableCellDebit",
             },
             {
-              text:
-                stockBooks[index].customerType ===
-                CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
-                  ? "Khata"
-                  : stockBooks[index].customerType ===
-                    CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH
-                  ? "Cash"
-                  : stockBooks[index].entryType ===
-                    CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-                  ? "Truck"
-                  : "-",
+              text: cashBooks[index].paymentType.toUpperCase(),
               style: "tableCell",
             },
             {
-              text:
-                stockBooks[index].entryType ===
-                  CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-                stockBooks[index].customerType ===
-                  CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
-                  ? stockBooks[index].customer.name
-                  : stockBooks[index].entryType ===
-                      CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK &&
-                    stockBooks[index].customerType ===
-                      CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH
-                  ? stockBooks[index].cashCustomer
-                  : stockBooks[index].entryType ===
-                    CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-                  ? stockBooks[index].truckNumber
-                  : "-",
-              style: "tableCellLeft",
+              text: cashBooks[index].bankAccount
+                ? cashBooks[index].bankAccount.accountName
+                : "-",
+              style: cashBooks[index].bankAccount
+                ? "tableCellLeft"
+                : "tableCell",
             },
             {
-              text:
-                stockBooks[index].entryType ===
-                CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-                  ? "-"
-                  : thousandSeparator(stockBooks[index].amount),
-              style: "tableCell",
-            },
-            {
-              text:
-                stockBooks[index].entryType ===
-                CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK
-                  ? thousandSeparator(stockBooks[index].amount)
-                  : thousandSeparator(
-                      Number(stockBooks[index].amount) *
-                        (Number(stockBooks[index].qty) % 2 === 0
-                          ? Number(stockBooks[index].qty) / 2
-                          : Number(stockBooks[index].qty))
-                    ),
+              text: thousandSeparator(cashBooks[index].amount),
               style: "tableCellLeft",
             },
           ]);
@@ -236,7 +203,7 @@ exports.generateStockBook = (query, data) => {
               },
               {
                 text: [
-                  { text: "Stock Book", style: { bold: true } },
+                  { text: "Cash Book", style: { bold: true } },
                   {
                     text: " Report",
                   },
@@ -328,13 +295,13 @@ exports.generateStockBook = (query, data) => {
                         text: [
                           { text: "Total" },
                           {
-                            text: " Arrive: ",
+                            text: " Credit: ",
                             style: {
-                              color: "blue",
+                              color: "green",
                             },
                           },
                           {
-                            text: thousandSeparator(totalArrive),
+                            text: thousandSeparator(totalCredit),
                             style: {
                               bold: true,
                               italics: true,
@@ -348,13 +315,13 @@ exports.generateStockBook = (query, data) => {
                         text: [
                           { text: "Total" },
                           {
-                            text: " Sell: ",
+                            text: " Debit: ",
                             style: {
-                              color: "black",
+                              color: "red",
                             },
                           },
                           {
-                            text: thousandSeparator(totalSell),
+                            text: thousandSeparator(totalDebit),
                             style: {
                               bold: true,
                               italics: true,
@@ -382,19 +349,19 @@ exports.generateStockBook = (query, data) => {
                   "auto",
                   "auto",
                   "auto",
-                  90,
+                  125,
                   "auto",
                   "auto",
                   90,
                   "auto",
                   65,
                 ],
-                body: stockBookData,
+                body: cashBookData,
               },
             },
             // print on pdf if there  is no data found for query
             {
-              text: stockBookData.length === 0 ? "No Data yet" : "",
+              text: cashBookData.length === 0 ? "No Data yet" : "",
               style: "header",
             },
           ],
@@ -443,10 +410,15 @@ exports.generateStockBook = (query, data) => {
               alignment: "center",
               fontSize: 10,
             },
-            tableCellArrive: {
+            tableCellCredit: {
               alignment: "center",
               fontSize: 10,
-              color: "blue",
+              color: "green",
+            },
+            tableCellDebit: {
+              alignment: "center",
+              fontSize: 10,
+              color: "red",
             },
             tableCellLeft: {
               alignment: "left",
@@ -463,7 +435,7 @@ exports.generateStockBook = (query, data) => {
         // console.log(docDefinition);
 
         // generate pdf file now
-        await createPDF(docDefinition, "stockBook");
+        await createPDF(docDefinition, "cashBook");
 
         // pdf file should be ready by now
         resolve({

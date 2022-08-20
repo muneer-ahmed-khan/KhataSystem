@@ -59,13 +59,17 @@ client.on("ready", async () => {
   console.log("READY");
 });
 
-exports.dateSearchResponse = async (user, data, message) => {
+exports.dateSearchResponse = async (user, data, message, fileName) => {
   // send user search by date query form
   if (data) {
     client.sendMessage(user, message);
     const media = MessageMedia.fromFilePath(
       `${
-        CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+        fileName === "stockBook"
+          ? CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          : fileName === "cashBook"
+          ? CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          : ""
       }${new moment().format(
         CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
       )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`

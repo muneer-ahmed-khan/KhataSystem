@@ -3,6 +3,7 @@ const dialogflow = require("../services/dialogflow");
 const { CONSTANTS } = require("../config/constants");
 const { findQuery } = require("./roznamcha-dialogflow-assistant");
 const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
+const { generateCashBook } = require("../meta/cash-book-whatsapp-queries");
 const { MessageMedia } = require("whatsapp-web.js");
 const moment = require("moment");
 // import environment variables
@@ -315,17 +316,37 @@ exports.whatsappHelper = async (client, msg) => {
     }
     // handle if user want to credit entry to CASH book
     else if (result.intent === CONSTANTS.DIALOGFLOW.CREDIT_TO_CASH_BOOK) {
-      // show all CASH book options
+      // show credit to cash book form to user
       lastResponse = result.response;
-      console.log(lastResponse);
+      // save the current user id for group ack
+      CONSTANTS.CURRENT_USER_ID = msg.from;
+      console.log(lastResponse, CONSTANTS.CURRENT_USER_ID);
+
+      // send user the form link to filled
       chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.CREDIT_TO_CASH_BOOK
+        )
+      );
     }
     // handle if user want to add debit entry to CASH book
     else if (result.intent === CONSTANTS.DIALOGFLOW.DEBIT_FROM_CASH_BOOK) {
-      // show all CASH book options
+      // show debit from cash book form to user
       lastResponse = result.response;
-      console.log(lastResponse);
+      // save the current user id for group ack
+      CONSTANTS.CURRENT_USER_ID = msg.from;
+      console.log(lastResponse, CONSTANTS.CURRENT_USER_ID);
+
+      // send user the form link to filled
       chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.DEBIT_FROM_CASH_BOOK
+        )
+      );
     }
     // handle if user want to add view CASH book
     else if (result.intent === CONSTANTS.DIALOGFLOW.VIEW_CASH_BOOK) {
@@ -339,51 +360,124 @@ exports.whatsappHelper = async (client, msg) => {
       result.intent ===
       CONSTANTS.DIALOGFLOW.CASH_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_TODAY
     ) {
-      // show to user today CASH book
+      const getCashBook = await generateCashBook(result.response);
+      // show to user today stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getCashBook.message);
+      if (getCashBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        // console.log("check ", media);
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to view yesterday CASH book
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CASH_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_YESTERDAY
     ) {
-      // show to user yesterday CASH book
+      const getCashBook = await generateCashBook(result.response);
+      // show to user today stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getCashBook.message);
+      if (getCashBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        // console.log("check ", media);
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to view last week CASH book
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CASH_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_LAST_WEEK
     ) {
-      // show to user last week CASH book
+      const getCashBook = await generateCashBook(result.response);
+      // show to user today stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getCashBook.message);
+      if (getCashBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        // console.log("check ", media);
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to view last month CASH book
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CASH_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_LAST_MONTH
     ) {
-      // show to user last month CASH book
+      const getCashBook = await generateCashBook(result.response);
+      // show to user today stock book
       lastResponse = result.response;
       console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+
+      // generate today stock book pdf for user
+      chat.sendMessage(getCashBook.message);
+      if (getCashBook.data) {
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        // console.log("check ", media);
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
     // handle if user want to search CASH book by date
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CASH_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      // show to user search by date form
+      // show user the search by date form
       lastResponse = result.response;
+      // save the current user id for group ack
+      // CONSTANTS.CURRENT_USER_ID = msg.from;
       console.log(lastResponse);
+
+      // send user the form link to filled
       chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_CASH_BOOK +
+            msg.from
+        )
+      );
     }
+
+    // <============ Cash Book Queries Ended here =====================>
 
     // handle if we select customer khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA) {

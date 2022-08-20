@@ -94,9 +94,9 @@ exports.PostSearchStockBook = async (req, res, next) => {
 
       console.log("check bro ", response);
       if (response.data) {
-        dateSearchResponse(user, response.data, response.message);
+        dateSearchResponse(user, response.data, response.message, "stockBook");
       } else {
-        dateSearchResponse(user, response.data, response.message);
+        dateSearchResponse(user, response.data, response.message, "stockBook");
       }
     } else {
       console.log("missing something in request body");
@@ -206,10 +206,12 @@ exports.postAddStockBook = async (req, res, next) => {
   amount = Number(req.body.amount.trim());
   // check to see if it the whatsapp then get ready all parameters for whatsapp use
   whatsapp = req.body.whatsapp === "true";
-  patternValue = req.body.patternValue.trim();
-  sizeValue = req.body.sizeValue.trim();
-  customerValue = req.body.customerValue.trim();
-  customerTypeValue = req.body.customerTypeValue.trim().toLowerCase();
+  if (whatsapp) {
+    patternValue = req.body.patternValue.trim();
+    sizeValue = req.body.sizeValue.trim();
+    customerValue = req.body.customerValue.trim();
+    customerTypeValue = req.body.customerTypeValue.trim().toLowerCase();
+  }
 
   // truck number only for add stock entry
   if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.ADD_STOCK)
