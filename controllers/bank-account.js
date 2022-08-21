@@ -1,6 +1,8 @@
 // import models and config files
 const { BankAccount, Bank, Customer } = require("../models");
 const { CONSTANTS } = require("../config/constants");
+const { generateBankAccountKhata } = require("../meta/bank-whatsapp-queries");
+const { dateSearchResponse } = require("../services/whatsapp");
 
 // get all bank accounts
 exports.getAllBankAccount = async (req, res, next) => {
@@ -20,6 +22,66 @@ exports.getAllBankAccount = async (req, res, next) => {
   } catch (reason) {
     console.log(
       "Error: in getAllBankAccount controller with reason --> ",
+      reason
+    );
+  }
+};
+
+// get all customer search by date
+exports.searchBankAccount = async (req, res, next) => {
+  try {
+    let whatsapp = req.query.whatsapp;
+    let user = req.query.user;
+
+    // get all bank ACCOUNTS  from db
+    const bankAccounts = await BankAccount.findAll({
+      order: [["accountName", "ASC"]],
+    });
+
+    // render the search by date stock book template
+    res.render("bank-account/search-bank-account.ejs", {
+      pageTitle: "Search Bank Account",
+      path: "/customer",
+      bankAccounts,
+      whatsapp,
+      user,
+    });
+  } catch (reason) {
+    console.log(
+      "Error: in searchBankAccount controller with reason --> ",
+      reason
+    );
+  }
+};
+
+// get all stock book records search by date
+exports.PostSearchBankAccount = async (req, res, next) => {
+  try {
+    if (req && req.body) {
+      // get req params to query stock book for
+      // let fromDate = req.body.fromDate;
+      // let toDate = req.body.toDate;
+      let user = req.body.user;
+
+      // create pdf with generated query
+      let response = await generateBankAccountKhata(req.body.bankAccount);
+
+      console.log("check bro ", response);
+      if (response.data) {
+        dateSearchResponse(user, response.data, response.message, "cashBook");
+      } else {
+        dateSearchResponse(user, response.data, response.message, "cashBook");
+      }
+    } else {
+      console.log("missing something in request body");
+    }
+
+    res.sendStatus(200);
+
+    // render the search by date stock book template
+  } catch (reason) {
+    console.log(
+      "Error: in PostSearchBankAccount controller with reason --> ",
       reason
     );
   }

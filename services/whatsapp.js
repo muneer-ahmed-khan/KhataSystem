@@ -10,10 +10,14 @@ const {
   MessageMedia,
 } = require("whatsapp-web.js");
 
+// import environment variables
+require("dotenv").config();
+
 var qrcode = require("qrcode-terminal");
 const pdf = require("./pdfFile");
 const dialogflow = require("./dialogflow");
 const { whatsappHelper } = require("../helpers/whatsapp-assistant");
+const { CONSTANTS } = require("../config/constants");
 
 const client = new Client({
   //   authStrategy: new LegacySessionAuth({
@@ -51,9 +55,51 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-client.on("ready", () => {
+client.on("ready", async () => {
   console.log("READY");
 });
+
+exports.dateSearchResponse = async (user, data, message, fileName) => {
+  // send user search by date query form
+  if (data) {
+    client.sendMessage(user, message);
+    const media = MessageMedia.fromFilePath(
+      `${
+        fileName === "stockBook"
+          ? CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          : fileName === "cashBook"
+          ? CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          : ""
+      }${new moment().format(
+        CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+      )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+    );
+    await client.sendMessage(user, media);
+    client.sendMessage(user, CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+  } else {
+    client.sendMessage(user, message);
+    client.sendMessage(user, CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+  }
+};
+
+// send ack message to whatsapp group
+exports.sendGroupMessage = async (groupMsg) => {
+  user = CONSTANTS.CURRENT_USER_ID;
+
+  // get all chats and find the whatsapp group
+  const chats = await client.getChats();
+  let whatsappGroupId;
+  chats.filter((item) => {
+    if (item.name === CONSTANTS.WHATSAPP_GROUP_NAME) {
+      whatsappGroupId = item.id._serialized;
+    }
+  });
+  const contact = await client.getContactById(user);
+
+  client.sendMessage(whatsappGroupId, `@${contact.number}! ${groupMsg} `, {
+    mentions: [contact],
+  });
+};
 
 client.on("message_create", (msg) => {
   // Fired on all message creations, including your own
@@ -118,28 +164,28 @@ client.on("disconnected", (reason) => {
 
 client.on("message", async (msg) => {
   console.log("MESSAGE RECEIVED", msg.body);
-
+  // handle all whatsapp queries here
+  if (
+    msg.type.toLowerCase() == "chat" &&
+    (msg.from === process.env.SK ||
+      msg.from === process.env.QD ||
+      msg.from === process.env.SF ||
+      msg.from === process.env.MU)
+  ) {
+    // handle whatsapp request
+    whatsappHelper(client, msg);
+  }
+  // // handle all other whatsapp queries
+  // else
   if (msg.body === "!ping reply") {
     // Send a new message as a reply to the current one
     msg.reply("pong");
   } else if (msg.body === "!ping") {
     // Send a new message to the same chat
     client.sendMessage(msg.from, "pong");
-  } else if (msg.body === "!roznamcha") {
-    // send today roznamcha to user please
-    const getRoznamcha = await pdf.createRoznamchaPDF();
-    if (getRoznamcha) {
-      const media = MessageMedia.fromFilePath(
-        "./pdf/roznamcha_12-Jul-2022.pdf"
-      );
-      client.sendMessage(msg.from, getRoznamcha);
-      client.sendMessage(msg.from, media);
-    } else {
-      client.sendMessage(msg.from, "can't generate today roznamcha");
-    }
   } else if (msg.body.startsWith("!sendto ")) {
     // Direct send a new message to specific id
-    // sendto number message
+    // send to number message
     let number = msg.body.split(" ")[1];
     let messageIndex = msg.body.indexOf(number) + number.length;
     let message = msg.body.slice(messageIndex, msg.body.length);
@@ -317,11 +363,5 @@ client.on("message", async (msg) => {
     client.sendMessage(msg.from, list);
   } else if (msg.body === "!reaction") {
     msg.react("👍");
-  } else if (
-    msg.type.toLowerCase() == "chat" &&
-    msg.from === "923328053237@c.us"
-  ) {
-    // handle whatsapp request
-    whatsappHelper(client, msg);
   }
 });

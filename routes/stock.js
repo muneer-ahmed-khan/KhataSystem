@@ -8,6 +8,11 @@ const stockController = require("../controllers/stock");
 // get all stock
 router.get("/stock", stockController.getAllStock);
 
+// get all stock book search by date
+router.get("/search-stock", stockController.searchStock);
+// post stock book search by date
+router.post("/post-search-stock", stockController.PostSearchStock);
+
 // add stock get and post route
 router.get("/add-stock", stockController.addStock);
 router.post("/add-stock", stockController.postAddStock);

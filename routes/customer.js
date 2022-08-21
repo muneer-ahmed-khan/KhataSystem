@@ -8,6 +8,11 @@ const customerController = require("../controllers/customer");
 // get all customers
 router.get("/customer", customerController.getAllCustomers);
 
+// get all stock book search by date
+router.get("/search-customer", customerController.searchCustomer);
+// post stock book search by date
+router.post("/post-search-customer", customerController.PostSearchCustomer);
+
 // add customer get and post route
 router.get("/add-customer", customerController.addCustomer);
 router.post("/add-customer", customerController.postAddCustomer);

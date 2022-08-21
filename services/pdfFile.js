@@ -17,7 +17,7 @@ const fonts = {
 const printer = new PdfPrinter(fonts);
 
 // receive the document definition object for creating pdf file
-exports.createPDF = (docDefinition) => {
+exports.createPDF = (docDefinition, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       let options = {
@@ -34,7 +34,13 @@ exports.createPDF = (docDefinition) => {
       let pdfDoc = printer.createPdfKitDocument(docDefinition, options);
       pdfDoc.pipe(
         (waitUntilPDFisReady = fs.createWriteStream(
-          `${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_PATH}${new moment().format(
+          `${
+            query === "stockBook"
+              ? CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+              : query === "cashBook"
+              ? CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+              : ""
+          }${new moment().format(
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
           )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
         ))

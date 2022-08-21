@@ -8,6 +8,8 @@ const {
   Sequelize,
 } = require("../models");
 const { CONSTANTS } = require("../config/constants");
+const { generateStockKhata } = require("../meta/stock-whatsapp-queries");
+const { dateSearchResponse } = require("../services/whatsapp");
 
 // get all stock details
 exports.getAllStock = async (req, res, next) => {
@@ -32,6 +34,89 @@ exports.getAllStock = async (req, res, next) => {
     });
   } catch (reason) {
     console.log("Error: in getAllStock controller with reason --> ", reason);
+  }
+};
+
+// get all customer search by date
+exports.searchStock = async (req, res, next) => {
+  try {
+    let whatsapp = req.query.whatsapp;
+    let user = req.query.user;
+
+    // get all sizes from db
+    const sizes = await Size.findAll({
+      order: [["type", "ASC"]],
+    });
+    // get all patterns from db
+    const patterns = await Pattern.findAll({
+      order: [["name", "ASC"]],
+    });
+
+    // render the search by date stock book template
+    res.render("stock/search-stock.ejs", {
+      pageTitle: "Search Customer Khata",
+      path: "/customer",
+      sizes,
+      patterns,
+      whatsapp,
+      user,
+    });
+  } catch (reason) {
+    console.log("Error: in searchStock controller with reason --> ", reason);
+  }
+};
+
+// get all stock book records search by date
+exports.PostSearchStock = async (req, res, next) => {
+  try {
+    if (req && req.body) {
+      // get req params to query stock book for
+      // let fromDate = req.body.fromDate;
+      // let toDate = req.body.toDate;
+      let user = req.body.user;
+
+      // find stock first
+      let stock = await Stock.findOne({
+        where: {
+          sizeId: Number(req.body.sizeId),
+          patternId: Number(req.body.patternId),
+        },
+      });
+
+      if (stock) {
+        // create pdf with generated query
+        let response = await generateStockKhata(stock.id);
+
+        console.log("check bro ", response);
+        if (response.data) {
+          dateSearchResponse(
+            user,
+            response.data,
+            response.message,
+            "stockBook"
+          );
+        } else {
+          dateSearchResponse(
+            user,
+            response.data,
+            response.message,
+            "stockBook"
+          );
+        }
+      } else {
+        console.log("missing something in request body");
+        dateSearchResponse(user, false, "No Data Found", "stockBook");
+      }
+    }
+
+    res.sendStatus(200);
+
+    // render the search by date stock book template
+  } catch (reason) {
+    console.log(
+      "Error: in PostSearchCustomer controller with reason --> ",
+      reason
+    );
   }
 };
 
@@ -257,9 +342,10 @@ exports.getStockDetails = async (req, res, next) => {
         size: value.size.type,
         truckNumber: value.truckNumber,
         customer:
-          value.entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.SELL_STOCK
+          value.customerType ===
+          CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH
             ? value.customer
-            : value.customer,
+            : value.cashCustomer,
         customerType: value.customerType,
         cashCustomer: value.cashCustomer,
         credit:

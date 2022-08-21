@@ -8,6 +8,14 @@ const bankAccountController = require("../controllers/bank-account");
 // get all banks accounts
 router.get("/bank-account", bankAccountController.getAllBankAccount);
 
+// get all stock book search by date
+router.get("/search-bank-account", bankAccountController.searchBankAccount);
+// post stock book search by date
+router.post(
+  "/post-search-bank-account",
+  bankAccountController.PostSearchBankAccount
+);
+
 // add bank-account get and post route
 router.get("/add-bank-account", bankAccountController.addBankAccount);
 router.post("/add-bank-account", bankAccountController.postAddBankAccount);

@@ -7,7 +7,14 @@ const {
   Sequelize,
 } = require("../models");
 const { CONSTANTS } = require("../config/constants");
+const { thousandSeparator } = require("../helpers/helpers");
 const { Op } = require("sequelize");
+const {
+  sendGroupMessage,
+  dateSearchResponse,
+} = require("../services/whatsapp");
+const moment = require("moment");
+const { generateCashBook } = require("../meta/cash-book-whatsapp-queries");
 
 // get all cash book details
 exports.getCashBook = async (req, res, next) => {
@@ -38,6 +45,81 @@ exports.getCashBook = async (req, res, next) => {
   }
 };
 
+// get all stock book records search by date
+exports.SearchCashBook = async (req, res, next) => {
+  try {
+    let whatsapp = req.query.whatsapp;
+    let user = req.query.user;
+    // render the search by date stock book template
+    res.render("cash-book/search-cash-book.ejs", {
+      pageTitle: "Search Cash Book",
+      path: "/cash-book",
+      whatsapp,
+      user,
+    });
+  } catch (reason) {
+    console.log("Error: in SearchCashBook controller with reason --> ", reason);
+  }
+};
+
+// get all stock book records search by date
+exports.PostSearchCashBook = async (req, res, next) => {
+  try {
+    if (req && req.body && req.body.fromDate && req.body.toDate) {
+      // get req params to query stock book for
+      let fromDate = req.body.fromDate;
+      let toDate = req.body.toDate;
+      let user = req.body.user;
+
+      // get all stock book records from db
+      let cashBooks = await CashBook.findAll({
+        include: [
+          {
+            model: BankAccount,
+            as: "bankAccount",
+          },
+          {
+            model: Customer,
+            as: "customer",
+          },
+        ],
+        order: [["id", "DESC"]],
+        where: {
+          updatedAt: {
+            [Sequelize.Op.gt]: moment(fromDate).startOf("day"), // today day start
+            [Sequelize.Op.lt]: moment(toDate).endOf("day"), // up to now
+          },
+        },
+      });
+
+      // create pdf with generated query
+      let response = await generateCashBook(null, {
+        data: cashBooks,
+        fromDate: moment(fromDate),
+        toDate: moment(toDate),
+      });
+
+      console.log("check bro ", response);
+      if (response.data) {
+        dateSearchResponse(user, response.data, response.message, "cashBook");
+      } else {
+        dateSearchResponse(user, response.data, response.message), "cashBook";
+      }
+    } else {
+      console.log("missing something in request body");
+    }
+
+    res.sendStatus(200);
+
+    // render the search by date stock book template
+  } catch (reason) {
+    console.log(
+      "Error: in PostSearchCashBook controller with reason --> ",
+      reason
+    );
+  }
+};
+
 // get add new cash book page
 exports.addCashBook = async (req, res, next) => {
   // get the type of entry from request params
@@ -45,6 +127,12 @@ exports.addCashBook = async (req, res, next) => {
     CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT in req.query
       ? CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT
       : CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT;
+
+  // get whatsapp from request params if it is there
+  let whatsappForm =
+    CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.WHATSAPP_FORM in req.query
+      ? true
+      : false;
 
   // declare global function variables
   let customers,
@@ -106,6 +194,7 @@ exports.addCashBook = async (req, res, next) => {
       paymentTypes: paymentTypes,
       bankAccounts: bankAccounts,
       entryType: entryType,
+      whatsapp: whatsappForm,
     });
   } catch (reason) {
     console.log("Error: in addCashBook controller with reason --> ", reason);
@@ -120,6 +209,13 @@ exports.postAddCashBook = async (req, res, next) => {
     paymentType,
     cashCustomer,
     customerId,
+    whatsapp,
+    customerValue,
+    customerTypeValue,
+    UpdateCustomerBalance,
+    UpdateBankAccountBalance,
+    paymentTypeValue,
+    bankAccountValue,
     bankAccountId = null;
 
   // get entryType from request params
@@ -133,6 +229,14 @@ exports.postAddCashBook = async (req, res, next) => {
   if (paymentType !== CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH)
     bankAccountId = req.body.bankAccount;
   amount = req.body.amount;
+  // check to see if it the whatsapp then get ready all parameters for whatsapp use
+  whatsapp = req.body.whatsapp == "true";
+  if (whatsapp) {
+    customerValue = req.body.customerValue.trim();
+    paymentTypeValue = req.body.paymentTypeValue.trim().toLowerCase();
+    bankAccountValue = req.body.bankAccountValue.trim();
+    customerTypeValue = req.body.customerTypeValue.trim().toLowerCase();
+  }
 
   try {
     // update Bank Khata only while entryType is credit amount
@@ -141,9 +245,7 @@ exports.postAddCashBook = async (req, res, next) => {
       bankAccountId
     ) {
       // find bank account by id from db
-      const UpdateBankAccountBalance = await BankAccount.findByPk(
-        bankAccountId
-      );
+      UpdateBankAccountBalance = await BankAccount.findByPk(bankAccountId);
 
       // add the credit amount to bankAccount balance
       UpdateBankAccountBalance.balance =
@@ -158,9 +260,7 @@ exports.postAddCashBook = async (req, res, next) => {
       bankAccountId
     ) {
       // find bank account by id from db
-      const UpdateBankAccountBalance = await BankAccount.findByPk(
-        bankAccountId
-      );
+      UpdateBankAccountBalance = await BankAccount.findByPk(bankAccountId);
 
       // remove debit amount from bank account balance
       UpdateBankAccountBalance.balance =
@@ -177,7 +277,7 @@ exports.postAddCashBook = async (req, res, next) => {
       customerId
     ) {
       // find customer in db by id
-      const UpdateCustomerBalance = await Customer.findByPk(customerId);
+      UpdateCustomerBalance = await Customer.findByPk(customerId);
 
       // if it was credit amount entry then add to customer balance
       if (entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT) {
@@ -189,7 +289,7 @@ exports.postAddCashBook = async (req, res, next) => {
         entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT
       ) {
         UpdateCustomerBalance.balance =
-          Number(UpdateCustomerBalance.balance) - Number(amount);
+          Number(UpdateCustomerBalance.balance) + Number(amount);
       }
 
       // update customer info in db
@@ -208,7 +308,161 @@ exports.postAddCashBook = async (req, res, next) => {
     });
 
     // render all cash book template
-    console.log("Created Cash Book Entry Successfully");
+    console.log("Created Cash Book Entry Successfully", whatsapp);
+
+    // if whatsapp is true then send the ack to whatsapp group and user
+    if (whatsapp) {
+      // send CASH BOOK update group message in three way
+      // if somebody CREDIT amount by non cash customer with bank
+      // if somebody CREDIT amount by non cash customer without bank
+      // if somebody CREDIT amount by cash customer with bank
+      // if somebody CREDIT amount by cash customer without bank
+      // if somebody DEBIT amount by non cash customer with bank
+      // if somebody DEBIT amount by non cash customer without bank
+      // if somebody DEBIT amount by cash customer with bank
+      // if somebody DEBIT amount by cash customer without bank
+      console.log(
+        "Created Cash Book Entry Successfully",
+        customerType,
+        customerTypeValue,
+        paymentTypeValue
+      );
+
+      sendGroupMessage(
+        entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
+          customerValue &&
+          customerTypeValue ===
+            CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH.toLowerCase() &&
+          bankAccountValue &&
+          paymentTypeValue !==
+            CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.CREDIT_TO_CASH_BOOK_NON_CASH_BANK_RES(
+              customerValue,
+              paymentTypeValue.toUpperCase(),
+              bankAccountValue,
+              thousandSeparator(amount),
+              thousandSeparator(
+                Number(UpdateCustomerBalance.balance) - Number(amount)
+              ),
+              thousandSeparator(Number(UpdateCustomerBalance.balance)),
+              thousandSeparator(
+                Number(UpdateBankAccountBalance.balance) - Number(amount)
+              ),
+              thousandSeparator(Number(UpdateBankAccountBalance.balance))
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
+            customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH.toLowerCase() &&
+            paymentTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.CREDIT_TO_CASH_BOOK_NON_CASH_NON_BANK_RES(
+              customerValue,
+              paymentTypeValue.toUpperCase(),
+              thousandSeparator(amount),
+              thousandSeparator(
+                Number(UpdateCustomerBalance.balance) - Number(amount)
+              ),
+              thousandSeparator(Number(UpdateCustomerBalance.balance))
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
+            !customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH.toLowerCase() &&
+            bankAccountValue &&
+            paymentTypeValue !==
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.CREDIT_TO_CASH_BOOK_CASH_BANK_RES(
+              cashCustomer,
+              paymentTypeValue.toUpperCase(),
+              bankAccountValue,
+              thousandSeparator(amount),
+              thousandSeparator(
+                Number(UpdateBankAccountBalance.balance) - Number(amount)
+              ),
+              thousandSeparator(Number(UpdateBankAccountBalance.balance))
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.CREDIT_AMOUNT &&
+            !customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH.toLowerCase() &&
+            !bankAccountValue &&
+            paymentTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.CREDIT_TO_CASH_BOOK_CASH_NON_BANK_RES(
+              cashCustomer,
+              paymentTypeValue.toUpperCase(),
+              thousandSeparator(amount)
+            )
+          : // ========================== DEBIT case start here =================================
+          entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
+            customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH.toLowerCase() &&
+            bankAccountValue &&
+            paymentTypeValue !==
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.DEBIT_FROM_CASH_BOOK_NON_CASH_BANK_RES(
+              customerValue,
+              paymentTypeValue.toUpperCase(),
+              bankAccountValue,
+              thousandSeparator(amount),
+              thousandSeparator(
+                Number(UpdateCustomerBalance.balance) - Number(amount)
+              ),
+              thousandSeparator(Number(UpdateCustomerBalance.balance)),
+              thousandSeparator(
+                Number(UpdateBankAccountBalance.balance) + Number(amount)
+              ),
+              thousandSeparator(Number(UpdateBankAccountBalance.balance))
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
+            customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.NON_CASH.toLowerCase() &&
+            paymentTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.DEBIT_FROM_CASH_BOOK_NON_CASH_NON_BANK_RES(
+              customerValue,
+              paymentTypeValue.toUpperCase(),
+              thousandSeparator(amount),
+              thousandSeparator(
+                Number(UpdateCustomerBalance.balance) - Number(amount)
+              ),
+              thousandSeparator(Number(UpdateCustomerBalance.balance))
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
+            !customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH.toLowerCase() &&
+            bankAccountValue &&
+            paymentTypeValue !==
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.DEBIT_FROM_CASH_BOOK_CASH_BANK_RES(
+              cashCustomer,
+              paymentTypeValue.toUpperCase(),
+              bankAccountValue,
+              thousandSeparator(amount),
+              thousandSeparator(
+                Number(UpdateBankAccountBalance.balance) + Number(amount)
+              ),
+              thousandSeparator(Number(UpdateBankAccountBalance.balance))
+            )
+          : entryType === CONSTANTS.DATABASE_FIELDS.ENTRY_TYPE.DEBIT_AMOUNT &&
+            !customerValue &&
+            customerTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.CUSTOMER_TYPE.CASH.toLowerCase() &&
+            !bankAccountValue &&
+            paymentTypeValue ===
+              CONSTANTS.DATABASE_FIELDS.PAYMENT_TYPE.CASH.toLowerCase()
+          ? CONSTANTS.MESSAGES_TEMPLATES.DEBIT_FROM_CASH_BOOK_CASH_NON_BANK_RES(
+              cashCustomer,
+              paymentTypeValue.toUpperCase(),
+              thousandSeparator(amount)
+            )
+          : ""
+      );
+    }
     // res.redirect("/cash-book");
     // handle ajax request response here it will redirect to main page
     res.send(req.protocol + "://" + req.get("host") + "/cash-book");

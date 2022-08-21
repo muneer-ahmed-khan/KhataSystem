@@ -8,6 +8,12 @@ const stockBookController = require("../controllers/stock-book");
 // get all roznamchas
 router.get("/stock-book", stockBookController.getStockBook);
 
+// get all stock book search by date
+router.get("/search-stock-book", stockBookController.SearchStockBook);
+
+// post stock book search by date
+router.post("/post-search-stock-book", stockBookController.PostSearchStockBook);
+
 // add stock-book get and post route
 router.get("/add-stock-book", stockBookController.addStockBook);
 router.post("/add-stock-book", stockBookController.postAddStockBook);
