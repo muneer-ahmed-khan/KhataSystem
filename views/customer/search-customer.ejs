@@ -1,0 +1,134 @@
+<%- include('../includes/head.ejs') %>
+
+<body>
+  <!-- control navigation of page here  -->
+  <%- include('../includes/navigation.ejs') %>
+  <main class="row vertical-center">
+    <% if (whatsapp) { %>
+
+
+    <div id="whatsapp" class="col-xs-8 col-xs-offset-2  col-sm-6 col-sm-offset-3 col-md-4 col-sm-offset-4 col-lg-8 col-lg-offset-5s">
+
+      <!-- page title for edit pages -->
+      <span for="name" class="fs-3" style="display: flex;margin-bottom: 20px;">
+        Search <b>&nbsp; Customer &nbsp;</b> Khata:
+      </span>
+
+      <!-- edit form settings and actions -->
+      <form class="form-control " id="formId" action="/post-search-customer" method="POST">
+
+
+        <!-- fromDate Input Field -->
+        <!-- <label for="fromDate" class="form-label">
+          <b>From Date :</b>
+        </label>
+        <input style="margin: 10px 0px;" type="date" class="form-control form-control-lg" placeholder="select from date" name="fromDate" id="fromDate" value="" required> -->
+
+
+        <!-- ToDate Input Field -->
+        <!-- <label for="toDate" class="form-label">
+          <b>To Date :</b>
+        </label>
+        <input style="margin: 10px 0px;" type="date" class="form-control form-control-lg" placeholder="select to date" name="toDate" id="toDate" value="" required> -->
+
+
+
+        <!-- Customer Input Field -->
+        <label for="customer" class="form-label">Select <b>Customer</b> Name Form list</label>
+        <select class="form-select" style="margin: 10px 0px;" id="customer" name="customer" required>
+          <option selected disabled value="">Select Customer Name: </option>
+          <% for (let [i, customer] of customers.entries()) { %>
+          <option value="<%= customer.id %>"><%= customer.name %>
+          </option>
+          <% } %>
+        </select>
+
+
+        <!-- form submit button  -->
+        <div>
+          <button type="submit" id="submit" class="btn btn-lg btn-outline-success" style="margin-top: 20px;">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+    <%} else { %>
+    <h5 class="text-success">this page is accessible via Whatsapp only.</h5>
+    <%}%>
+
+    <!-- added javascript logic to control form -->
+    <!-- to control the input field logic here  -->
+    <!-- below first script tag is to support ejs in script tag -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+    <script src="/js/ejs.min.js"></script>
+    <script>
+      let user = ('<%- user %>');
+
+    function startSpinner() {
+    // your code to make the spinner start
+    $("#submit").prop("disabled", true);
+    $("#submit").html(
+    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+    );
+    }
+
+    function stopSpinner(message) {
+    // you code to make the spinner stop
+    // (i.e., return the button to its original state)
+    $("#submit").prop("disabled", true);
+    $("#submit").html(message);
+    }
+
+    $(document).ready(function() {
+
+    console.log("check whatsapp ",);
+    $('#formId').on('submit', function(event) {
+    // initiate spinner
+    startSpinner();
+    // ajax request to handle the form
+    $.ajax({
+    data: {
+    customer: $('#customer option:selected').val(),
+    user: user
+    },
+    type: 'POST',
+    url: $('#formId').prop("action")
+    })
+    .done(function(data) {
+    stopSpinner("Done! ", true);
+    var i = 5;
+    var interval = setInterval(function() {
+    $("#whatsapp").html(
+    `<h3 class="text-success">Success</h3>
+    <h5 class="text-success">Go Back to Whatsapp.</h5>
+    <h6 class="text-dark">the browser tab will close automatically in ${i} seconds</h6>`
+    );
+    i--;
+    }, 1000);
+    setTimeout(() => {
+    clearInterval(interval);
+    window.top.close();
+    }, 7000)
+
+    })
+    .fail(function(data) {
+    stopSpinner("Failed! ", false);
+    $("#whatsapp").html(
+    `<h3 class="text-danger">Failed</h3>
+    <h5 class="text-primary">Go Back to Whatsapp. and try again with a new link</h5>`
+    );
+    });
+
+    // should these be at the top?
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    });
+
+    });
+    </script>
+
+
+
+  </main>
+  <%- include('../includes/end.ejs') %>

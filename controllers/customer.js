@@ -6,6 +6,8 @@ const {
   Size,
 } = require("../models");
 const { CONSTANTS } = require("../config/constants");
+const { generateCustomerKhata } = require("../meta/customers-whatsapp-queries");
+const { dateSearchResponse } = require("../services/whatsapp");
 
 // get all customers
 exports.getAllCustomers = async (req, res, next) => {
@@ -25,6 +27,63 @@ exports.getAllCustomers = async (req, res, next) => {
   } catch (reason) {
     console.log(
       "Error: in getAllCustomers controller with reason --> ",
+      reason
+    );
+  }
+};
+
+// get all customer search by date
+exports.searchCustomer = async (req, res, next) => {
+  try {
+    let whatsapp = req.query.whatsapp;
+    let user = req.query.user;
+
+    // get all customers from db
+    const customers = await Customer.findAll({
+      order: [["name", "ASC"]],
+    });
+
+    // render the search by date stock book template
+    res.render("customer/search-customer.ejs", {
+      pageTitle: "Search Customer Khata",
+      path: "/customer",
+      customers,
+      whatsapp,
+      user,
+    });
+  } catch (reason) {
+    console.log("Error: in searchCustomer controller with reason --> ", reason);
+  }
+};
+
+// get all stock book records search by date
+exports.PostSearchCustomer = async (req, res, next) => {
+  try {
+    if (req && req.body) {
+      // get req params to query stock book for
+      // let fromDate = req.body.fromDate;
+      // let toDate = req.body.toDate;
+      let user = req.body.user;
+
+      // create pdf with generated query
+      let response = await generateCustomerKhata(req.body.customer);
+
+      console.log("check bro ", response);
+      if (response.data) {
+        dateSearchResponse(user, response.data, response.message, "cashBook");
+      } else {
+        dateSearchResponse(user, response.data, response.message, "cashBook");
+      }
+    } else {
+      console.log("missing something in request body");
+    }
+
+    res.sendStatus(200);
+
+    // render the search by date stock book template
+  } catch (reason) {
+    console.log(
+      "Error: in PostSearchCustomer controller with reason --> ",
       reason
     );
   }
@@ -300,12 +359,11 @@ exports.getCustomersKhata = async (req, res, next) => {
           ? Number(customerBalance) + Number(item.amount)
           : 0;
 
-      console.log("check bro ", customerBalance, item);
       item.balance = customerBalance;
     }
   });
 
-  console.log("check here the details ", customerDetails);
+  // console.log("check here the details ", customerDetails);
 
   res.render("customer/customer-khata.ejs", {
     customerDetails: customerDetails,

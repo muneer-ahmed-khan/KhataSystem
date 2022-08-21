@@ -1,7 +1,5 @@
-const pdf = require("../services/pdfFile");
 const dialogflow = require("../services/dialogflow");
 const { CONSTANTS } = require("../config/constants");
-const { findQuery } = require("./roznamcha-dialogflow-assistant");
 const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
 const { generateCashBook } = require("../meta/cash-book-whatsapp-queries");
 const { allCustomers } = require("../meta/customers-whatsapp-queries");
@@ -509,30 +507,26 @@ exports.whatsappHelper = async (client, msg) => {
       // generate today stock book pdf for user
       chat.sendMessage(lastResponse);
     }
-    // handle if user want to view today CASH book
+    // handle if user want to search customer khata
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      const getCashBook = await generateCashBook(result.response);
-      // show to user today stock book
+      // show user the search by date form
       lastResponse = result.response;
+      // save the current user id for group ack
+      // CONSTANTS.CURRENT_USER_ID = msg.from;
       console.log(lastResponse);
 
-      // generate today stock book pdf for user
-      chat.sendMessage(getCashBook.message);
-      if (getCashBook.data) {
-        const media = MessageMedia.fromFilePath(
-          `${
-            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
-          }${new moment().format(
-            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
-          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
-        );
-        // console.log("check ", media);
-        await chat.sendMessage(media);
-        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
-      }
+      // send user the form link to filled
+      chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_CUSTOMER +
+            msg.from
+        )
+      );
     }
 
     // <============ Customer Khata Queries Ended here =====================>
@@ -564,6 +558,27 @@ exports.whatsappHelper = async (client, msg) => {
       // generate today stock book pdf for user
       chat.sendMessage(lastResponse);
     }
+    // handle if user want to search bank Account khata
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.BANK_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
+    ) {
+      // show user the search by date form
+      lastResponse = result.response;
+      // save the current user id for group ack
+      // CONSTANTS.CURRENT_USER_ID = msg.from;
+      console.log(lastResponse);
+
+      // send user the form link to filled
+      chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_BANK_ACCOUNT +
+            msg.from
+        )
+      );
+    }
 
     // <============ Bank Khata Queries Ended here =====================>
 
@@ -593,6 +608,27 @@ exports.whatsappHelper = async (client, msg) => {
 
       // generate today stock book pdf for user
       chat.sendMessage(lastResponse);
+    }
+    // handle if user want to search stock khata
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.STOCK_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
+    ) {
+      // show user the search by date form
+      lastResponse = result.response;
+      // save the current user id for group ack
+      // CONSTANTS.CURRENT_USER_ID = msg.from;
+      console.log(lastResponse);
+
+      // send user the form link to filled
+      chat.sendMessage(lastResponse);
+      chat.sendMessage(
+        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+          process.env.NGROK_URL +
+            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_STOCK +
+            msg.from
+        )
+      );
     }
 
     // everything else is dialogflow result by default
