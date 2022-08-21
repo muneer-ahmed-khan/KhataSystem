@@ -144,7 +144,7 @@ Total ➡️ *${5}*=/
 *${6}* ⬇️ *${7}*
 
 *${3} Khata* Balance Update
-*${8}* ⬇️ *${9}*
+*${9}* ⬆️ *${8}*
 `,
     CREDIT_TO_CASH_BOOK_NON_CASH_BANK_RES: template` Added *Credit* Update!
 

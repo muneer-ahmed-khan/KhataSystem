@@ -196,8 +196,8 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getStockBook.message);
       if (getStockBook.data) {
+        chat.sendMessage(getStockBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
@@ -207,6 +207,9 @@ exports.whatsappHelper = async (client, msg) => {
         );
         // console.log("check ", media);
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -221,8 +224,8 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getStockBook.message);
       if (getStockBook.data) {
+        chat.sendMessage(getStockBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
@@ -231,6 +234,9 @@ exports.whatsappHelper = async (client, msg) => {
           )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
         );
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -245,8 +251,8 @@ exports.whatsappHelper = async (client, msg) => {
       const getStockBook = await generateStockBook(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getStockBook.message);
       if (getStockBook.data) {
+        chat.sendMessage(getStockBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
@@ -255,6 +261,9 @@ exports.whatsappHelper = async (client, msg) => {
           )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
         );
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -270,8 +279,8 @@ exports.whatsappHelper = async (client, msg) => {
       const getStockBook = await generateStockBook(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getStockBook.message);
       if (getStockBook.data) {
+        chat.sendMessage(getStockBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
@@ -280,6 +289,9 @@ exports.whatsappHelper = async (client, msg) => {
           )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
         );
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -367,8 +379,8 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getCashBook.message);
       if (getCashBook.data) {
+        chat.sendMessage(getCashBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
@@ -378,6 +390,9 @@ exports.whatsappHelper = async (client, msg) => {
         );
         // console.log("check ", media);
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -392,8 +407,8 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getCashBook.message);
       if (getCashBook.data) {
+        chat.sendMessage(getCashBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
@@ -403,6 +418,9 @@ exports.whatsappHelper = async (client, msg) => {
         );
         // console.log("check ", media);
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -417,8 +435,8 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getCashBook.message);
       if (getCashBook.data) {
+        chat.sendMessage(getCashBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
@@ -428,6 +446,9 @@ exports.whatsappHelper = async (client, msg) => {
         );
         // console.log("check ", media);
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }
@@ -442,8 +463,8 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(getCashBook.message);
       if (getCashBook.data) {
+        chat.sendMessage(getCashBook.message);
         const media = MessageMedia.fromFilePath(
           `${
             CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
@@ -453,6 +474,9 @@ exports.whatsappHelper = async (client, msg) => {
         );
         // console.log("check ", media);
         await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(getStockBook.message);
         chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
       }
     }

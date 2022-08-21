@@ -44,13 +44,9 @@ exports.searchStock = async (req, res, next) => {
     let user = req.query.user;
 
     // get all sizes from db
-    const sizes = await Size.findAll({
-      order: [["type", "ASC"]],
-    });
+    const sizes = await Size.findAll({});
     // get all patterns from db
-    const patterns = await Pattern.findAll({
-      order: [["name", "ASC"]],
-    });
+    const patterns = await Pattern.findAll({});
 
     // render the search by date stock book template
     res.render("stock/search-stock.ejs", {
