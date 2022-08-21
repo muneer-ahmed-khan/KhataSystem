@@ -12,7 +12,7 @@ exports.generateStockBook = (query, data) => {
       let stockBooks;
       console.log();
       // search stock book by different time date queries
-      if (data && !data.data)
+      if (!data)
         stockBooks = await StockBook.findAll({
           where:
             query === CONSTANTS.ROZNAMCHA.QUERIES.TODAY
@@ -86,7 +86,7 @@ exports.generateStockBook = (query, data) => {
       // console.log("check stock book length first ", stockBooks);
       if (stockBooks.length) {
         let fromDate, toDate;
-        if (data && !data.data) {
+        if (!data) {
           // Get From date
           toDate = new Date(
             Math.max(
