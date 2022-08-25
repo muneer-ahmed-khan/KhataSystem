@@ -15,7 +15,6 @@ require("dotenv").config();
 
 var qrcode = require("qrcode-terminal");
 const pdf = require("./pdfFile");
-const dialogflow = require("./dialogflow");
 const { whatsappHelper } = require("../helpers/whatsapp-assistant");
 const { CONSTANTS } = require("../config/constants");
 
@@ -170,7 +169,8 @@ client.on("message", async (msg) => {
     (msg.from === process.env.SK ||
       msg.from === process.env.QD ||
       msg.from === process.env.SF ||
-      msg.from === process.env.MU)
+      msg.from === process.env.MU ||
+      msg.from === process.env.L)
   ) {
     // handle whatsapp request
     whatsappHelper(client, msg);

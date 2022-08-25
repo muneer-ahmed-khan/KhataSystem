@@ -17,6 +17,12 @@ const stockRoutes = require("./routes/stock");
 const customerRoutes = require("./routes/customer");
 const stockBookRoutes = require("./routes/stock-book");
 const cashBookRoutes = require("./routes/cash-book");
+const { generateStockKhata } = require("./meta/stock-whatsapp-queries");
+async function test() {
+  console.log(await generateStockKhata(11));
+}
+// test();
+
 // const dialogflowTestRoutes = require("./routes/dialogflowTest");
 
 // general error controller

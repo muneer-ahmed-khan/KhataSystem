@@ -19,6 +19,7 @@ exports.generateStockKhata = (stockId) => {
           { model: Pattern, as: "pattern" },
         ],
       });
+
       // if we don't find stock then do nothing in that case
       // if (!stock) {
       //   return res.redirect("/stock");
@@ -502,17 +503,114 @@ exports.allStocks = () => {
             as: "pattern",
           },
         ],
-        // order: [["", "ASC"]],
+        order: [
+          ["sizeId", "ASC"],
+          ["patternId", "ASC"],
+        ],
       });
       let stocks = "";
+      let type = null;
+      let total = 0;
+      let mainTotal = 0;
       for (const stock of allStocks) {
-        stocks += `*${stock.pattern.name}/${
-          stock.size.type
-        }* ➡️  ${thousandSeparator(stock.total)} \n`;
+        if (stock.size.type !== type) {
+          if (type !== null) {
+            stocks += `     *Total*      ➡️  ${thousandSeparator(total)} \n`;
+            total = 0;
+          }
+          stocks += `\n*_${stock.size.type}_*↴\n`;
+          type = stock.size.type;
+        }
+        total += Number(stock.total);
+        mainTotal += Number(stock.total);
+        stocks += `     *${stock.pattern.name}*      ➡️  ${thousandSeparator(
+          stock.total
+        )} \n`;
       }
+      stocks += `     *Total*      ➡️  ${thousandSeparator(total)} \n`;
+      stocks += `\n*Total Stock*   ➡️  *${thousandSeparator(mainTotal)}* \n`;
+
       resolve(stocks);
     } catch (reason) {
       console.log("Error occur in ALL Stocks query for whatsapp");
+      reject(reason);
+    }
+  });
+};
+
+exports.getStockForSearch = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const stocks = await Stock.findAll({
+        include: [
+          {
+            model: Size,
+            as: "size",
+          },
+          {
+            model: Pattern,
+            as: "pattern",
+          },
+        ],
+        order: [
+          ["sizeId", "ASC"],
+          ["patternId", "ASC"],
+        ],
+      });
+
+      let allStocks = "Please send a *_number_* from below. \n\n";
+      let type = null;
+      let id = 0;
+      for (const stock of stocks) {
+        if (stock.size.type !== type) {
+          allStocks += `\n*_${stock.size.type}_*↴\n`;
+          type = stock.size.type;
+        }
+        id++;
+        allStocks += `Press *_${id}_* ${id < 10 ? "  ➡️" : " ➡️"} *${
+          stock.pattern.name
+        }* Khata\n`;
+      }
+      allStocks += "\n" + CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU;
+      resolve(allStocks);
+    } catch (reason) {
+      console.log("Error occur in getStockForSearch for whatsapp");
+      reject(reason);
+    }
+  });
+};
+
+exports.findStock = (selectedOption) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const stocks = await Stock.findAll({
+        include: [
+          {
+            model: Size,
+            as: "size",
+          },
+          {
+            model: Pattern,
+            as: "pattern",
+          },
+        ],
+        order: [
+          ["sizeId", "ASC"],
+          ["patternId", "ASC"],
+        ],
+      });
+
+      let id = 1;
+      let stockId = null;
+      for (const stock of stocks) {
+        if (id === +selectedOption) {
+          stockId = stock.id;
+        }
+        id++;
+      }
+      resolve(stockId);
+    } catch (reason) {
+      console.log("Error occur in findStock for whatsapp");
       reject(reason);
     }
   });
