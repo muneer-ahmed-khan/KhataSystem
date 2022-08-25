@@ -1,4 +1,5 @@
 const dialogflow = require("../services/dialogflow");
+const uuid = require("uuid");
 const { CONSTANTS } = require("../config/constants");
 const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
 const { generateCashBook } = require("../meta/cash-book-whatsapp-queries");
@@ -26,29 +27,82 @@ const moment = require("moment");
 require("dotenv").config();
 
 // create global variables
-let currentContext = [];
-let lastContext = [];
-let lastResponse = null;
-let lastIntent = [];
-let currentIntent = null;
-let eventName = null;
+// let currentContext = [];
+// let lastContext = [];
+// let user.lastResponse = null;
+// let lastIntent = [];
+// let currentIntent = null;
+// let eventName = null;
+
+// each user with own settings and contexts
+let users = {
+  [process.env.SK]: {
+    currentContext: [],
+    lastContext: [],
+    currentIntent: null,
+    lastIntent: [],
+    lastResponse: null,
+    eventName: null,
+    sessionId: uuid.v4(),
+  },
+  [process.env.QD]: {
+    currentContext: [],
+    lastContext: [],
+    currentIntent: null,
+    lastIntent: [],
+    lastResponse: null,
+    eventName: null,
+    sessionId: uuid.v4(),
+  },
+  [process.env.SF]: {
+    currentContext: [],
+    lastContext: [],
+    currentIntent: null,
+    lastIntent: [],
+    lastResponse: null,
+    eventName: null,
+    sessionId: uuid.v4(),
+  },
+  [process.env.MU]: {
+    currentContext: [],
+    lastContext: [],
+    currentIntent: null,
+    lastIntent: [],
+    lastResponse: null,
+    eventName: null,
+    sessionId: uuid.v4(),
+  },
+  [process.env.L]: {
+    currentContext: [],
+    lastContext: [],
+    currentIntent: null,
+    lastIntent: [],
+    lastResponse: null,
+    eventName: null,
+    sessionId: uuid.v4(),
+  },
+};
 
 // handle all whatsapp messages here
 exports.whatsappHelper = async (client, msg) => {
   console.log("check msg.body ", msg.body);
 
+  // get the user first
+  let user = users[msg.from];
+  console.log("check user contexts ============", msg.from, user);
+
   // Main Menu Navigation
-  const goToMainMenu = async (showText) => {
+  const goToMainMenu = async (showText, user) => {
     const contact = await msg.getContact();
     const chat = await msg.getChat();
 
-    lastResponse = CONSTANTS.MESSAGES_TEMPLATES.MAIN(
+    user.lastResponse = CONSTANTS.MESSAGES_TEMPLATES.MAIN(
       contact.number,
       showText ? result.response : "Welcome"
     );
-    // console.log(lastResponse);
+    // console.log(user.lastResponse);
 
-    chat.sendMessage(lastResponse, {
+    chat.sendMessage(user.lastResponse, {
       mentions: [contact],
     });
   };
@@ -63,57 +117,62 @@ exports.whatsappHelper = async (client, msg) => {
 
   // operation to be done before sending query to dialogflow
   // start main menu at start with any number
-  if (!currentContext.length && !isNaN(msg.body)) {
-    currentContext = ["menu"];
+  if (!users[msg.from].currentContext.length && !isNaN(msg.body)) {
+    users[msg.from].currentContext = ["menu"];
     msg.body = "Hello";
-    lastIntent = [];
+    users[msg.from].lastIntent = [];
   }
   // if user want to go back one step back
   if (msg.body === "#") {
     // if user has come on a stage where it meet to starting intent
     if (
-      lastIntent &&
-      lastIntent.length &&
-      lastIntent[lastIntent.length - 1] === CONSTANTS.DIALOGFLOW.WELCOME_INTENT
+      users[msg.from].lastIntent &&
+      users[msg.from].lastIntent.length &&
+      users[msg.from].lastIntent[users[msg.from].lastIntent.length - 1] ===
+        CONSTANTS.DIALOGFLOW.WELCOME_INTENT
     ) {
-      eventName = "welcome";
-      currentContext = ["menu"];
-      lastIntent = [];
-      currentIntent = null;
+      users[msg.from].eventName = "welcome";
+      users[msg.from].currentContext = ["menu"];
+      users[msg.from].lastIntent = [];
+      users[msg.from].currentIntent = null;
     }
     // handle forward and backward menu functionally
     else {
-      eventName = lastIntent.pop();
-      currentContext = lastContext;
+      users[msg.from].eventName = users[msg.from].lastIntent.pop();
+      users[msg.from].currentContext = users[msg.from].lastContext;
     }
   }
   // handle the use case when user from any screen can access the main menu
   else if (msg.body == 0) {
-    currentContext = ["menu"];
+    users[msg.from].currentContext = ["menu"];
     msg.body = "Hello";
-    lastIntent = [];
+    users[msg.from].lastIntent = [];
   }
 
   // if there is eventName then don't push the current intent
-  if (!eventName) {
-    lastIntent.push(currentIntent);
+  if (!users[msg.from].eventName) {
+    users[msg.from].lastIntent.push(users[msg.from].currentIntent);
   }
 
   // send request to dialogflow
   const result = await dialogflow.sendQuery(
     msg.body,
-    currentContext,
-    eventName
+    users[msg.from].currentContext,
+    users[msg.from].eventName,
+    msg.from,
+    users[msg.from].sessionId
   );
+
+  // let users[result.user]. = users[result.user];
 
   // if we fall to fallback in the process then need to give user a chance
   if (result.intent !== CONSTANTS.DIALOGFLOW.FALLBACK_INTENT) {
     // if it was not fall back intent then remove old input context
-    lastContext = currentContext;
-    currentContext = [];
+    users[result.user].lastContext = users[result.user].currentContext;
+    users[result.user].currentContext = [];
 
     // save the last intent name
-    currentIntent = result.intent;
+    users[result.user].currentIntent = result.intent;
 
     // save all context output contexts names here except the fallback contexts
     for (let index = 0; index < result.context.length; index++) {
@@ -125,7 +184,7 @@ exports.whatsappHelper = async (client, msg) => {
           result.context[index].name.split("/").length - 1
         ] !== "defaultfallbackintent-followup"
       )
-        currentContext.push(
+        users[result.user].currentContext.push(
           result.context[index].name.split("/")[
             result.context[index].name.split("/").length - 1
           ]
@@ -134,10 +193,13 @@ exports.whatsappHelper = async (client, msg) => {
   }
 
   // empty back the eventName on response back
-  eventName = null;
+  users[result.user].eventName = null;
 
-  console.log("response current context ==> ", currentContext);
-  console.log("response last context ==> ", lastContext);
+  console.log(
+    "response current context ==> ",
+    users[result.user].currentContext
+  );
+  console.log("response last context ==> ", users[result.user].lastContext);
   console.log("check result ---> ", result);
 
   // stop recording for whatsapp
@@ -146,7 +208,7 @@ exports.whatsappHelper = async (client, msg) => {
   // handle the Welcome intent here
   if (result.intent === CONSTANTS.DIALOGFLOW.WELCOME_INTENT) {
     // show welcome message
-    goToMainMenu(true);
+    goToMainMenu(true, users[result.user]);
   }
 
   // handle everything else here
@@ -155,20 +217,20 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if we select stock book from main menu
     if (result.intent === CONSTANTS.DIALOGFLOW.STOCK_BOOK) {
       // show all stock book options
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.STOCK_BOOK;
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.STOCK_BOOK;
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to add entry to stock book
     else if (result.intent === CONSTANTS.DIALOGFLOW.ADD_TO_STOCK_BOOK) {
       // show add to stock book form to user
-      lastResponse = result.response;
+      users[result.user].lastResponse = result.response;
       // save the current user id for group ack
       CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse, CONSTANTS.CURRENT_USER_ID);
+      console.log(users[result.user].lastResponse, CONSTANTS.CURRENT_USER_ID);
 
       // send user the form link to filled
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
       chat.sendMessage(
         CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
           process.env.NGROK_URL +
@@ -179,13 +241,13 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if user want to add sell entry to stock book
     else if (result.intent === CONSTANTS.DIALOGFLOW.SELL_FROM_STOCK_BOOK) {
       // show all stock book options
-      lastResponse = result.response;
+      users[result.user].lastResponse = result.response;
       // save the current user id for group ack
       CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse);
+      console.log(users[result.user].lastResponse);
 
       // send user the form link to filled
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
       chat.sendMessage(
         CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
           process.env.NGROK_URL +
@@ -196,9 +258,10 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if user want to add view stock book
     else if (result.intent === CONSTANTS.DIALOGFLOW.VIEW_STOCK_BOOK) {
       // show all stock book options
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_BOOK("Stock");
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      users[result.user].lastResponse =
+        CONSTANTS.MESSAGES_TEMPLATES.VIEW_BOOK("Stock");
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to view today stock book
     else if (
@@ -207,8 +270,8 @@ exports.whatsappHelper = async (client, msg) => {
     ) {
       const getStockBook = await generateStockBook(result.response);
       // show to user today stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
       if (getStockBook.data) {
@@ -235,8 +298,8 @@ exports.whatsappHelper = async (client, msg) => {
     ) {
       const getStockBook = await generateStockBook(result.response);
       // show to user yesterday stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
       if (getStockBook.data) {
@@ -261,9 +324,11 @@ exports.whatsappHelper = async (client, msg) => {
       CONSTANTS.DIALOGFLOW.STOCK_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_LAST_WEEK
     ) {
       // show to user last week stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
-      const getStockBook = await generateStockBook(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
+      const getStockBook = await generateStockBook(
+        users[result.user].lastResponse
+      );
 
       // generate today stock book pdf for user
       if (getStockBook.data) {
@@ -289,9 +354,11 @@ exports.whatsappHelper = async (client, msg) => {
         CONSTANTS.DIALOGFLOW.SEARCH_BY_LAST_MONTH
     ) {
       // show to user last week stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
-      const getStockBook = await generateStockBook(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
+      const getStockBook = await generateStockBook(
+        users[result.user].lastResponse
+      );
 
       // generate today stock book pdf for user
       if (getStockBook.data) {
@@ -316,13 +383,13 @@ exports.whatsappHelper = async (client, msg) => {
       CONSTANTS.DIALOGFLOW.STOCK_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
       // show user the search by date form
-      lastResponse = result.response;
+      users[result.user].lastResponse = result.response;
       // save the current user id for group ack
       // CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse);
+      console.log(users[result.user].lastResponse);
 
       // send user the form link to filled
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
       chat.sendMessage(
         CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
           process.env.NGROK_URL +
@@ -338,20 +405,20 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if we select cash book from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.CASH_BOOK) {
       // show all stock book options
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.CASH_BOOK;
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.CASH_BOOK;
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to credit entry to CASH book
     else if (result.intent === CONSTANTS.DIALOGFLOW.CREDIT_TO_CASH_BOOK) {
       // show credit to cash book form to user
-      lastResponse = result.response;
+      users[result.user].lastResponse = result.response;
       // save the current user id for group ack
       CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse, CONSTANTS.CURRENT_USER_ID);
+      console.log(users[result.user].lastResponse, CONSTANTS.CURRENT_USER_ID);
 
       // send user the form link to filled
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
       chat.sendMessage(
         CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
           process.env.NGROK_URL +
@@ -362,13 +429,13 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if user want to add debit entry to CASH book
     else if (result.intent === CONSTANTS.DIALOGFLOW.DEBIT_FROM_CASH_BOOK) {
       // show debit from cash book form to user
-      lastResponse = result.response;
+      users[result.user].lastResponse = result.response;
       // save the current user id for group ack
       CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse, CONSTANTS.CURRENT_USER_ID);
+      console.log(users[result.user].lastResponse, CONSTANTS.CURRENT_USER_ID);
 
       // send user the form link to filled
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
       chat.sendMessage(
         CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
           process.env.NGROK_URL +
@@ -379,9 +446,10 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if user want to add view CASH book
     else if (result.intent === CONSTANTS.DIALOGFLOW.VIEW_CASH_BOOK) {
       // show all CASH book options
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_BOOK("CASH");
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      users[result.user].lastResponse =
+        CONSTANTS.MESSAGES_TEMPLATES.VIEW_BOOK("CASH");
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to view today CASH book
     else if (
@@ -390,8 +458,8 @@ exports.whatsappHelper = async (client, msg) => {
     ) {
       const getCashBook = await generateCashBook(result.response);
       // show to user today stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
       if (getCashBook.data) {
@@ -418,8 +486,8 @@ exports.whatsappHelper = async (client, msg) => {
     ) {
       const getCashBook = await generateCashBook(result.response);
       // show to user today stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
       if (getCashBook.data) {
@@ -446,8 +514,8 @@ exports.whatsappHelper = async (client, msg) => {
     ) {
       const getCashBook = await generateCashBook(result.response);
       // show to user today stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
       if (getCashBook.data) {
@@ -474,8 +542,8 @@ exports.whatsappHelper = async (client, msg) => {
     ) {
       const getCashBook = await generateCashBook(result.response);
       // show to user today stock book
-      lastResponse = result.response;
-      console.log(lastResponse);
+      users[result.user].lastResponse = result.response;
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
       if (getCashBook.data) {
@@ -501,13 +569,13 @@ exports.whatsappHelper = async (client, msg) => {
       CONSTANTS.DIALOGFLOW.CASH_BOOK + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
       // show user the search by date form
-      lastResponse = result.response;
+      users[result.user].lastResponse = result.response;
       // save the current user id for group ack
       // CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse);
+      console.log(users[result.user].lastResponse);
 
       // send user the form link to filled
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
       chat.sendMessage(
         CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
           process.env.NGROK_URL +
@@ -522,12 +590,12 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if we select customer khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA) {
       // view customer khata details
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
         "Customers Bal.",
         "Customer"
       );
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to view all customer balance
     else if (
@@ -537,24 +605,24 @@ exports.whatsappHelper = async (client, msg) => {
       const getAllCustomers = await allCustomers();
 
       // show to user today stock book
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
         "*Customers* Balance",
         getAllCustomers
       );
-      console.log(lastResponse);
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to see a specific user khata
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      lastResponse = await getCustomersForSearch();
+      users[result.user].lastResponse = await getCustomersForSearch();
       // await CUSTOMERS_KHATA(customerId);
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to search customer khata id number
     else if (
@@ -585,12 +653,12 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if we select bank khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.BANK_KHATA) {
       // view bank khata details
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
         "Banks Acc Bal.",
         "Bank"
       );
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to view today CASH book
     else if (
@@ -600,23 +668,23 @@ exports.whatsappHelper = async (client, msg) => {
       const getAllBankAccounts = await allBankAccounts();
 
       // show to user today stock book
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
         "*Bank Acc.* Balance",
         getAllBankAccounts
       );
-      console.log(lastResponse);
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to search bank Account khata
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.BANK_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      lastResponse = await getBankAccountsForSearch();
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      users[result.user].lastResponse = await getBankAccountsForSearch();
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to search bank khata id number
     else if (
@@ -647,12 +715,12 @@ exports.whatsappHelper = async (client, msg) => {
     // handle if we select stock khata from main menu
     else if (result.intent === CONSTANTS.DIALOGFLOW.STOCK_KHATA) {
       // view stock khata details
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.VIEW_KHATA(
         "Stock QTY.",
         "Stock"
       );
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to view today CASH book
     else if (
@@ -662,14 +730,14 @@ exports.whatsappHelper = async (client, msg) => {
       const getAllStocks = await allStocks();
 
       // show to user today stock book
-      lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
+      users[result.user].lastResponse = CONSTANTS.MESSAGES_TEMPLATES.ALL_KHATA(
         "*Stock* QTY",
         getAllStocks
       );
-      console.log(lastResponse);
+      console.log(users[result.user].lastResponse);
 
       // generate today stock book pdf for user
-      chat.sendMessage(lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to search stock khata
     else if (
@@ -677,12 +745,12 @@ exports.whatsappHelper = async (client, msg) => {
       CONSTANTS.DIALOGFLOW.STOCK_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
       // // show user the search by date form
-      // lastResponse = result.response;
+      // users[result.user].lastResponse = result.response;
       // // save the current user id for group ack
       // // CONSTANTS.CURRENT_USER_ID = msg.from;
-      // console.log(lastResponse);
+      // console.log(users[result.user].lastResponse);
       // // send user the form link to filled
-      // chat.sendMessage(lastResponse);
+      // chat.sendMessage(users[result.user].lastResponse);
       // chat.sendMessage(
       //   CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
       //     process.env.NGROK_URL +
@@ -691,9 +759,9 @@ exports.whatsappHelper = async (client, msg) => {
       //   )
       // );
 
-      lastResponse = await getStockForSearch();
-      console.log(lastResponse);
-      chat.sendMessage(lastResponse);
+      users[result.user].lastResponse = await getStockForSearch();
+      console.log(users[result.user].lastResponse);
+      chat.sendMessage(users[result.user].lastResponse);
     }
     // handle if user want to search stock khata id number
     else if (
@@ -726,10 +794,10 @@ exports.whatsappHelper = async (client, msg) => {
       if (result.intent === CONSTANTS.DIALOGFLOW.FALLBACK_INTENT) {
         // console.log(
         //   "you have selected a wrong option Please try again! \n ",
-        //   lastResponse
+        //   users[result.user].lastResponse
         // );
         chat.sendMessage(result.response);
-        chat.sendMessage(lastResponse);
+        chat.sendMessage(users[result.user].lastResponse);
       } else {
         console.log("coming in else case ", result.response);
         // lastContext = null;

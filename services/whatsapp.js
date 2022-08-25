@@ -169,7 +169,8 @@ client.on("message", async (msg) => {
     (msg.from === process.env.SK ||
       msg.from === process.env.QD ||
       msg.from === process.env.SF ||
-      msg.from === process.env.MU)
+      msg.from === process.env.MU ||
+      msg.from === process.env.L)
   ) {
     // handle whatsapp request
     whatsappHelper(client, msg);

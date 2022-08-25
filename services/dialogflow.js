@@ -5,7 +5,7 @@ const pb = require("pb-util");
 let projectId = "khata-system-oypk";
 let keyFilename = "./khata-system-oypk-8e079c69b389.json";
 // A unique identifier for the given session
-const sessionId = uuid.v4();
+// const sessionId = uuid.v4();
 // Create a new session
 const sessionClient = new dialogflow.SessionsClient({
   keyFilename: keyFilename,
@@ -15,7 +15,7 @@ const sessionClient = new dialogflow.SessionsClient({
  * Send a query to the dialogflow agent, and return the query result.
  * @param {string} query The project to be used
  */
-exports.sendQuery = (query, InputContext, eventName) => {
+exports.sendQuery = (query, InputContext, eventName, user, sessionId) => {
   return new Promise(async (resolve, reject) => {
     console.log("dialogflow params ==> query ", query);
     console.log("dialogflow params ==> inputContext ", InputContext);
@@ -80,6 +80,7 @@ exports.sendQuery = (query, InputContext, eventName) => {
           response: result.fulfillmentText,
           intent: result.intent.displayName,
           context: outputContext,
+          user,
         });
       } else {
         console.log("  No intent matched.");
