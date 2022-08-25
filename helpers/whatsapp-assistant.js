@@ -2,9 +2,24 @@ const dialogflow = require("../services/dialogflow");
 const { CONSTANTS } = require("../config/constants");
 const { generateStockBook } = require("../meta/stock-book-whatsapp-queries");
 const { generateCashBook } = require("../meta/cash-book-whatsapp-queries");
-const { allCustomers } = require("../meta/customers-whatsapp-queries");
-const { allStocks } = require("../meta/stock-whatsapp-queries");
-const { allBankAccounts } = require("../meta/bank-whatsapp-queries");
+const {
+  allCustomers,
+  getCustomersForSearch,
+  findCustomers,
+  generateCustomerKhata,
+} = require("../meta/customers-whatsapp-queries");
+const {
+  allStocks,
+  getStockForSearch,
+  findStock,
+  generateStockKhata,
+} = require("../meta/stock-whatsapp-queries");
+const {
+  allBankAccounts,
+  getBankAccountsForSearch,
+  findBankAccounts,
+  generateBankAccountKhata,
+} = require("../meta/bank-whatsapp-queries");
 const { MessageMedia } = require("whatsapp-web.js");
 const moment = require("moment");
 // import environment variables
@@ -514,7 +529,7 @@ exports.whatsappHelper = async (client, msg) => {
       console.log(lastResponse);
       chat.sendMessage(lastResponse);
     }
-    // handle if user want to view today CASH book
+    // handle if user want to view all customer balance
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.ALL_KHATA
@@ -531,26 +546,38 @@ exports.whatsappHelper = async (client, msg) => {
       // generate today stock book pdf for user
       chat.sendMessage(lastResponse);
     }
-    // handle if user want to search customer khata
+    // handle if user want to see a specific user khata
     else if (
       result.intent ===
       CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      // show user the search by date form
-      lastResponse = result.response;
-      // save the current user id for group ack
-      // CONSTANTS.CURRENT_USER_ID = msg.from;
+      lastResponse = await getCustomersForSearch();
+      // await CUSTOMERS_KHATA(customerId);
       console.log(lastResponse);
-
-      // send user the form link to filled
       chat.sendMessage(lastResponse);
-      chat.sendMessage(
-        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
-          process.env.NGROK_URL +
-            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_CUSTOMER +
-            msg.from
-        )
-      );
+    }
+    // handle if user want to search customer khata id number
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.CUSTOMERS_KHATA + CONSTANTS.DIALOGFLOW.SELECT
+    ) {
+      let customerId = await findCustomers(result.response);
+      let response = await generateCustomerKhata(customerId);
+      if (response.data) {
+        chat.sendMessage(response.message);
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(response.message);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
 
     // <============ Customer Khata Queries Ended here =====================>
@@ -587,21 +614,32 @@ exports.whatsappHelper = async (client, msg) => {
       result.intent ===
       CONSTANTS.DIALOGFLOW.BANK_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      // show user the search by date form
-      lastResponse = result.response;
-      // save the current user id for group ack
-      // CONSTANTS.CURRENT_USER_ID = msg.from;
+      lastResponse = await getBankAccountsForSearch();
       console.log(lastResponse);
-
-      // send user the form link to filled
       chat.sendMessage(lastResponse);
-      chat.sendMessage(
-        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
-          process.env.NGROK_URL +
-            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_BANK_ACCOUNT +
-            msg.from
-        )
-      );
+    }
+    // handle if user want to search bank khata id number
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.BANK_KHATA + CONSTANTS.DIALOGFLOW.SELECT
+    ) {
+      let bankId = await findBankAccounts(result.response);
+      let response = await generateBankAccountKhata(bankId);
+      if (response.data) {
+        chat.sendMessage(response.message);
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.CASH_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(response.message);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
 
     // <============ Bank Khata Queries Ended here =====================>
@@ -638,21 +676,48 @@ exports.whatsappHelper = async (client, msg) => {
       result.intent ===
       CONSTANTS.DIALOGFLOW.STOCK_KHATA + CONSTANTS.DIALOGFLOW.SEARCH_BY_DATE
     ) {
-      // show user the search by date form
-      lastResponse = result.response;
-      // save the current user id for group ack
-      // CONSTANTS.CURRENT_USER_ID = msg.from;
-      console.log(lastResponse);
+      // // show user the search by date form
+      // lastResponse = result.response;
+      // // save the current user id for group ack
+      // // CONSTANTS.CURRENT_USER_ID = msg.from;
+      // console.log(lastResponse);
+      // // send user the form link to filled
+      // chat.sendMessage(lastResponse);
+      // chat.sendMessage(
+      //   CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
+      //     process.env.NGROK_URL +
+      //       CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_STOCK +
+      //       msg.from
+      //   )
+      // );
 
-      // send user the form link to filled
+      lastResponse = await getStockForSearch();
+      console.log(lastResponse);
       chat.sendMessage(lastResponse);
-      chat.sendMessage(
-        CONSTANTS.MESSAGES_TEMPLATES.SEND_LINK(
-          process.env.NGROK_URL +
-            CONSTANTS.WHATSAPP_FORMS_URLS.SEARCH_STOCK +
-            msg.from
-        )
-      );
+    }
+    // handle if user want to search stock khata id number
+    else if (
+      result.intent ===
+      CONSTANTS.DIALOGFLOW.STOCK_KHATA + CONSTANTS.DIALOGFLOW.SELECT
+    ) {
+      let stockId = await findStock(result.response);
+
+      let response = await generateStockKhata(stockId);
+      if (response.data) {
+        chat.sendMessage(response.message);
+        const media = MessageMedia.fromFilePath(
+          `${
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.STOCK_BOOK_FILE_PATH
+          }${new moment().format(
+            CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_DATE_FORMAT
+          )}${CONSTANTS.ROZNAMCHA.FILE_SETTINGS.FILE_FORMAT}`
+        );
+        await chat.sendMessage(media);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      } else {
+        chat.sendMessage(response.message);
+        chat.sendMessage(CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU);
+      }
     }
 
     // everything else is dialogflow result by default

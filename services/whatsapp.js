@@ -15,7 +15,6 @@ require("dotenv").config();
 
 var qrcode = require("qrcode-terminal");
 const pdf = require("./pdfFile");
-const dialogflow = require("./dialogflow");
 const { whatsappHelper } = require("../helpers/whatsapp-assistant");
 const { CONSTANTS } = require("../config/constants");
 

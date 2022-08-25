@@ -1,5 +1,4 @@
 const moment = require("moment");
-const Sequelize = require("sequelize");
 const {
   Customer,
   AmountType,
@@ -455,13 +454,13 @@ exports.generateCustomerKhata = (customerId) => {
                   "auto",
                   "auto",
                   "auto",
-                  120,
-                  "auto",
-                  "auto",
-                  "auto",
+                  76,
                   40,
-                  40,
-                  40,
+                  "auto",
+                  76,
+                  50,
+                  50,
+                  54,
                 ],
                 body: customerKhataDetails,
               },
@@ -477,7 +476,7 @@ exports.generateCustomerKhata = (customerId) => {
           styles: {
             pageTitle: {
               fontSize: 15,
-              margin: [40, 0, 0, 10],
+              margin: [20, 0, 0, 10],
               decoration: "underline",
             },
             pageCount: {
@@ -491,11 +490,11 @@ exports.generateCustomerKhata = (customerId) => {
             },
             headerTableInfoTitle: {
               fontSize: 10,
-              margin: [40, 10, 0, 0],
+              margin: [20, 10, 0, 0],
             },
             headerTableInfo: {
               fontSize: 11,
-              margin: [40, 0, 35, 0],
+              margin: [20, 0, 20, 0],
               alignment: "center",
             },
             tableExample: {
@@ -543,7 +542,7 @@ exports.generateCustomerKhata = (customerId) => {
           defaultStyle: {
             // alignment: 'justify'
           },
-          pageMargins: [40, 125, 30, 70],
+          pageMargins: [20, 125, 20, 70],
         };
         // console.log(docDefinition);
 
@@ -600,6 +599,53 @@ exports.allCustomers = () => {
       resolve(allCustomers);
     } catch (reason) {
       console.log("Error occur in ALL CUSTOMER customerId for whatsapp");
+      reject(reason);
+    }
+  });
+};
+
+exports.getCustomersForSearch = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const generalCustomers = await Customer.findAll({
+        order: [["name", "ASC"]],
+      });
+
+      let allCustomers = "Please send a *_number_* from below. \n\n";
+      let id = 0;
+      for (const customer of generalCustomers) {
+        id++;
+        allCustomers += `Press *_${id}_* ${id < 10 ? "  ➡️" : " ➡️"} *${
+          customer.name
+        }* Khata\n`;
+      }
+      allCustomers += "\n" + CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU;
+      resolve(allCustomers);
+    } catch (reason) {
+      console.log("Error occur in getCustomersForSearch for whatsapp");
+      reject(reason);
+    }
+  });
+};
+
+exports.findCustomers = (selectedOption) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const generalCustomers = await Customer.findAll({
+        order: [["name", "ASC"]],
+      });
+
+      let id = 1;
+      let customerId = null;
+      for (const customer of generalCustomers) {
+        if (id === +selectedOption) {
+          customerId = customer.id;
+        }
+        id++;
+      }
+      resolve(customerId);
+    } catch (reason) {
+      console.log("Error occur in getCustomersForSearch for whatsapp");
       reject(reason);
     }
   });

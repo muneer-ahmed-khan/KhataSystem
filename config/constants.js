@@ -21,6 +21,7 @@ exports.CONSTANTS = {
     SEARCH_BY_LAST_WEEK: "_view_week",
     SEARCH_BY_LAST_MONTH: "_view_month",
     SEARCH_BY_DATE: "_view_search",
+    SELECT: "_select",
   },
   WHATSAPP_FORMS_URLS: {
     ADD_TO_STOCK_BOOK: "/add-stock-book/?addStock=true&whatsapp=true",
@@ -81,6 +82,7 @@ Press 2️⃣  for *Cash Book*
 Press 3️⃣  for *Customers Khata*
 Press 4️⃣  for *Stock Khata*
 Press 5️⃣  for *Banks Khata*`,
+    MAIN_MENU: `Press 0️⃣  for *Main Menu*`,
     BACK_MENU: `Press #️⃣  for *Back*
 Press 0️⃣  for *Main Menu*`,
     STOCK_BOOK: `Press 1️⃣  for *Add* to Stock Book
@@ -224,7 +226,7 @@ Customer ➡️ *${0}*
 Pay Type ➡️ *${1}*
 Amount ➡️ *${2}*=/`,
     VIEW_KHATA: template`Press 1️⃣  for *All* ${0}
-Press 2️⃣  for Search *${1}* by Khata/Date 
+Press 2️⃣  for *Search ${1}* Khata
 
 Press #️⃣  for *Back*
 Press 0️⃣ for *Main Menu*`,

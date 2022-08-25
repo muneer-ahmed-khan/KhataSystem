@@ -468,7 +468,7 @@ exports.allBankAccounts = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const allAccounts = await BankAccount.findAll({
-        // order: [["name", "ASC"]],
+        order: [["accountName", "ASC"]],
       });
       let allBanks = "";
       for (const account of allAccounts) {
@@ -479,6 +479,53 @@ exports.allBankAccounts = () => {
       resolve(allBanks);
     } catch (reason) {
       console.log("Error occur in ALL CUSTOMER query for whatsapp");
+      reject(reason);
+    }
+  });
+};
+
+exports.getBankAccountsForSearch = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const bankAccounts = await BankAccount.findAll({
+        order: [["accountName", "ASC"]],
+      });
+
+      let allBankAccounts = "Please send a *_number_* from below. \n\n";
+      let id = 0;
+      for (const account of bankAccounts) {
+        id++;
+        allBankAccounts += `Press *_${id}_* ${id < 10 ? "  ➡️" : " ➡️"} *${
+          account.accountName
+        }* Khata\n`;
+      }
+      allBankAccounts += "\n" + CONSTANTS.MESSAGES_TEMPLATES.BACK_MENU;
+      resolve(allBankAccounts);
+    } catch (reason) {
+      console.log("Error occur in getBankAccountsForSearch for whatsapp");
+      reject(reason);
+    }
+  });
+};
+
+exports.findBankAccounts = (selectedOption) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const bankAccounts = await BankAccount.findAll({
+        order: [["accountName", "ASC"]],
+      });
+
+      let id = 1;
+      let bankAccountId = null;
+      for (const account of bankAccounts) {
+        if (id === +selectedOption) {
+          bankAccountId = account.id;
+        }
+        id++;
+      }
+      resolve(bankAccountId);
+    } catch (reason) {
+      console.log("Error occur in getCustomersForSearch for whatsapp");
       reject(reason);
     }
   });
